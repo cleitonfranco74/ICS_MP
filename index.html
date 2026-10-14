@@ -284,6 +284,12 @@ code { font-size: 13px; }
 .file-in input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
 .file-in:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 20px; }
 .ds-line { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 14px; margin: 4px 0 0; }
+#regTable th[data-k] { cursor: pointer; white-space: nowrap; }
+#regTable th[data-k]:hover { color: var(--accent-ink); }
+#regTable tr.sample td { background: var(--accent-wash); }
+#regTable td .pill { margin-left: 0; margin-right: 6px; }
+#regTable td.r { white-space: nowrap; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 #cmpTable td.sel, #cmpTable th.sel { background: var(--accent-wash); }
 #cmpTable tfoot td { background: var(--surface-2); font-weight: 600; border-top: 1px solid var(--axis); }
 
@@ -332,6 +338,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
   <a href="#matriz">Matriz proposta</a>
   <a href="#coleta">Dados</a>
   <a href="#resultado">Resultado</a>
+  <a href="#regional">Regional</a>
   <a href="#notas">Notas</a>
   <button class="theme-btn" id="themeBtn" type="button" aria-label="Alternar tema claro ou escuro">◐ Tema</button>
  </div>
@@ -558,8 +565,31 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 </section>
 
 <!-- 7 -->
+<section id="regional">
+<h2>7. Panorama regional: municípios com mais de 50 mil habitantes</h2>
+<p>Os 48 municípios de Goiás, Mato Grosso do Sul, Mato Grosso e Tocantins com mais de 50 mil habitantes no Censo 2022. Para eles há dados públicos e verificáveis das cinco dimensões do IEGM que entram na matriz proposta. Os outros 20 indicadores do ICS-MP (IGM-CFA, MUNIC, IDSC-BR, Censo, Sebrae, RAIS) ainda precisam ser coletados: a planilha-modelo regional abaixo já traz os municípios e as notas do IEGM para isso.</p>
+<div class="kpis" id="regKpis"></div>
+<div class="toolbar" id="regFilters"></div>
+<h3>Poder discriminatório das dimensões do IEGM na região</h3>
+<p class="small" style="max-width:76ch">Com a regra de pontuação escolhida na seção 5. Uma amostra regional maior mostra se cada dimensão diferencia municípios de médio e grande porte, não só os 8 da dissertação.</p>
+<div class="table-wrap">
+<table id="regDiscr">
+  <thead><tr><th>Cód.</th><th>Dimensão IEGM</th><th>Distribuição</th><th class="c">Com nota</th><th class="r">Mín.</th><th class="r">Mediana</th><th class="r">Máx.</th><th>Poder discriminatório</th></tr></thead>
+  <tbody></tbody>
+</table>
+</div>
+<h3>Municípios</h3>
+<p class="small">Clique no título de uma coluna para ordenar. O bloco IEGM é a média dos pontos das cinco dimensões, de 0 a 100, com a regra escolhida na seção 5. Municípios da amostra da dissertação estão destacados.</p>
+<div class="table-wrap">
+<table id="regTable"><thead></thead><tbody></tbody></table>
+</div>
+<p class="caption">População: estimativa IBGE para 2022 (série <a href="https://github.com/lsbastos/popBR_mun" target="_blank" rel="noopener">popBR_mun</a>); a inclusão usa o Censo 2022, conferido para os municípios perto do limite de 50 mil (Nova Andradina-MS, com 48.563 no Censo, ficou de fora; Quirinópolis-GO aguarda confirmação). IEGM: exportações do painel IEGM Brasil, exercício 2024 (TCE-MT, TCE-MS, TCM-GO) e 2023 para Palmas-TO (TCE-TO).</p>
+<div class="toolbar"><button class="btn primary" id="regTplBtn" type="button">Baixar planilha-modelo regional</button><span class="small">48 municípios com as notas do IEGM preenchidas; os demais indicadores em branco para coleta.</span></div>
+</section>
+
+<!-- 8 -->
 <section id="notas">
-<h2>7. Notas metodológicas e pendências da REV05</h2>
+<h2>8. Notas metodológicas e pendências da REV05</h2>
 <h3>Inconsistência de faixas no D1-05</h3>
 <p>O TCC descreve o D1-05 com as faixas oficiais (C e C+ em Iniciante, B em Intermediário, B+ e A em Avançado), mas a planilha usa &lt;0,50 / 0,50–0,70 / &gt;0,70. Com as faixas oficiais, Sinop (0,72) e Lucas do Rio Verde (0,72) passam de Avançado para Intermediário, e Primavera do Leste (0,46) e Dourados (0,49) permanecem em Iniciante. O próprio TCC, na seção de resultados, já registra Sinop como Intermediário em D1-05. O seletor da seção 5 aplica a regra escolhida a todos os indicadores IEGM da proposta, inclusive o D1-05.</p>
 
@@ -1201,6 +1231,7 @@ function refresh() {
   renderBars(prop, anyNew);
   renderScores(prop);
   renderHeat(rows);
+  renderRegional();
   const lede = document.getElementById("resultLede");
   const cur = CUR.map(c => c.ics).filter(v => v !== null), amp = cur.length ? Math.max(...cur) - Math.min(...cur) : 0;
   const tag = DS === SAMPLE ? "Na REV05" : "Na matriz atual";
@@ -1365,6 +1396,81 @@ function importIegm(files) {
   });
 }
 
+// ---------- 7. panorama regional ----------
+const REGIONAL = [{"n":"Goiânia","uf":"GO","pop":1484357,"ifiscal":0.52,"iplan":0.3,"icidade":0.46,"iamb":0.55,"igovti":0.37,"iegm":0.4125,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Aparecida de Goiânia","uf":"GO","pop":542566,"ifiscal":0.43,"iplan":0.2,"icidade":0.21,"iamb":0.15,"igovti":0.57,"iegm":0.338,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Anápolis","uf":"GO","pop":406938},{"n":"Rio Verde","uf":"GO","pop":230196,"ifiscal":0.74,"iplan":0.27,"icidade":0.22,"iamb":0.27,"igovti":0.66,"iegm":0.473,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Águas Lindas de Goiás","uf":"GO","pop":229573,"ifiscal":0.65,"iplan":0.25,"icidade":0.25,"iamb":0.61,"igovti":0.21,"iegm":0.43,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Luziânia","uf":"GO","pop":214568,"ifiscal":0.48,"iplan":0.28,"icidade":0.32,"iamb":0.29,"igovti":0.21,"iegm":0.4075,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Valparaíso de Goiás","uf":"GO","pop":201120,"ifiscal":0.49,"iplan":0.28,"icidade":0.02,"iamb":0.12,"igovti":0.21,"iegm":0.3435,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Senador Canedo","uf":"GO","pop":154695,"ifiscal":0.51,"iplan":0.31,"icidade":0.48,"iamb":0.4,"igovti":0.7,"iegm":0.463,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Trindade","uf":"GO","pop":144311,"ifiscal":0.48,"iplan":0.21,"icidade":0.08,"iamb":0.34,"igovti":0.45,"iegm":0.4125,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Formosa","uf":"GO","pop":118685,"ifiscal":0.4,"iplan":0.48,"icidade":0.42,"iamb":0.14,"igovti":0.59,"iegm":0.4165,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Catalão","uf":"GO","pop":116261},{"n":"Itumbiara","uf":"GO","pop":110193},{"n":"Jataí","uf":"GO","pop":107874,"ifiscal":0.45,"iplan":0.28,"icidade":0.62,"iamb":0.14,"igovti":0.58,"iegm":0.396,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Planaltina","uf":"GO","pop":107118,"ifiscal":0.5,"iplan":0.38,"icidade":0.77,"iamb":0.15,"igovti":0.61,"iegm":0.488,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Novo Gama","uf":"GO","pop":106667,"ifiscal":0.57,"iplan":0.27,"icidade":0.21,"iamb":0.09,"igovti":0.8,"iegm":0.4135,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Caldas Novas","uf":"GO","pop":100163,"ifiscal":0.54,"iplan":0.3,"icidade":0.24,"iamb":0.16,"igovti":0.43,"iegm":0.4155,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Cidade Ocidental","uf":"GO","pop":92248},{"n":"Goianésia","uf":"GO","pop":74973,"ifiscal":0.49,"iplan":0.28,"icidade":0.07,"iamb":0.0,"igovti":0.63,"iegm":0.385,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Santo Antônio do Descoberto","uf":"GO","pop":73758,"ifiscal":0.51,"iplan":0.33,"icidade":0.3,"iamb":0.08,"igovti":0.32,"iegm":0.379,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Goianira","uf":"GO","pop":71346,"ifiscal":0.38,"iplan":0.21,"icidade":0.0,"iamb":0.06,"igovti":0.41,"iegm":0.3405,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Mineiros","uf":"GO","pop":70845,"ifiscal":0.78,"iplan":0.53,"icidade":0.14,"iamb":0.13,"igovti":0.43,"iegm":0.4315,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Cristalina","uf":"GO","pop":63062,"ifiscal":0.46,"iplan":0.52,"icidade":0.2,"iamb":0.21,"igovti":0.32,"iegm":0.467,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Inhumas","uf":"GO","pop":53322,"censo":52204,"ifiscal":0.49,"iplan":0.25,"icidade":0.42,"iamb":0.31,"igovti":0.59,"iegm":0.4695,"faixa":"C","ex":"2024","trib":"TCMGO"},{"n":"Morrinhos","uf":"GO","pop":52098,"censo":51351},{"n":"Campo Grande","uf":"MS","pop":937754,"ifiscal":0.65,"iplan":0.45,"icidade":0.34,"iamb":0.63,"igovti":0.71,"iegm":0.5015,"faixa":"C+","ex":"2024","trib":"TCEMS"},{"n":"Dourados","uf":"MS","pop":252387,"ifiscal":0.59,"iplan":0.22,"icidade":0.27,"iamb":0.43,"igovti":0.49,"iegm":0.405,"faixa":"C","ex":"2024","trib":"TCEMS"},{"n":"Três Lagoas","uf":"MS","pop":135891,"ifiscal":0.48,"iplan":0.34,"icidade":0.26,"iamb":0.37,"igovti":0.35,"iegm":0.4515,"faixa":"C","ex":"2024","trib":"TCEMS"},{"n":"Corumbá","uf":"MS","pop":100605,"ifiscal":0.62,"iplan":0.37,"icidade":0.2,"iamb":0.21,"igovti":0.45,"iegm":0.4295,"faixa":"C","ex":"2024","trib":"TCEMS"},{"n":"Ponta Porã","uf":"MS","pop":95162,"ifiscal":0.79,"iplan":0.27,"icidade":0.68,"iamb":0.45,"igovti":0.71,"iegm":0.5365,"faixa":"C+","ex":"2024","trib":"TCEMS"},{"n":"Naviraí","uf":"MS","pop":52254,"censo":50457,"ifiscal":0.74,"iplan":0.29,"icidade":0.17,"iamb":0.49,"igovti":0.53,"iegm":0.498,"faixa":"C","ex":"2024","trib":"TCEMS"},{"n":"Cuiabá","uf":"MT","pop":667985,"censo":650877},{"n":"Várzea Grande","uf":"MT","pop":307135,"ifiscal":0.49,"iplan":0.36,"icidade":0.26,"iamb":0.18,"igovti":0.6,"iegm":0.419,"faixa":"C","ex":"2024","trib":"TCEMT"},{"n":"Rondonópolis","uf":"MT","pop":250385},{"n":"Sinop","uf":"MT","pop":198321,"ifiscal":0.69,"iplan":0.35,"icidade":0.41,"iamb":0.59,"igovti":0.72,"iegm":0.5175,"faixa":"C+","ex":"2024","trib":"TCEMT"},{"n":"Sorriso","uf":"MT","pop":111501,"ifiscal":0.85,"iplan":0.35,"icidade":0.46,"iamb":0.55,"igovti":0.28,"iegm":0.532,"faixa":"C+","ex":"2024","trib":"TCEMT"},{"n":"Tangará da Serra","uf":"MT","pop":108522,"ifiscal":0.49,"iplan":0.57,"icidade":0.36,"iamb":0.5,"igovti":0.46,"iegm":0.509,"faixa":"C+","ex":"2024","trib":"TCEMT"},{"n":"Cáceres","uf":"MT","pop":91537,"ifiscal":0.6,"iplan":0.33,"icidade":0.26,"iamb":0.36,"igovti":0.41,"iegm":0.4615,"faixa":"C","ex":"2024","trib":"TCEMT"},{"n":"Primavera do Leste","uf":"MT","pop":86185,"ifiscal":0.78,"iplan":0.27,"icidade":0.01,"iamb":0.38,"igovti":0.46,"iegm":0.4795,"faixa":"C","ex":"2024","trib":"TCEMT"},{"n":"Lucas do Rio Verde","uf":"MT","pop":84245,"ifiscal":0.72,"iplan":0.61,"icidade":0.33,"iamb":0.34,"igovti":0.57,"iegm":0.563,"faixa":"C+","ex":"2024","trib":"TCEMT"},{"n":"Barra do Garças","uf":"MT","pop":70400,"ifiscal":0.49,"iplan":0.33,"icidade":0.58,"iamb":0.34,"igovti":0.65,"iegm":0.4815,"faixa":"C","ex":"2024","trib":"TCEMT"},{"n":"Alta Floresta","uf":"MT","pop":59853,"ifiscal":0.7,"iplan":0.37,"icidade":0.55,"iamb":0.15,"igovti":0.46,"iegm":0.4675,"faixa":"C","ex":"2024","trib":"TCEMT"},{"n":"Nova Mutum","uf":"MT","pop":56016,"censo":55839,"ifiscal":0.49,"iplan":0.32,"icidade":0.35,"iamb":0.54,"igovti":0.69,"iegm":0.462,"faixa":"C","ex":"2024","trib":"TCEMT"},{"n":"Pontes e Lacerda","uf":"MT","pop":52815,"censo":52018,"ifiscal":0.69,"iplan":0.29,"icidade":0.17,"iamb":0.09,"igovti":0.25,"iegm":0.428,"faixa":"C","ex":"2024","trib":"TCEMT"},{"n":"Palmas","uf":"TO","pop":311698,"censo":302692,"ifiscal":0.62,"iplan":0.39,"icidade":0.71,"iamb":0.45,"igovti":0.69,"iegm":0.499,"faixa":"C","ex":"2023","trib":"TCETO"},{"n":"Araguaína","uf":"TO","pop":178123,"censo":171301},{"n":"Gurupi","uf":"TO","pop":88274,"censo":85126},{"n":"Porto Nacional","uf":"TO","pop":65884,"censo":64418},{"n":"Paraíso do Tocantins","uf":"TO","pop":53878,"censo":52360}];
+const REG_KEYS = IEGM_ALL.map(x => x.key);
+let regUf = "all", regOnly = false, regSort = {k: "bloco", dir: -1};
+const SAMPLE_KEYS = new Set(SAMPLE.mun.map(m => norm(m)));
+const regKey = r => norm(`${r.n}-${r.uf}`);
+function regBloco(r) {
+  if (!REG_KEYS.every(k => typeof r[k] === "number")) return null;
+  return REG_KEYS.reduce((a, k) => a + level(r[k]), 0) / (REG_KEYS.length * 2) * 100;
+}
+const median = v => { const s = [...v].sort((a, b) => a - b); const m = s.length >> 1; return s.length ? (s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2) : null; };
+function renderRegional() {
+  const list = REGIONAL.filter(r => (regUf === "all" || r.uf === regUf) && (!regOnly || typeof r.ifiscal === "number"));
+  const withData = list.filter(r => typeof r.ifiscal === "number");
+  const blocos = withData.map(regBloco).filter(v => v !== null);
+  const ranked = REGIONAL.filter(r => regBloco(r) !== null).sort((a, b) => regBloco(b) - regBloco(a));
+  const sinop = ranked.findIndex(r => r.n === "Sinop");
+  document.getElementById("regKpis").innerHTML = [
+    ["Municípios", list.length, regUf === "all" ? "GO, MS, MT e TO" : regUf],
+    ["Com notas do IEGM", withData.length, `${list.length - withData.length} sem nota na exportação`],
+    ["Bloco IEGM médio", blocos.length ? fmt(blocos.reduce((a, b) => a + b, 0) / blocos.length, 1) : "—", "0 a 100, regra da seção 5"],
+    ["Sinop no bloco IEGM", sinop >= 0 ? `${sinop + 1}º` : "—", `de ${ranked.length} municípios com notas`],
+  ].map(([t, v, l]) => `<div class="kpi"><div class="t">${t}</div><div class="v">${v}</div><div class="l">${esc(l)}</div></div>`).join("");
+  const ufs = ["all", "GO", "MS", "MT", "TO"];
+  document.getElementById("regFilters").innerHTML = `<div class="chips"><span class="small">UF:</span>${ufs.map(u => `<button type="button" class="btn ${u === regUf ? "primary" : ""}" data-uf="${u}">${u === "all" ? "Todas" : u} <span class="small">${u === "all" ? REGIONAL.length : REGIONAL.filter(r => r.uf === u).length}</span></button>`).join("")}<label class="small" style="margin-left:8px"><input type="checkbox" id="regOnly" ${regOnly ? "checked" : ""}> só com notas do IEGM</label></div>`;
+  document.querySelectorAll("#regFilters [data-uf]").forEach(b => b.addEventListener("click", () => { regUf = b.dataset.uf; renderRegional(); }));
+  document.getElementById("regOnly").addEventListener("change", e => { regOnly = e.target.checked; renderRegional(); });
+  // discriminação por dimensão
+  const cont = BANDS[state.band].cont;
+  document.querySelector("#regDiscr tbody").innerHTML = IEGM_ALL.map(x => {
+    const vals = withData.map(r => r[x.key]).filter(v => typeof v === "number");
+    const lv = vals.map(v => level(v));
+    let dist, cls, label;
+    if (cont) {
+      const spread = lv.length ? Math.max(...lv) - Math.min(...lv) : 0;
+      dist = `<div class="strip">${lv.map(v => `<i style="left:${(v / 2 * 100).toFixed(1)}%;background:var(--${["ini","int","avd"][Math.min(2, Math.round(v))]}-m)"></i>`).join("")}</div>`;
+      cls = !lv.length ? "ok" : spread === 0 ? "null" : spread < 0.3 ? "low" : "ok";
+      label = !lv.length ? "Sem dados" : spread === 0 ? "Nulo" : spread < 0.3 ? "Baixo" : "Adequado";
+    } else {
+      const d = discr(lv);
+      const share = d.n ? Math.max(...d.c) / d.n : 0;
+      dist = `<div class="dist">${d.c.map((n, l) => n ? `<span class="lv${l}" style="flex:${n}"></span>` : "").join("")}</div><div class="small num" style="margin-top:3px">${d.c[0]} · ${d.c[1]} · ${d.c[2]}</div>`;
+      cls = !d.n ? "ok" : d.distinct === 1 ? "null" : share >= 0.85 ? "low" : "ok";
+      label = !d.n ? "Sem dados" : d.distinct === 1 ? "Nulo" : share >= 0.85 ? `Baixo (${Math.round(share * 100)}% num nível)` : "Adequado";
+    }
+    return `<tr><td class="code">${x.c}</td><td>${x.short}</td><td>${dist}</td><td class="c num">${vals.length}</td><td class="r num">${fmt(vals.length ? Math.min(...vals) : null)}</td><td class="r num">${fmt(median(vals))}</td><td class="r num">${fmt(vals.length ? Math.max(...vals) : null)}</td><td><span class="tag ${cls}">${label}</span></td></tr>`;
+  }).join("");
+  // tabela
+  const cols = [["n", "Município"], ["uf", "UF"], ["pop", "População"], ...IEGM_ALL.map(x => [x.key, x.short]), ["iegm", "IEGM geral"], ["bloco", "Bloco IEGM"], ["ex", "Exercício"]];
+  const t = document.getElementById("regTable");
+  t.querySelector("thead").innerHTML = `<tr><th>#</th>${cols.map(([k, l]) => `<th data-k="${k}" class="${["n", "uf", "ex"].includes(k) ? "" : "r"}">${l}${regSort.k === k ? (regSort.dir < 0 ? " ▼" : " ▲") : ""}</th>`).join("")}</tr>`;
+  const get = (r, k) => k === "bloco" ? regBloco(r) : r[k];
+  const sorted = list.slice().sort((a, b) => {
+    const va = get(a, regSort.k), vb = get(b, regSort.k);
+    if (va === null || va === undefined) return 1;
+    if (vb === null || vb === undefined) return -1;
+    return (typeof va === "string" ? va.localeCompare(vb, "pt") : va - vb) * regSort.dir;
+  });
+  t.querySelector("tbody").innerHTML = sorted.map((r, i) => {
+    const isS = SAMPLE_KEYS.has(regKey(r));
+    const b = regBloco(r);
+    const cells = IEGM_ALL.map(x => { const v = r[x.key]; if (typeof v !== "number") return `<td class="r small">—</td>`; const l = level(v); return `<td class="r num"><span class="pill ${lvClass(l)}" title="${lvLabel(l)}">${lvText(l)}</span>${fmt(v)}</td>`; }).join("");
+    return `<tr class="${isS ? "sample" : ""}"><td class="small num">${i + 1}</td><td>${esc(r.n)}${isS ? ' <span class="tag iegm">amostra</span>' : ""}</td><td>${r.uf}</td><td class="r num">${r.pop.toLocaleString("pt-BR")}</td>${cells}<td class="r num">${typeof r.iegm === "number" ? `${fmt(r.iegm, 3)} <span class="small">${esc(r.faixa)}</span>` : "—"}</td><td class="r num dv"><strong>${b === null ? "—" : fmt(b, 1)}</strong></td><td>${r.ex ? (r.ex !== IEGM_EXERCICIO ? `<span class="tag low">${r.ex}</span>` : r.ex) : '<span class="small">sem nota</span>'}</td></tr>`;
+  }).join("");
+  t.querySelectorAll("th[data-k]").forEach(th => th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    regSort = regSort.k === k ? {k, dir: -regSort.dir} : {k, dir: ["n", "uf", "ex"].includes(k) ? 1 : -1};
+    renderRegional();
+  }));
+}
+function regionalTemplateCSV() {
+  const head = ["Municipio", "UF", ...TEMPLATE_CODES, ...IEGM_COLS, "Exercicio IEGM"];
+  return [head.join(";"), ...REGIONAL.map(r => [r.n, r.uf, ...TEMPLATE_CODES.map(() => ""), ...IEGM_ALL.map(x => typeof r[x.key] === "number" ? fmt(r[x.key]) : ""), r.ex || ""].map(csvCell).join(";"))].join("\r\n");
+}
+
 // ---------- eventos ----------
 const bandSel = document.getElementById("bandSel");
 bandSel.value = state.band;
@@ -1389,6 +1495,7 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   MUN.forEach((m, j) => lines.push([m, ...IEGM_ALL.map(x => fmt(state.v[x.key][j])), ...prop[j].ds.map(s => fmt(s,1)), fmt(CUR[j].ics,1), fmt(prop[j].ics,1)].map(csvCell).join(";")));
   offerFile("ICS-MP_resultados.csv", lines.join("\r\n"), "Resultados (CSV)");
 });
+document.getElementById("regTplBtn").addEventListener("click", () => offerFile("ICS-MP_planilha-modelo_regional.csv", regionalTemplateCSV(), "Planilha-modelo regional (CSV)"));
 document.getElementById("tplBtn").addEventListener("click", () => offerFile("ICS-MP_planilha-modelo.csv", templateCSV(), "Planilha-modelo (CSV)"));
 document.getElementById("dictBtn").addEventListener("click", () => offerFile("ICS-MP_dicionario-indicadores.csv", dictionaryCSV(), "Dicionário de indicadores (CSV)"));
 document.getElementById("tplFile").addEventListener("change", async e => {
