@@ -1,0 +1,974 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matriz ICS-MP com IEGM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+/* Visual do Relatório ICS-MP Sinop: cabeçalho azul-marinho, abas, cartões brancos sobre cinza claro, Syne nos títulos e números, DM Sans no texto */
+:root {
+  color-scheme: light;
+  --page: #F4F3F0;
+  --surface: #FFFFFF;
+  --surface-2: #F4F3F0;
+  --surface-3: #FAFAF7;
+  --ink: #1C1B19;
+  --ink-2: #4A4944;
+  --muted: #6B6A65;
+  --grid: #E8E7E3;
+  --axis: #C9C7BF;
+  --border: #E8E7E3;
+  --navy: #0D3B6E;
+  --navy-2: #185FA5;
+  --on-navy: #FFFFFF;
+  --on-navy-2: rgba(255,255,255,0.62);
+  --on-navy-3: rgba(255,255,255,0.10);
+  --accent: #185FA5;
+  --accent-ink: #185FA5;
+  --accent-wash: #E6F1FB;
+  /* níveis (como na planilha e no relatório) */
+  --ini: #FEE9E3; --ini-t: #7A2712; --ini-m: #D9785A;
+  --int: #FEF3DC; --int-t: #92560A; --int-m: #E2A43B;
+  --avd: #DCFAEF; --avd-t: #0B5E43; --avd-m: #1E9470;
+  --nd: #ECECEA;  --nd-t: #7A7975;
+  /* dimensões */
+  --d1: #185FA5; --d1-bg: #E6F1FB;
+  --d2: #0F6E56; --d2-bg: #DCFAEF;
+  --d3: #A3660F; --d3-bg: #FEF3DC;
+  --d4: #534AB7; --d4-bg: #EEEDFE;
+  --d5: #993C1D; --d5-bg: #FEE9E3;
+  --series-1: #185FA5;
+  --series-2: #0F6E56;
+  --series-avg: #A8A69E;
+  --good: #0B5E43;
+  --shadow: 0 6px 18px rgba(13,59,110,0.10);
+  --display: "Syne", "DM Sans", system-ui, sans-serif;
+  --sans: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* aliases usados no conteúdo */
+  --lv0: var(--ini); --lv0-ink: var(--ini-t);
+  --lv1: var(--int); --lv1-ink: var(--int-t);
+  --lv2: var(--avd); --lv2-ink: var(--avd-t);
+  --na: var(--nd);
+  --warn-bg: var(--int); --warn-ink: var(--int-t);
+  --crit-bg: var(--ini); --crit-ink: var(--ini-t);
+  --sub-bg: var(--avd); --sub-ink: var(--avd-t);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #111214; --surface: #1A1B1E; --surface-2: #232428; --surface-3: #1E1F23;
+    --ink: #EDECE8; --ink-2: #C9C7BF; --muted: #9A988F;
+    --grid: #2E2F33; --axis: #45464B; --border: #2E2F33;
+    --navy: #0B2A4D; --navy-2: #5B9BE0; --on-navy: #FFFFFF; --on-navy-2: rgba(255,255,255,0.62); --on-navy-3: rgba(255,255,255,0.08);
+    --accent: #5B9BE0; --accent-ink: #8DBBEE; --accent-wash: #16263A;
+    --ini: #3B1D16; --ini-t: #F3B39F; --ini-m: #D9785A;
+    --int: #3A2C12; --int-t: #F2C879; --int-m: #D69A33;
+    --avd: #10342A; --avd-t: #8FE0BF; --avd-m: #2BA67F;
+    --nd: #2C2D30; --nd-t: #9A988F;
+    --d1: #6AA5E8; --d1-bg: #16263A;
+    --d2: #3FBF98; --d2-bg: #10342A;
+    --d3: #E0A24A; --d3-bg: #3A2C12;
+    --d4: #9A92EC; --d4-bg: #24213F;
+    --d5: #E58A68; --d5-bg: #3B1D16;
+    --series-1: #5B9BE0; --series-2: #3FBF98; --series-avg: #7C7A73;
+    --good: #3FBF98;
+    --shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #111214; --surface: #1A1B1E; --surface-2: #232428; --surface-3: #1E1F23;
+  --ink: #EDECE8; --ink-2: #C9C7BF; --muted: #9A988F;
+  --grid: #2E2F33; --axis: #45464B; --border: #2E2F33;
+  --navy: #0B2A4D; --navy-2: #5B9BE0; --on-navy: #FFFFFF; --on-navy-2: rgba(255,255,255,0.62); --on-navy-3: rgba(255,255,255,0.08);
+  --accent: #5B9BE0; --accent-ink: #8DBBEE; --accent-wash: #16263A;
+  --ini: #3B1D16; --ini-t: #F3B39F; --ini-m: #D9785A;
+  --int: #3A2C12; --int-t: #F2C879; --int-m: #D69A33;
+  --avd: #10342A; --avd-t: #8FE0BF; --avd-m: #2BA67F;
+  --nd: #2C2D30; --nd-t: #9A988F;
+  --d1: #6AA5E8; --d1-bg: #16263A;
+  --d2: #3FBF98; --d2-bg: #10342A;
+  --d3: #E0A24A; --d3-bg: #3A2C12;
+  --d4: #9A92EC; --d4-bg: #24213F;
+  --d5: #E58A68; --d5-bg: #3B1D16;
+  --series-1: #5B9BE0; --series-2: #3FBF98; --series-avg: #7C7A73;
+  --good: #3FBF98;
+  --shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
+.num { font-variant-numeric: tabular-nums; }
+strong { font-weight: 600; }
+a { color: var(--accent-ink); }
+a:focus-visible, button:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── cabeçalho ── */
+.header { background: var(--navy); color: var(--on-navy); position: relative; overflow: hidden; padding-inline: 16px; }
+.header::before { content: ""; position: absolute; right: -80px; top: -80px; width: 320px; height: 320px; border-radius: 50%; background: var(--on-navy-3); pointer-events: none; }
+.header::after { content: ""; position: absolute; right: 60px; bottom: -40px; width: 180px; height: 180px; border-radius: 50%; background: var(--on-navy-3); opacity: .7; pointer-events: none; }
+.header-in { max-width: 1120px; margin: 0 auto; padding-block: 32px 24px; position: relative; z-index: 1; }
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.header-top > div:first-child { min-width: 0; flex: 1 1 420px; }
+.header-badge { font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--on-navy-2); margin: 0 0 8px; }
+.header-title { font-family: var(--display); font-size: clamp(26px, 3.6vw, 34px); font-weight: 800; line-height: 1.12; margin: 0; text-wrap: balance; }
+.header-sub { font-size: 15px; color: var(--on-navy-2); margin: 10px 0 0; max-width: 68ch; }
+.ics-score-box { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); border-radius: 14px; padding: 16px 22px; text-align: center; min-width: 170px; }
+.ics-label { font-size: 11px; color: var(--on-navy-2); letter-spacing: .1em; text-transform: uppercase; }
+.ics-value { font-family: var(--display); font-size: 46px; font-weight: 800; line-height: 1; margin: 4px 0; }
+.ics-nivel { display: inline-block; background: rgba(255,255,255,0.15); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.ics-prop { font-size: 12px; color: var(--on-navy-2); margin-top: 8px; }
+.ics-prop b { color: var(--on-navy); font-family: var(--display); font-size: 15px; }
+.header-meta { display: flex; gap: 12px 32px; margin-top: 22px; flex-wrap: wrap; }
+.meta-item { font-size: 13px; color: var(--on-navy-2); }
+.meta-item strong { color: var(--on-navy); display: block; font-weight: 600; }
+
+/* ── abas (navegação) ── */
+nav.toc { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding-inline: 16px; }
+.toc-in { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; overflow-x: auto; scrollbar-width: none; }
+.toc-in a { font-size: 14px; font-weight: 500; color: var(--muted); text-decoration: none; border-bottom: 3px solid transparent; padding: 13px 14px 11px; white-space: nowrap; }
+.toc-in a:hover { color: var(--accent-ink); }
+.toc-in a.on { color: var(--accent-ink); border-bottom-color: var(--accent); font-weight: 600; }
+.theme-btn { margin-left: auto; flex-shrink: 0; font: 13px var(--sans); background: none; border: 1px solid var(--border); color: var(--ink-2); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+
+/* ── conteúdo ── */
+.wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 80px; }
+section { scroll-margin-top: 64px; }
+h2 { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.25; margin: 48px 0 12px; letter-spacing: -.005em; text-wrap: balance; }
+h2 .sec-n { color: var(--muted); font-weight: 600; margin-right: 6px; }
+h3 { font-family: var(--display); font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 28px 0 10px; }
+p { margin: 0 0 14px; max-width: 76ch; }
+section ul { max-width: 76ch; padding-left: 20px; }
+section li { margin-bottom: 6px; }
+
+.callout { background: var(--accent-wash); border: 1px solid var(--border); border-left: 4px solid var(--accent); padding: 14px 18px; border-radius: 12px; margin: 18px 0; }
+.callout p:last-child { margin-bottom: 0; }
+.callout.warn { background: var(--int); border-left-color: var(--int-m); color: var(--int-t); }
+
+/* cartões de métricas */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 8px; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.kpi .t { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+.kpi .v { font-family: var(--display); font-size: 30px; font-weight: 700; line-height: 1.05; }
+.kpi .l { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+
+/* tabelas */
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; margin: 16px 0 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+thead th { background: var(--surface-2); font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .07em; text-transform: uppercase; white-space: nowrap; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface-3); }
+td.c, th.c { text-align: center; }
+td.r, th.r { text-align: right; }
+.code { font-family: var(--display); font-size: 12px; font-weight: 700; white-space: nowrap; }
+.small { font-size: 13px; color: var(--muted); }
+tr.dimrow td { background: var(--surface-2); font-size: 13px; font-weight: 600; color: var(--ink-2); }
+tr.dimrow:hover td { background: var(--surface-2); }
+tr.sub td, tr.sub:hover td { background: var(--avd); }
+tr.sub td { color: var(--ink); }
+.caption { font-size: 12px; color: var(--muted); margin: 6px 2px 0; }
+#scoreTable thead th { background: var(--navy); color: var(--on-navy); }
+#scoreTable td.dv { font-family: var(--display); font-weight: 700; font-size: 15px; }
+#scoreTable tr.hl td { background: var(--accent-wash); font-weight: 600; }
+
+/* etiquetas */
+.tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 12px; white-space: nowrap; }
+.tag.null { background: var(--ini); color: var(--ini-t); }
+.tag.low { background: var(--int); color: var(--int-t); }
+.tag.ok { background: var(--nd); color: var(--ink-2); }
+.tag.sub { background: var(--avd); color: var(--avd-t); }
+.tag.iegm { background: var(--accent-wash); color: var(--accent-ink); }
+.dim-tag { display: inline-block; padding: 2px 8px; border-radius: 8px; font-family: var(--display); font-size: 11px; font-weight: 700; letter-spacing: .04em; margin-right: 6px; }
+.dim-tag.d1 { color: var(--d1); background: var(--d1-bg); }
+.dim-tag.d2 { color: var(--d2); background: var(--d2-bg); }
+.dim-tag.d3 { color: var(--d3); background: var(--d3-bg); }
+.dim-tag.d4 { color: var(--d4); background: var(--d4-bg); }
+.dim-tag.d5 { color: var(--d5); background: var(--d5-bg); }
+
+/* níveis */
+.lv0 { background: var(--ini); color: var(--ini-t); }
+.lv1 { background: var(--int); color: var(--int-t); }
+.lv2 { background: var(--avd); color: var(--avd-t); }
+.lvna { background: var(--nd); color: var(--nd-t); }
+.dist { display: flex; gap: 2px; height: 12px; min-width: 160px; }
+.dist span { display: block; height: 100%; }
+.dist span:first-child { border-radius: 6px 0 0 6px; }
+.dist span:last-child { border-radius: 0 6px 6px 0; }
+.dist span:only-child { border-radius: 6px; }
+.dist .lv0, .legend i.lv0 { background: var(--ini-m); }
+.dist .lv1, .legend i.lv1 { background: var(--int-m); }
+.dist .lv2, .legend i.lv2 { background: var(--avd-m); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--muted); margin: 10px 2px; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+
+/* mapa de níveis */
+.grid-cell { text-align: center; padding: 0; }
+.grid-cell div { margin: 3px; width: 26px; height: 26px; line-height: 26px; border-radius: 50%; display: inline-block; font-family: var(--display); font-size: 12px; font-weight: 700; cursor: default; }
+td.grid-cell { border-bottom: 1px solid var(--grid); vertical-align: middle; }
+
+/* entradas */
+.iegm-input { width: 76px; font: 14px var(--sans); padding: 6px 8px; border: 1px solid var(--axis); border-radius: 8px; background: var(--surface); color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+.iegm-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.iegm-input.bad { border-color: var(--ini-m); }
+.pill { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-family: var(--display); font-size: 11px; font-weight: 700; margin-left: 6px; vertical-align: middle; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; font-size: 14px; }
+.btn { font: 500 14px var(--sans); padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface); color: var(--ink); cursor: pointer; }
+.btn:hover { border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary { background: var(--navy); color: var(--on-navy); border-color: var(--navy); }
+.btn.primary:hover { background: var(--navy-2); border-color: var(--navy-2); color: var(--on-navy); }
+select.btn { padding-right: 10px; border-radius: 10px; max-width: 100%; }
+textarea { width: 100%; min-height: 120px; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; padding: 10px; border: 1px solid var(--axis); border-radius: 10px; background: var(--surface); color: var(--ink); }
+details { margin: 10px 0; }
+summary { cursor: pointer; font-size: 14px; color: var(--ink-2); }
+code { font-size: 13px; }
+
+/* gráficos */
+.chart { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 18px 12px; margin: 16px 0 8px; }
+.chart-title { font-family: var(--display); font-size: 14px; font-weight: 700; margin: 0 0 2px; }
+.chart-sub { font-size: 12px; color: var(--muted); margin: 0 0 14px; }
+.brow { display: grid; grid-template-columns: 160px 1fr 96px; gap: 10px; align-items: center; padding: 5px 0; position: relative; }
+.brow .name { font-size: 13px; color: var(--ink-2); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brow .track { position: relative; height: 28px; }
+.brow .bar { position: absolute; left: 0; height: 11px; border-radius: 0 6px 6px 0; }
+.brow .bar.s1 { top: 2px; background: var(--series-1); }
+.brow .bar.s2 { top: 15px; background: var(--series-2); }
+.brow .vals { font-family: var(--display); font-size: 12px; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; line-height: 1.3; }
+.gridlines { position: absolute; inset: 0; pointer-events: none; }
+.gridlines span { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+.axis { display: grid; grid-template-columns: 160px 1fr 96px; gap: 10px; font-size: 11px; color: var(--muted); }
+.axis .ticks { position: relative; height: 16px; }
+.axis .ticks span { position: absolute; transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .brow, .axis { grid-template-columns: 96px 1fr 74px; } }
+.tooltip { position: fixed; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: 10px; padding: 8px 11px; font: 12px/1.45 var(--sans); max-width: 300px; z-index: 50; opacity: 0; transition: opacity .08s; }
+.tooltip b { font-weight: 600; }
+
+/* radar */
+.radar-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 760px) { .radar-grid { grid-template-columns: 1fr; } }
+.radar-svg { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+.radar-svg .ring { fill: none; stroke: var(--grid); stroke-width: 1; }
+.radar-svg .spoke { stroke: var(--grid); stroke-width: 1; }
+.radar-svg .tick { fill: var(--muted); font: 10px var(--sans); }
+.radar-svg .axis-label { fill: var(--ink-2); font: 700 12px var(--display); }
+.radar-svg .axis-sub { fill: var(--muted); font: 10px var(--sans); }
+.radar-svg .r-cur { stroke: var(--series-1); fill: var(--series-1); fill-opacity: .12; stroke-width: 2.5; }
+.radar-svg .r-avg { stroke: var(--series-avg); fill: var(--series-avg); fill-opacity: .08; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.radar-svg .r-prop { stroke: var(--series-2); fill: var(--series-2); fill-opacity: .08; stroke-width: 2; stroke-dasharray: 6 4; }
+.radar-svg .pt { stroke: var(--surface); stroke-width: 2; }
+.radar-svg .pt.r-cur { fill: var(--series-1); fill-opacity: 1; }
+.radar-svg .pt.r-avg { fill: var(--series-avg); fill-opacity: 1; stroke-dasharray: none; }
+.radar-svg .pt.r-prop { fill: var(--series-2); fill-opacity: 1; stroke-dasharray: none; }
+.radar-svg .hit { fill: transparent; stroke: none; cursor: default; }
+.legend i.sw { display: inline-block; width: 18px; height: 0; border-radius: 0; border-top: 2.5px solid; vertical-align: middle; margin-right: 6px; }
+.legend i.sw.cur { border-color: var(--series-1); }
+.legend i.sw.avg { border-color: var(--series-avg); border-top-style: dashed; }
+.legend i.sw.prop { border-color: var(--series-2); border-top-style: dashed; }
+#radarTable th, #radarTable td { padding: 8px 10px; }
+
+/* cartões de texto */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 760px) { .two-col { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; min-width: 0; }
+.card h4 { font-family: var(--display); margin: 0 0 6px; font-size: 15px; font-weight: 700; }
+.card p { font-size: 14px; margin-bottom: 8px; color: var(--ink-2); }
+.arrow { color: var(--muted); }
+ol.refs { font-size: 13px; color: var(--muted); padding-left: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding-block: 12px; padding-right: 16px; padding-left: 36px; }
+ol.refs li { margin-bottom: 6px; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid); font-size: 12px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="header">
+ <div class="header-in">
+  <div class="header-top">
+    <div>
+      <p class="header-badge">Protocolo ICS-MP · PROFNIT / UNEMAT Sinop</p>
+      <h1 class="header-title">Matriz ICS-MP com indicadores do IEGM</h1>
+      <p class="header-sub">Substituição dos indicadores de baixo poder discriminatório por dimensões do Índice de Efetividade da Gestão Municipal (IEGM), mantendo as cinco dimensões, os pesos e a pontuação 0-1-2. Diálogo com o TCE-MT.</p>
+    </div>
+    <div class="ics-score-box">
+      <div class="ics-label">ICS-MP Sinop-MT · REV05</div>
+      <div class="ics-value" id="hdrScore">—</div>
+      <div class="ics-nivel" id="hdrNivel">—</div>
+      <div class="ics-prop" id="hdrProp">Proposto: aguarda notas IEGM</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="meta-item"><strong>Dissertação</strong>Rhaissa Estevão — PROFNIT</div>
+    <div class="meta-item"><strong>Orientador</strong>Dr. Cleiton Franco</div>
+    <div class="meta-item"><strong>Base</strong>Matriz REV05 · TCC REV 27</div>
+    <div class="meta-item"><strong>Municípios</strong>8 municípios benchmarking</div>
+  </div>
+ </div>
+</header>
+
+<nav class="toc" aria-label="Seções">
+ <div class="toc-in">
+  <a href="#diagnostico">Diagnóstico</a>
+  <a href="#iegm">O IEGM</a>
+  <a href="#proposta">Substituições</a>
+  <a href="#matriz">Matriz proposta</a>
+  <a href="#coleta">Coleta IEGM</a>
+  <a href="#resultado">Resultado</a>
+  <a href="#notas">Notas</a>
+  <button class="theme-btn" id="themeBtn" type="button" aria-label="Alternar tema claro ou escuro">◐ Tema</button>
+ </div>
+</nav>
+
+<div class="wrap">
+<div class="kpis" id="kpis"></div>
+
+<!-- 1 -->
+<section id="diagnostico">
+<h2>1. Diagnóstico do poder discriminatório</h2>
+<p>Um indicador em que os oito municípios recebem o mesmo nível não diferencia os casos e não contribui para o benchmarking (Guimarães, 2018; Hicks et al., 2015). A tabela abaixo distribui os níveis alcançados em cada indicador da REV05 e classifica o poder discriminatório em três faixas: <strong>nulo</strong> (todos no mesmo nível), <strong>baixo</strong> (7 de 8 no mesmo nível) e <strong>adequado</strong>.</p>
+<div class="legend" aria-hidden="true">
+  <span><i class="lv0"></i>Iniciante (0)</span>
+  <span><i class="lv1"></i>Intermediário (1)</span>
+  <span><i class="lv2"></i>Avançado (2)</span>
+</div>
+<div class="table-wrap">
+<table id="diagTable">
+  <thead><tr><th>Cód.</th><th>Indicador</th><th>Distribuição nos 8 municípios</th><th class="c">Níveis distintos</th><th>Poder discriminatório</th></tr></thead>
+  <tbody></tbody>
+</table>
+</div>
+<p class="caption">Fonte: aba “Matriz de Coleta” da planilha REV05. Passe o cursor sobre a barra para ver os municípios em cada nível.</p>
+
+<div class="callout warn">
+  <p><strong>Divergência com o texto do TCC.</strong> O TCC (seções 3 e 5.11.2) cita seis indicadores uniformes: D1-04, D2-05 e D3-01 a D3-04. Na planilha REV05, D1-04 e D3-04 têm variação; os uniformes são D2-05, D3-01, D3-02, D3-03 e D5-01, e D1-03 tem 7 de 8 municípios em Avançado. Convém alinhar o texto à versão final da planilha.</p>
+</div>
+</section>
+
+<!-- 2 -->
+<section id="iegm">
+<h2>2. O IEGM como instrumento do controle externo</h2>
+<p>O <strong>IEGM</strong> é aplicado anualmente pelos Tribunais de Contas com metodologia nacional coordenada pelo <strong>Instituto Rui Barbosa (IRB)</strong> e pela <strong>Atricon</strong> (Rede Indicon). Ele avalia a efetividade da gestão em sete dimensões: i-Educ, i-Saúde, i-Planejamento, i-Fiscal, i-Amb, i-Cidade e i-Gov-TI. A matriz já usa o i-Gov-TI no D1-05.</p>
+<p>A vantagem de usar dimensões do IEGM é tripla: <strong>são dados públicos</strong>, <strong>são comparáveis</strong> entre todos os municípios que responderam ao questionário e <strong>o TCE-MT já os conhece e reconhece como legítimos</strong>. Ao contrário dos indicadores binários de existência de lei, o IEGM mede se a política é <em>implementada</em>, o que tende a gerar variação entre municípios.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Dimensão IEGM</th><th>O que mede</th><th>Uso no ICS-MP</th></tr></thead>
+  <tbody>
+    <tr><td><strong>i-Planejamento</strong></td><td>Coerência entre planos (PPA, LDO, LOA, Plano Diretor) e sua execução; metas físicas e financeiras</td><td><span class="tag sub">Proposto · D3</span></td></tr>
+    <tr><td><strong>i-Fiscal</strong></td><td>Gestão fiscal efetiva: arrecadação, dívida ativa, LRF, transparência fiscal, controle interno</td><td><span class="tag sub">Proposto · D1</span></td></tr>
+    <tr><td><strong>i-Amb</strong></td><td>Política ambiental: resíduos sólidos, licenciamento, arborização e áreas verdes, educação ambiental</td><td><span class="tag sub">Proposto · D3</span></td></tr>
+    <tr><td><strong>i-Cidade</strong></td><td>Cidades protegidas: defesa civil, mapeamento de áreas de risco, planos de contingência</td><td><span class="tag sub">Proposto · D3</span></td></tr>
+    <tr><td><strong>i-Gov-TI</strong></td><td>Governança de TI, segurança da informação, serviços digitais</td><td><span class="tag iegm">Já em uso · D1-05</span></td></tr>
+    <tr><td>i-Educ</td><td>Infraestrutura e gestão da educação</td><td class="small">Fora do escopo urbano/habitacional do ICS-MP</td></tr>
+    <tr><td>i-Saúde</td><td>Atenção básica e gestão da saúde</td><td class="small">Fora do escopo urbano/habitacional do ICS-MP</td></tr>
+  </tbody>
+</table>
+</div>
+<h3>Faixas oficiais e conversão para os níveis do ICS-MP</h3>
+<p>Seguindo o critério já descrito no TCC para o D1-05, as faixas oficiais do IEGM são preservadas e agrupadas nos três níveis da matriz:</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Faixa IEGM</th><th>Nota (0-1)</th><th>Rótulo oficial</th><th>Nível ICS-MP</th></tr></thead>
+  <tbody>
+    <tr><td>C</td><td class="num">&lt; 0,50</td><td>Baixo nível de adequação</td><td rowspan="2"><span class="tag" style="background:var(--lv0);color:var(--lv0-ink)">Iniciante (0)</span></td></tr>
+    <tr><td>C+</td><td class="num">0,50 – 0,599</td><td>Em fase de adequação</td></tr>
+    <tr><td>B</td><td class="num">0,60 – 0,749</td><td>Efetiva</td><td><span class="tag" style="background:var(--lv1);color:var(--lv1-ink)">Intermediário (1)</span></td></tr>
+    <tr><td>B+</td><td class="num">0,75 – 0,899</td><td>Muito efetiva</td><td rowspan="2"><span class="tag" style="background:var(--lv2);color:var(--lv2-ink)">Avançado (2)</span></td></tr>
+    <tr><td>A</td><td class="num">≥ 0,90</td><td>Altamente efetiva</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<!-- 3 -->
+<section id="proposta">
+<h2>3. Substituições propostas</h2>
+<p>A matriz mantém <strong>25 indicadores</strong> e os mesmos pesos por dimensão. Quatro indicadores com poder discriminatório nulo ou baixo dão lugar a notas do IEGM. Os dois demais uniformes (D2-05 e D5-01) não têm equivalente no IEGM e permanecem, com a uniformidade registrada como limitação.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Sai (REV05)</th><th>Poder discrim.</th><th></th><th>Entra (proposta)</th><th>Justificativa</th></tr></thead>
+  <tbody id="subsTable"></tbody>
+</table>
+</div>
+<div class="two-col" style="margin-top:16px">
+  <div class="card">
+    <h4>Por que o i-Amb fica em D3 e não em D4</h4>
+    <p>D4 não tem indicador uniforme, então não há o que substituir sem perder variação. O i-Amb avalia licenciamento, resíduos e áreas verdes, que são instrumentos de ordenamento e uso do solo, o que justifica sua alocação em D3-03. Se a banca preferir D4, a alternativa é trocar o D4-03 (ODS 7), aceitando a perda de um indicador com variação.</p>
+  </div>
+  <div class="card">
+    <h4>O que se perde e como registrar</h4>
+    <p>Plano Diretor, Código de Obras e LUOS deixam de ser pontuados, mas não desaparecem: o i-Planejamento verifica a existência e a execução do Plano Diretor. A existência das leis urbanísticas pode ser citada no texto como <em>condição universal</em> da amostra, sem pontuação.</p>
+  </div>
+</div>
+</section>
+
+<!-- 4 -->
+<section id="matriz">
+<h2>4. Matriz proposta (25 indicadores)</h2>
+<p>Linhas em verde são as substituições. Indicadores do IEGM estão marcados.</p>
+<div class="table-wrap">
+<table id="matrixTable">
+  <thead><tr><th>Cód.</th><th>Indicador</th><th>Tipo</th><th>Iniciante</th><th>Intermediário</th><th>Avançado</th><th>Fonte</th></tr></thead>
+  <tbody></tbody>
+</table>
+</div>
+</section>
+
+<!-- 5 -->
+<section id="coleta">
+<h2>5. Coleta das notas do IEGM</h2>
+<p>Insira as notas (0 a 1) de cada município, todas do <strong>mesmo exercício</strong>. Elas estão no painel do IRB (<a href="https://iegm.irbcontas.org.br/" target="_blank" rel="noopener">iegm.irbcontas.org.br</a>, filtro por UF e exercício) e nos portais dos tribunais competentes (TCE-MT, TCE-TO, TCE-MS e, para Rio Verde-GO, TCM-GO). Valores em porcentagem (ex.: 72) são convertidos para 0,72. Os campos ficam salvos neste navegador.</p>
+<div class="callout">
+  <p>Nenhuma nota foi inventada: os campos do i-Planejamento, i-Fiscal, i-Amb e i-Cidade começam vazios. O i-Gov-TI vem preenchido com os valores da REV05. Município sem nota fica fora do cálculo do indicador, como prevê a regra de “dado indisponível” da planilha.</p>
+</div>
+<div class="toolbar">
+  <label for="bandSel">Faixas para converter as notas:</label>
+  <select id="bandSel" class="btn">
+    <option value="oficial">Oficiais IEGM (C/C+ · B · B+/A) — recomendado</option>
+    <option value="rev05">REV05 do D1-05 (&lt;0,50 · 0,50–0,70 · &gt;0,70)</option>
+  </select>
+</div>
+<div class="table-wrap">
+<table id="inputTable">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+</div>
+<div class="toolbar">
+  <button class="btn" id="exportBtn" type="button">Exportar CSV</button>
+  <button class="btn" id="clearBtn" type="button">Limpar notas</button>
+  <span class="small" id="fillStatus"></span>
+</div>
+<details>
+  <summary>Colar notas em bloco (CSV)</summary>
+  <p class="small" style="margin-top:8px">Uma linha por município, separada por ponto e vírgula: <code>município;i-Fiscal;i-Plan;i-Cidade;i-Amb;i-Gov-TI</code> (mesma ordem das colunas da tabela). O nome pode ser parcial (ex.: “Sinop”).</p>
+  <textarea id="pasteBox" placeholder="Sinop;0,00;0,00;0,00;0,00;0,72"></textarea>
+  <div class="toolbar"><button class="btn primary" id="pasteBtn" type="button">Aplicar</button><span class="small" id="pasteMsg"></span></div>
+</details>
+</section>
+
+<!-- 6 -->
+<section id="resultado">
+<h2>6. Resultado: ICS-MP atual × proposto</h2>
+<p id="resultLede"></p>
+<div class="chart" id="radarCard">
+  <div class="toolbar" style="margin:0 0 4px">
+    <p class="chart-title" style="margin:0">Radar de maturidade — 5 dimensões</p>
+    <label for="radarSel" class="small" style="margin-left:auto">Município:</label>
+    <select id="radarSel" class="btn"></select>
+  </div>
+  <p class="chart-sub">Score 0–100 por dimensão · município × média da amostra (REV05) e, com as notas IEGM completas, o cenário proposto</p>
+  <div class="radar-grid">
+    <div><svg class="radar-svg" id="radarSvg" viewBox="-15 5 490 390" role="img" aria-label="Radar das cinco dimensões"></svg></div>
+    <div style="min-width:0">
+      <div class="table-wrap" style="margin:0">
+        <table id="radarTable"><thead></thead><tbody></tbody></table>
+      </div>
+      <div class="legend" id="radarLegend"></div>
+    </div>
+  </div>
+</div>
+<div class="chart" id="barChart" role="img" aria-label="ICS-MP atual e proposto por município"></div>
+<div class="legend">
+  <span><i style="background:var(--series-1)"></i>ICS-MP REV05 (atual)</span>
+  <span><i style="background:var(--series-2)"></i>ICS-MP proposto (com IEGM)</span>
+</div>
+
+<h3>Scores por dimensão</h3>
+<div class="table-wrap">
+<table id="scoreTable"><thead></thead><tbody></tbody></table>
+</div>
+<p class="caption">Score_D = Σ pontos ÷ máximo possível × 100. ICS-MP = Σ(Score_D × Peso_D). Pesos: D1 20% · D2 25% · D3 20% · D4 20% · D5 15%. Nível: 0–25 Iniciante · 26–50 Em desenvolvimento · 51–75 Avançado · 76–100 Referência.</p>
+
+<h3>Mapa de níveis da matriz proposta</h3>
+<div class="legend" aria-hidden="true">
+  <span><i class="lv0"></i>Iniciante (0)</span>
+  <span><i class="lv1"></i>Intermediário (1)</span>
+  <span><i class="lv2"></i>Avançado (2)</span>
+  <span><i class="lvna"></i>Sem dado</span>
+</div>
+<div class="table-wrap">
+<table id="heatTable"><thead></thead><tbody></tbody></table>
+</div>
+</section>
+
+<!-- 7 -->
+<section id="notas">
+<h2>7. Notas metodológicas e pendências da REV05</h2>
+<h3>Inconsistência de faixas no D1-05</h3>
+<p>O TCC descreve o D1-05 com as faixas oficiais (C e C+ em Iniciante, B em Intermediário, B+ e A em Avançado), mas a planilha usa &lt;0,50 / 0,50–0,70 / &gt;0,70. Com as faixas oficiais, Sinop (0,72) e Lucas do Rio Verde (0,72) passam de Avançado para Intermediário, e Primavera do Leste (0,46) e Dourados (0,49) permanecem em Iniciante. O próprio TCC, na seção de resultados, já registra Sinop como Intermediário em D1-05. O seletor da seção 5 aplica a regra escolhida a todos os indicadores IEGM da proposta, inclusive o D1-05.</p>
+
+<h3>Dados de D3 deslocados na planilha</h3>
+<p>Na aba “Matriz de Coleta”, o dado bruto de cada linha binária de D3 corresponde ao indicador da linha seguinte: D3-01 (Plano Diretor) registra “Código de Obras vigente”, D3-02 (Código de Obras) registra “LUOS”, D3-03 (LUOS) registra “Lei de Parcelamento”, e D3-04 (Código de Parcelamento) traz percentuais do SNIS, típicos de cobertura de abastecimento. Com a substituição de D3-01 a D3-03 o problema sai da matriz, mas o D3-04 precisa ser conferido: o nome, a fonte e os limiares (&lt;70% · 70–90% · &gt;90%) indicam outro indicador.</p>
+
+<h3>Outros ajustes na REV05</h3>
+<ul>
+  <li><strong>D5-04</strong> se chama “Investimento público em infraestrutura urbana por habitante (R$ per capita)”, mas os dados e limiares são uma classificação ordinal do IDSC-BR (Médio/Alto). Convém renomear ou coletar o valor em R$ no FINBRA/Siconfi.</li>
+  <li><strong>D2-03</strong> usa “&gt; 0,60” no limiar Avançado, enquanto os outros limiares estão em %; padronizar para “&gt; 60%”.</li>
+  <li>A aba “Instruções de uso” ainda cita 9 municípios (com Cascavel-PR); a amostra final tem 8.</li>
+  <li>O TCC cita Sorriso e Primavera do Leste com 59,0, e a REV05 calcula 60,0 e 59,5. Vale atualizar o texto com os valores finais.</li>
+</ul>
+
+<h3>Cuidados com o IEGM</h3>
+<ul>
+  <li><strong>Mesmo exercício para todos.</strong> O IEGM publicado em um ano se refere ao exercício anterior. Registre o exercício usado (ex.: “IEGM 2025, exercício 2024”) e aplique-o aos cinco indicadores IEGM.</li>
+  <li><strong>Natureza autodeclaratória.</strong> As notas derivam de questionário respondido pela prefeitura e validado por amostragem pelo Tribunal. É a mesma base que o TCE-MT usa, o que favorece o diálogo, mas deve constar como limitação.</li>
+  <li><strong>Cobertura.</strong> Antes de fechar a coleta, confirme que o tribunal de cada estado publicou o IEGM no exercício escolhido. Município sem nota fica fora do cálculo daquele indicador.</li>
+  <li><strong>Peso do IEGM na matriz.</strong> Com a proposta, 5 dos 25 indicadores (20%) vêm do IEGM, sendo 3 dos 5 em D3. É um ganho de legitimidade junto ao TCE, mas aproxima D3 de uma releitura do IEGM; vale explicitar isso na discussão.</li>
+</ul>
+
+<h3>Referências</h3>
+<ol class="refs">
+  <li>INSTITUTO RUI BARBOSA. <em>IEGM Brasil — Índice de Efetividade da Gestão Municipal</em>. Disponível em: <a href="https://iegm.irbcontas.org.br/" target="_blank" rel="noopener">iegm.irbcontas.org.br</a>.</li>
+  <li>TRIBUNAL DE CONTAS DO ESTADO DE SÃO PAULO. <em>Manual do IEGM 2024 — dados do exercício 2023</em>. Disponível em: <a href="https://www.tce.sp.gov.br/sites/default/files/legislacao/Manual%20do%20IEGM%202024%20-%20Dados%20do%20exerc%C3%ADcio%202023.pdf" target="_blank" rel="noopener">tce.sp.gov.br</a>.</li>
+  <li>TRIBUNAL DE CONTAS DO ESTADO DO PIAUÍ. <em>Apresentação e metodologia do IEGM 2024 (ano-base 2023)</em>. Disponível em: <a href="https://www.tcepi.tc.br/wp-content/uploads/2024/09/Apresentacao-e-metodologia-do-IEGM-2024-ano-base-2023.pdf" target="_blank" rel="noopener">tcepi.tc.br</a>.</li>
+  <li>GUIMARÃES, 2018; HICKS et al., 2015 — critério de poder discriminante, conforme TCC REV 27.</li>
+</ol>
+</section>
+
+<footer>Página gerada a partir da Matriz_ICS_MP_8municipios_REV05 e do TCC REV 27. Os scores atuais reproduzem a aba “Cálculo ICS-MP”; os scores propostos são recalculados no navegador a partir das notas IEGM informadas.</footer>
+</div>
+
+<div class="tooltip" id="tip" role="tooltip"></div>
+
+<script>
+const IND = [{"c": "D1-01", "n": "Dimensão Gestão do Índice de Governança Municipal (IGM-CFA)", "t": "Qtd", "th": ["< 6,0", "6,0 – 7,5", "> 7,5"], "f": "IGM-CFA (Conselho Federal de Administração) — Dimensão Gestão", "iso": "não tem", "raw": ["7,29", "8,45", "7,74", "6,46", "7,99", "7,9", "6,14", "6,83"], "p": [1, 2, 2, 0, 2, 2, 0, 0]}, {"c": "D1-02", "n": "Portal de Dados Abertos disponibilizado", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "MUNIC 2024 (variável MTIC272)", "iso": "ISO 37122 ind. 10.1", "raw": ["Não", "Não", "Sim", "Não", "Não", "Não", "Não", "Sim"], "p": [0, 0, 2, 0, 0, 0, 0, 2]}, {"c": "D1-03", "n": "Grau de estruturação da política de controle interno e combate à corrupção (%)", "t": "Qtd", "th": ["< 60", "60-80", "≥ 80"], "f": "IDSC-BR", "iso": "IDSC-BR - ODS 16", "raw": ["85,71", "100", "100", "85,71", "100", "100", "85,71", "71,43"], "p": [2, 2, 2, 2, 2, 2, 2, 1]}, {"c": "D1-04", "n": "Grau de estruturação das políticas de participação e promoção de direitos humanos (%)", "t": "Qtd", "th": ["< 60", "60-80", "≥ 80"], "f": "IDSC-BR", "iso": "IDSC-BR - ODS 16", "raw": ["71,43", "57,14", "42,86", "71,43", "57,14", "71,43", "57,14", "71,43"], "p": [1, 0, 0, 1, 0, 1, 0, 1]}, {"c": "D1-05", "n": "Governança em Tecnologia da Informação (i-Gov-TI - IEGM/IRB-Atricon)", "t": "Qtd", "th": ["< 0,50", "0,50 – 0,70", "> 0,70"], "f": "IEGM (Índice de Efetividade da Gestão Municipal), eixo i-Gov-TI — Tribunais de Contas estaduais / IRB-Atricon (Rede Indicon)", "iso": "não tem", "raw": ["0,72", "0,72", "0,28", "0,64", "0,46", "0,69", "0,66", "0,49"], "p": [2, 2, 0, 1, 0, 1, 1, 0]}, {"c": "D2-01", "n": "Plano Municipal de Habitação elaborado e vigente", "t": "Bin", "th": ["Não", "-", "Sim"], "f": "MUNIC 2024, Tab. 75/76 (variável MHAB07)", "iso": "", "raw": ["Sim", "Não", "Sim", "Sim", "Sim", "Sim", "Sim", "Sim"], "p": [2, 0, 2, 2, 2, 2, 2, 2]}, {"c": "D2-02", "n": "% domicílios em favelas", "t": "Pct", "th": ["> 1,00%", "0,20% – 1,00%", "< 0,20%"], "f": "IBGE / (SIDRA TAB 9890 ÷ TAB 6326)", "iso": "ISO 37120:2018", "raw": ["0,28%", "0,00%", "0,00%", "0,18%", "0,00%", "8,95%", "0,46%", "0,70%"], "p": [1, 2, 2, 2, 2, 0, 1, 1]}, {"c": "D2-03", "n": "% domicílios próprios — quitados + financiados", "t": "Pct", "th": ["< 50%", "50%-60%", "> 0,60"], "f": "IBGE Censo 2022/ SIDRA Tabela 9930", "iso": "", "raw": ["53,20%", "43,30%", "47,70%", "66,50%", "51,90%", "59,10%", "51,5%", "65,60%"], "p": [1, 0, 0, 2, 1, 1, 1, 2]}, {"c": "D2-04", "n": "% domicílios com saneamento adequado", "t": "Pct", "th": ["< 60%", "60 – 90%", "≥ 90%"], "f": "IBGE Censo 2022 / SNIS (esgotamento sanitário adequado)", "iso": "ISO 37120 ind.21.1", "raw": ["55%", "62%", "58%", "91,6%", "65%", "63,4%", "92,7%", "71,2%"], "p": [0, 1, 0, 2, 1, 1, 2, 1]}, {"c": "D2-05", "n": "Existência de instrumento de regularização fundiária", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "MUNIC / Prefeitura", "iso": "ISO 37120 ind.19.4", "raw": ["Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D3-01", "n": "Plano Diretor atualizado (≤10 anos)", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Legislação municipal", "iso": "ISO 37122 ind.11.3", "raw": ["Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D3-02", "n": "Código de Obras atualizado (≤15 anos)", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Legislação municipal", "iso": "ISO 37122 ind.11.1", "raw": ["Sim — LUOS Lei 1.123/2015", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D3-03", "n": "Lei de Uso e Ocupação do Solo vigente", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Legislação municipal", "iso": "Adição original", "raw": ["Sim — Lei de Parcelamento vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D3-04", "n": "Código de Parcelamento do Solo vigente", "t": "Pct", "th": ["<70%", "70–90%", ">90%"], "f": "SNIS", "iso": "ISO 37120 ind.22.1", "raw": ["84,3% (SNIS 2022 / Inst. Água e Saneamento)", "91,2% (SNIS 2022)", "88,7% (SNIS 2022)", "97,5% (Censo 2022 / Prefeitura)", "86,4% (SNIS 2022)", "92,3% (SNIS 2022)", "96,2% (SNIS 2022 / Inst. Água e Saneamento)", "89,1% (SNIS 2022)"], "p": [1, 2, 1, 2, 1, 2, 2, 1]}, {"c": "D3-05", "n": "% domicílios com bueiro / boca de lobo no entorno (drenagem urbana)", "t": "Pct", "th": ["< 40,6%", "40,6% – 65,8%", "≥ 65,8%"], "f": "IBGE Censo 2022 – Pesquisa Urbanística do Entorno (SIDRA Tab. 9839)", "iso": "ISO 37120:2018 – Águas residuais/drenagem (adaptado)", "raw": ["94,8%", "83,9%", "94,2%", "52,5%", "56,4%", "55,7%", "48,1%", "62,8%"], "p": [2, 2, 2, 1, 1, 1, 1, 1]}, {"c": "D4-01", "n": "ODS 11 — Cidades e comunidades sustentáveis", "t": "Ord", "th": ["MB/Baixo", "Médio", "Alto/MA"], "f": "IDSC-BR", "iso": "ISO 37120/37122 múlt.", "raw": ["Médio (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)"], "p": [1, 1, 1, 2, 1, 1, 2, 1]}, {"c": "D4-02", "n": "ODS 6 — Água potável e saneamento", "t": "Ord", "th": ["MB/Baixo", "Médio", "Alto/MA"], "f": "IDSC-BR", "iso": "ISO 37120 ind.20.1", "raw": ["Muito Baixo (IDSC-BR 2024 — esgoto 37%)", "Baixo (IDSC-BR 2024)", "Muito Baixo (IDSC-BR 2024 — esgoto 38%)", "Alto (IDSC-BR 2024 — esgoto 91,6%)", "Baixo (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024 — esgoto 92,7%)", "Médio (IDSC-BR 2024)"], "p": [0, 0, 0, 2, 0, 1, 2, 1]}, {"c": "D4-03", "n": "ODS 7 — Energia acessível e limpa", "t": "Ord", "th": ["MB/Baixo", "Médio", "Alto/MA"], "f": "IDSC-BR", "iso": "ISO 37120 ind.18.1", "raw": ["Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)"], "p": [1, 2, 1, 2, 1, 2, 2, 1]}, {"c": "D4-04", "n": "Plano ou Plano Diretor Cicloviário", "t": "Bin", "th": ["Não", "-", "Sim"], "f": "MUNIC 2024 (variável MTRA24b)", "iso": "", "raw": ["Sim", "Não", "Não", "Não", "Não", "Sim", "Não", "Sim"], "p": [2, 0, 0, 0, 0, 2, 0, 2]}, {"c": "D4-05", "n": "IDHM (desenvolvimento humano municipal)", "t": "Pct", "th": ["<0,700", "0,700–0,750", ">0,750"], "f": "IBGE / PNUD", "iso": "ISO 37120 ind.3.1", "raw": ["0,754 (Atlas Brasil / PNUD 2010)", "0,768 (Atlas Brasil / PNUD 2010)", "0,744 (Atlas Brasil / PNUD 2010)", "0,755 (Atlas Brasil / PNUD 2010)", "0,752 (Atlas Brasil / PNUD 2010)", "0,788 (Atlas Brasil / PNUD 2010)", "0,754 (Atlas Brasil / PNUD 2010)", "0,747 (Atlas Brasil / PNUD 2010)"], "p": [2, 2, 1, 2, 2, 2, 2, 1]}, {"c": "D5-01", "n": "Lei de inovação ou programa local", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Legislação municipal", "iso": "ISO 37122 ind.1.1", "raw": ["Sim — LC 210/2023", "Sim", "Sim", "Sim — lei de inovação municipal", "Sim", "Sim — lei de inovação municipal", "Sim — lei de inovação municipal", "Sim"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D5-02", "n": "Parcerias universidade–prefeitura formalizadas", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Prefeitura / MUNIC", "iso": "ISO 37122 ind.1.5", "raw": ["Sim", "Sim — convênio UFMT/UNEMAT", "Não localizado", "Sim — UFMT campus + convênios", "Não localizado", "Sim — UFT + IFTO convênios", "Sim — UniRV + parcerias municipais", "Sim — UFGD + convênios"], "p": [2, 2, 0, 2, 0, 2, 2, 2]}, {"c": "D5-03", "n": "Densidade de startups (startups por 100 mil habitantes)", "t": "Qtd", "th": ["< 10,0", "10,0 – 30,0", "≥ 30,0"], "f": "Observatório Sebrae Startups (acesso 23/09/2026) / IBGE Censo 2022", "iso": "ISO 37122:2019 – Economia (adaptado)", "raw": ["35,1", "31", "13,6", "17,1", "18,8", "47,6", "8,9", "0,8"], "p": [2, 2, 1, 1, 1, 2, 0, 0]}, {"c": "D5-04", "n": "Investimento público em infraestrutura urbana por habitante (R$ per capita)", "t": "Ord", "th": ["MB/Baixo", "Médio", "Alto/MA"], "f": "IDSC-BR", "iso": "ISO 37122 ind.9.1", "raw": ["Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)"], "p": [1, 2, 1, 2, 1, 2, 2, 1]}, {"c": "D5-05", "n": "% empregos formais em atividades intensivas em conhecimento e tecnologia", "t": "Pct", "th": ["<3,25%", "3,25% – 4,50%", "> 4,50%"], "f": "RAIS/MTE", "iso": "ISO 37122", "raw": ["6,46%", "4,04%", "4,90%", "4,42%", "3,15%", "2,57%", "3,40%", "4,57%"], "p": [2, 1, 2, 1, 1, 0, 1, 2]}];
+const MUN = ["Sinop-MT","Lucas do Rio Verde-MT","Sorriso-MT","Rondonópolis-MT","Primavera do Leste-MT","Palmas-TO","Rio Verde-GO","Dourados-MS"];
+const DIMS = [
+  {k:"D1", n:"Governança e capacidade institucional", w:.20},
+  {k:"D2", n:"Habitação e regularização fundiária", w:.25},
+  {k:"D3", n:"Planejamento urbano e uso do solo", w:.20},
+  {k:"D4", n:"Sustentabilidade e ODS urbanos", w:.20},
+  {k:"D5", n:"Inovação e transferência de tecnologia", w:.15},
+];
+const LV = ["Iniciante","Intermediário","Avançado"];
+const IEGM_SRC = "IEGM — IRB/Atricon (Rede Indicon), Tribunal de Contas competente";
+// IEGM indicators in the proposed matrix. key = storage key.
+const NEW = [
+  {c:"D1-03", key:"ifiscal", n:"Gestão fiscal efetiva (i-Fiscal — IEGM/IRB-Atricon)", short:"i-Fiscal", out:"D1-03",
+   why:"7 de 8 municípios em Avançado. O i-Fiscal mede responsabilidade fiscal efetiva, inclui controle interno e é o eixo que o TCE-MT acompanha nas contas anuais."},
+  {c:"D3-01", key:"iplan", n:"Efetividade do planejamento municipal (i-Planejamento — IEGM/IRB-Atricon)", short:"i-Plan", out:"D3-01",
+   why:"Uniforme. Mede se o planejamento, inclusive o Plano Diretor, é implementado e monitorado, não só se existe."},
+  {c:"D3-02", key:"icidade", n:"Proteção urbana e defesa civil (i-Cidade — IEGM/IRB-Atricon)", short:"i-Cidade", out:"D3-02",
+   why:"Uniforme. Avalia mapeamento de áreas de risco e planos de contingência, resultado material das regras de ocupação do solo."},
+  {c:"D3-03", key:"iamb", n:"Efetividade da política ambiental (i-Amb — IEGM/IRB-Atricon)", short:"i-Amb", out:"D3-03",
+   why:"Uniforme. Avalia licenciamento, resíduos e áreas verdes, instrumentos ligados ao uso do solo."},
+];
+const GOVTI = {c:"D1-05", key:"igovti", short:"i-Gov-TI"};
+const IEGM_ALL = [...NEW, {...GOVTI}];
+const BANDS = {
+  oficial: {lo:0.60, hi:0.75, th:["< 0,60 (C, C+)","0,60 – 0,749 (B)","≥ 0,75 (B+, A)"]},
+  rev05:   {lo:0.50, hi:0.70, th:["< 0,50","0,50 – 0,70","> 0,70"], hiStrict:true},
+};
+const byCode = Object.fromEntries(IND.map(i => [i.c, i]));
+const govtiRaw = byCode["D1-05"].raw.map(v => parseNum(v));
+
+// ---------- state ----------
+const STORE_KEY = "icsmp-iegm-v1";
+let state = { band: "oficial", v: {} };
+IEGM_ALL.forEach(x => state.v[x.key] = Array(8).fill(null));
+state.v.igovti = govtiRaw.slice();
+try {
+  const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+  if (s && s.v) { state.band = s.band || state.band; for (const k in s.v) if (state.v[k]) state.v[k] = s.v[k]; }
+} catch (e) {}
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+function parseNum(s) {
+  if (s === null || s === undefined) return null;
+  s = String(s).trim().replace("%", "").replace(",", ".");
+  if (s === "") return null;
+  let x = Number(s);
+  if (!isFinite(x)) return NaN;
+  if (x > 1) x = x / 100;
+  if (x < 0 || x > 1) return NaN;
+  return x;
+}
+const fmt = (x, d=2) => x === null || x === undefined || isNaN(x) ? "—" : x.toFixed(d).replace(".", ",");
+function level(x) {
+  if (x === null || x === undefined || isNaN(x)) return null;
+  const b = BANDS[state.band];
+  if (x < b.lo) return 0;
+  if (b.hiStrict ? x > b.hi : x >= b.hi) return 2;
+  return 1;
+}
+
+// ---------- matrices ----------
+function currentPts(ind) { return ind.p.slice(); }
+function proposedRows() {
+  return IND.map(ind => {
+    const sub = NEW.find(n => n.c === ind.c);
+    if (sub) return {c: ind.c, n: sub.n, sub, iegm: true, p: state.v[sub.key].map(level)};
+    if (ind.c === "D1-05") return {c: ind.c, n: ind.n, iegm: true, p: state.v.igovti.map(level)};
+    return {c: ind.c, n: ind.n, p: currentPts(ind)};
+  });
+}
+function scores(rows) {
+  return MUN.map((m, j) => {
+    const ds = DIMS.map(d => {
+      const pts = rows.filter(r => r.c.startsWith(d.k)).map(r => r.p[j]).filter(v => v !== null && v !== undefined);
+      return pts.length ? pts.reduce((a, b) => a + b, 0) / (pts.length * 2) * 100 : null;
+    });
+    let tot = 0, wsum = 0;
+    ds.forEach((s, i) => { if (s !== null) { tot += s * DIMS[i].w; wsum += DIMS[i].w; } });
+    return {ds, ics: wsum ? tot / wsum : null};
+  });
+}
+const curRows = IND.map(i => ({c: i.c, n: i.n, p: i.p}));
+const CUR = scores(curRows);
+function maturity(x) { return x === null ? "—" : x <= 25 ? "Iniciante" : x <= 50 ? "Em desenvolvimento" : x <= 75 ? "Avançado" : "Referência"; }
+
+function discr(p) {
+  const c = [0,0,0]; p.forEach(v => c[v]++);
+  const distinct = c.filter(Boolean).length, mode = Math.max(...c);
+  const cls = distinct === 1 ? "null" : mode >= 7 ? "low" : "ok";
+  return {c, distinct, cls, label: cls === "null" ? "Nulo" : cls === "low" ? "Baixo" : "Adequado"};
+}
+
+// ---------- tooltip ----------
+const tip = document.getElementById("tip");
+function showTip(e, html) { tip.innerHTML = html; tip.style.opacity = 1; moveTip(e); }
+function moveTip(e) {
+  const pad = 14, r = tip.getBoundingClientRect();
+  let x = e.clientX + pad, y = e.clientY + pad;
+  if (x + r.width > innerWidth - 8) x = e.clientX - r.width - pad;
+  if (y + r.height > innerHeight - 8) y = e.clientY - r.height - pad;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip() { tip.style.opacity = 0; }
+function bindTip(el, html) {
+  el.addEventListener("mouseenter", e => showTip(e, typeof html === "function" ? html() : html));
+  el.addEventListener("mousemove", moveTip);
+  el.addEventListener("mouseleave", hideTip);
+}
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+
+// ---------- KPIs ----------
+(function kpis() {
+  const d = IND.map(i => discr(i.p));
+  const nul = d.filter(x => x.cls === "null").length, low = d.filter(x => x.cls === "low").length;
+  const items = [
+    ["Indicadores", IND.length, "mantidos na matriz proposta", "var(--ink)"],
+    ["Municípios", MUN.length, "MT, TO, GO e MS", "var(--d1)"],
+    ["Poder discrim. nulo", nul, "todos os municípios no mesmo nível", "var(--ini-t)"],
+    ["Poder discrim. baixo", low, "7 de 8 municípios no mesmo nível", "var(--int-t)"],
+    ["Substituições IEGM", NEW.length, "i-Fiscal, i-Plan, i-Cidade, i-Amb", "var(--avd-t)"],
+  ];
+  document.getElementById("kpis").innerHTML = items.map(([t, v, l, c]) => `<div class="kpi"><div class="t">${t}</div><div class="v" style="color:${c}">${v}</div><div class="l">${l}</div></div>`).join("");
+})();
+
+// ---------- 1. diagnostic table ----------
+(function diag() {
+  const tb = document.querySelector("#diagTable tbody");
+  DIMS.forEach(d => {
+    tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="5">${dimTag(d.k)}${d.n} — peso ${Math.round(d.w*100)}%</td></tr>`);
+    IND.filter(i => i.c.startsWith(d.k)).forEach(i => {
+      const r = discr(i.p);
+      const tr = document.createElement("tr");
+      const segs = r.c.map((n, lv) => n ? `<span class="lv${lv}" data-lv="${lv}" style="flex:${n}"></span>` : "").join("");
+      const isSub = NEW.some(n => n.c === i.c);
+      tr.innerHTML = `<td class="code">${i.c}</td><td>${esc(i.n)}${isSub ? ' <span class="tag sub">substituir</span>' : ""}</td>
+        <td><div class="dist">${segs}</div><div class="small num" style="margin-top:3px">${r.c[0]} · ${r.c[1]} · ${r.c[2]}</div></td>
+        <td class="c num">${r.distinct}</td><td><span class="tag ${r.cls}">${r.label}</span></td>`;
+      tr.querySelectorAll(".dist span").forEach(s => {
+        const lv = +s.dataset.lv;
+        const names = MUN.filter((m, j) => i.p[j] === lv);
+        bindTip(s, `<b>${i.c} · ${LV[lv]}</b><br>${names.length} município(s)<br>${names.map(esc).join("<br>")}`);
+      });
+      tb.appendChild(tr);
+    });
+  });
+})();
+
+// ---------- 3. substitution table ----------
+(function subs() {
+  const tb = document.getElementById("subsTable");
+  NEW.forEach(n => {
+    const old = byCode[n.out], r = discr(old.p);
+    tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">${old.c}</span><br>${esc(old.n)}</td>
+      <td><span class="tag ${r.cls}">${r.label}</span></td><td class="arrow">→</td>
+      <td><span class="code">${n.c}</span><br><strong>${esc(n.short)}</strong> <span class="tag iegm">IEGM</span></td>
+      <td class="small">${esc(n.why)}</td></tr>`);
+  });
+  tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">D2-01</span><br>${esc(byCode["D2-01"].n)}</td>
+      <td><span class="tag low">Baixo</span></td><td class="arrow">=</td><td class="small">Mantido</td>
+      <td class="small">Diferencia Lucas do Rio Verde dos demais e não tem equivalente no IEGM.</td></tr>`);
+  ["D2-05","D5-01"].forEach(c => {
+    const old = byCode[c];
+    tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">${c}</span><br>${esc(old.n)}</td>
+      <td><span class="tag null">Nulo</span></td><td class="arrow">=</td><td class="small">Mantido</td>
+      <td class="small">Sem dimensão equivalente no IEGM. Uniformidade registrada como limitação.</td></tr>`);
+  });
+})();
+
+// ---------- 4. matrix ----------
+function renderMatrix() {
+  const tb = document.querySelector("#matrixTable tbody");
+  tb.innerHTML = "";
+  const b = BANDS[state.band];
+  DIMS.forEach(d => {
+    tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="7">${dimTag(d.k)}${d.n} — peso ${Math.round(d.w*100)}%</td></tr>`);
+    IND.filter(i => i.c.startsWith(d.k)).forEach(i => {
+      const sub = NEW.find(n => n.c === i.c);
+      const isGov = i.c === "D1-05";
+      if (sub || isGov) {
+        const name = sub ? sub.n : i.n;
+        tb.insertAdjacentHTML("beforeend", `<tr class="${sub ? "sub" : ""}"><td class="code">${i.c}</td>
+          <td>${esc(name)} <span class="tag iegm">IEGM</span>${sub ? ` <span class="small">(substitui: ${esc(byCode[sub.out].n)})</span>` : ""}</td>
+          <td>Qtd</td><td class="num">${b.th[0]}</td><td class="num">${b.th[1]}</td><td class="num">${b.th[2]}</td><td class="small">${IEGM_SRC}</td></tr>`);
+      } else {
+        tb.insertAdjacentHTML("beforeend", `<tr><td class="code">${i.c}</td><td>${esc(i.n)}</td><td>${esc(i.t)}</td>
+          <td class="num">${esc(i.th[0])}</td><td class="num">${esc(i.th[1])}</td><td class="num">${esc(i.th[2])}</td><td class="small">${esc(i.f)}</td></tr>`);
+      }
+    });
+  });
+}
+
+// ---------- 5. inputs ----------
+function renderInputs() {
+  const t = document.getElementById("inputTable");
+  t.querySelector("thead").innerHTML = `<tr><th>Município</th>${IEGM_ALL.map(x => `<th>${x.c}<br><span class="small">${x.short}</span></th>`).join("")}</tr>`;
+  const tb = t.querySelector("tbody");
+  tb.innerHTML = "";
+  MUN.forEach((m, j) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${esc(m)}</td>` + IEGM_ALL.map(x => {
+      const v = state.v[x.key][j];
+      return `<td style="white-space:nowrap"><input class="iegm-input" inputmode="decimal" aria-label="${x.short} ${esc(m)}" data-k="${x.key}" data-j="${j}" value="${v === null ? "" : fmt(v)}" placeholder="—"><span class="pill" data-pill="${x.key}-${j}"></span></td>`;
+    }).join("");
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("input", () => {
+      const x = parseNum(inp.value);
+      inp.classList.toggle("bad", Number.isNaN(x));
+      state.v[inp.dataset.k][+inp.dataset.j] = Number.isNaN(x) ? null : x;
+      save(); refresh();
+    });
+  });
+}
+function refreshPills() {
+  IEGM_ALL.forEach(x => MUN.forEach((m, j) => {
+    const el = document.querySelector(`[data-pill="${x.key}-${j}"]`);
+    const lv = level(state.v[x.key][j]);
+    el.className = "pill " + (lv === null ? "lvna" : "lv" + lv);
+    el.textContent = lv === null ? "–" : lv;
+    el.title = lv === null ? "Sem dado" : LV[lv];
+  }));
+  const filled = NEW.reduce((a, x) => a + state.v[x.key].filter(v => v !== null).length, 0);
+  document.getElementById("fillStatus").textContent = `${filled} de ${NEW.length * MUN.length} notas novas preenchidas`;
+}
+
+// ---------- 6. results ----------
+function renderBars(prop, anyNew) {
+  const el = document.getElementById("barChart");
+  const ticks = [0, 25, 50, 75, 100];
+  const key = j => prop[j].ics !== null ? 1000 + prop[j].ics : CUR[j].ics;
+  const order = MUN.map((m, j) => j).sort((a, b) => anyNew ? key(b) - key(a) : CUR[b].ics - CUR[a].ics);
+  let h = `<p class="chart-title">ICS-MP por município (0–100)</p><p class="chart-sub">${anyNew ? "Municípios com as notas IEGM completas primeiro, ordenados pelo ICS-MP proposto" : "Ordenado pelo ICS-MP atual · proposto aguarda notas do IEGM"}</p>`;
+  order.forEach(j => {
+    const a = CUR[j].ics, b = prop[j].ics;
+    h += `<div class="brow" data-j="${j}"><div class="name" title="${esc(MUN[j])}">${esc(MUN[j])}</div><div class="track">
+      <div class="gridlines">${ticks.map(t => `<span style="left:${t}%"></span>`).join("")}</div>
+      <div class="bar s1" style="width:${a}%"></div>
+      ${anyNew && b !== null ? `<div class="bar s2" style="width:${b}%"></div>` : ""}
+      </div><div class="vals">${fmt(a,1)}${anyNew ? (b !== null ? `<br>${fmt(b,1)}` : `<br><span style="color:var(--muted)">incompleto</span>`) : ""}</div></div>`;
+  });
+  h += `<div class="axis"><div></div><div class="ticks">${ticks.map(t => `<span style="left:${t}%">${t}</span>`).join("")}</div><div></div></div>`;
+  el.innerHTML = h;
+  el.querySelectorAll(".brow").forEach(row => {
+    const j = +row.dataset.j;
+    bindTip(row, () => {
+      let s = `<b>${esc(MUN[j])}</b><br>Atual: ${fmt(CUR[j].ics,1)} (${maturity(CUR[j].ics)})`;
+      if (anyNew) s += prop[j].ics !== null ? `<br>Proposto: ${fmt(prop[j].ics,1)} (${maturity(prop[j].ics)})<br>Diferença: ${fmt(prop[j].ics - CUR[j].ics,1)}` : `<br>Proposto: faltam notas IEGM`;
+      return s;
+    });
+  });
+}
+function renderScores(prop, anyNew) {
+  const t = document.getElementById("scoreTable");
+  t.querySelector("thead").innerHTML = `<tr><th>Município</th>${DIMS.map(d => `<th class="r">${d.k}</th>`).join("")}<th class="r">ICS-MP atual</th><th class="r">ICS-MP proposto</th><th>Nível proposto</th></tr>`;
+  const ranked = MUN.map((m, j) => j);
+  t.querySelector("tbody").innerHTML = ranked.map(j => {
+    const ds = DIMS.map((d, i) => {
+      const a = CUR[j].ds[i], b = prop[j].ds[i];
+      const changed = prop[j].ics !== null && b !== null && Math.abs(a - b) > 0.05;
+      return `<td class="r num dv" style="color:var(--${d.k.toLowerCase()})">${changed ? `<span class="small" style="text-decoration:line-through">${fmt(a,0)}</span> ${fmt(b,0)}` : fmt(a,0)}</td>`;
+    }).join("");
+    return `<tr class="${j === 0 ? "hl" : ""}"><td>${esc(MUN[j])}</td>${ds}<td class="r num dv">${fmt(CUR[j].ics,1)}</td><td class="r num dv"><strong>${prop[j].ics !== null ? fmt(prop[j].ics,1) : "—"}</strong></td><td>${prop[j].ics !== null ? maturity(prop[j].ics) : '<span class="small">aguarda notas</span>'}</td></tr>`;
+  }).join("");
+}
+function renderHeat(rows) {
+  const t = document.getElementById("heatTable");
+  const short = ["Sinop","Lucas","Sorriso","Rondon.","Primavera","Palmas","Rio Verde","Dourados"];
+  t.querySelector("thead").innerHTML = `<tr><th>Cód.</th><th>Indicador</th>${short.map((s, j) => `<th class="c small" title="${esc(MUN[j])}">${s}</th>`).join("")}</tr>`;
+  const tb = t.querySelector("tbody");
+  tb.innerHTML = "";
+  DIMS.forEach(d => {
+    tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="${2 + MUN.length}">${dimTag(d.k)}${d.n}</td></tr>`);
+    rows.filter(r => r.c.startsWith(d.k)).forEach(r => {
+      const tr = document.createElement("tr");
+      if (r.sub) tr.className = "sub";
+      const nm = r.sub ? r.sub.short : r.n;
+      tr.innerHTML = `<td class="code">${r.c}</td><td style="min-width:200px">${esc(nm)}${r.iegm ? ' <span class="tag iegm">IEGM</span>' : ""}</td>` +
+        r.p.map((v, j) => `<td class="grid-cell"><div class="${v === null ? "lvna" : "lv" + v}" data-j="${j}">${v === null ? "–" : v}</div></td>`).join("");
+      tr.querySelectorAll(".grid-cell div").forEach(cell => {
+        const j = +cell.dataset.j;
+        bindTip(cell, () => {
+          const v = r.p[j];
+          let raw;
+          if (r.iegm) { const key = r.sub ? r.sub.key : "igovti"; raw = fmt(state.v[key][j]); }
+          else raw = byCode[r.c].raw[j];
+          return `<b>${r.c} · ${esc(MUN[j])}</b><br>${esc(nm)}<br>Dado: ${esc(raw || "—")}<br>Nível: ${v === null ? "sem dado" : LV[v] + " (" + v + ")"}`;
+        });
+      });
+      tb.appendChild(tr);
+    });
+  });
+}
+// ---------- radar ----------
+const DIM_SHORT = ["Governança","Habitação","Planejamento","Sustentabilidade","Inovação/TT"];
+const radarSel = document.getElementById("radarSel");
+radarSel.innerHTML = MUN.map((m, j) => `<option value="${j}">${esc(m)}</option>`).join("");
+radarSel.value = "0";
+radarSel.addEventListener("change", () => refresh());
+const AVG = DIMS.map((d, i) => MUN.reduce((a, m, j) => a + CUR[j].ds[i], 0) / MUN.length);
+function renderRadar(prop) {
+  const j = +radarSel.value, svg = document.getElementById("radarSvg");
+  const cx = 230, cy = 205, R = 135, n = DIMS.length;
+  const ang = i => -Math.PI / 2 + i * 2 * Math.PI / n;
+  const pt = (i, v) => [cx + Math.cos(ang(i)) * R * v / 100, cy + Math.sin(ang(i)) * R * v / 100];
+  const poly = vals => vals.map((v, i) => pt(i, v === null ? 0 : v).map(x => x.toFixed(1)).join(",")).join(" ");
+  const series = [
+    {name: MUN[j] + " (REV05)", vals: CUR[j].ds, cls: "r-cur", sw: "cur"},
+    {name: "Média da amostra (REV05)", vals: AVG, cls: "r-avg", sw: "avg"},
+  ];
+  if (prop[j].ics !== null) series.push({name: MUN[j] + " (proposto com IEGM)", vals: prop[j].ds, cls: "r-prop", sw: "prop"});
+  let s = "";
+  [25, 50, 75, 100].forEach(t => { s += `<polygon class="ring" points="${poly(Array(n).fill(t))}"></polygon>`; });
+  DIMS.forEach((d, i) => { const [x, y] = pt(i, 100); s += `<line class="spoke" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"></line>`; });
+  [25, 50, 75, 100].forEach(t => { s += `<text class="tick" x="${cx + 4}" y="${(cy - R * t / 100 + 3).toFixed(1)}">${t}</text>`; });
+  DIMS.forEach((d, i) => {
+    const [x, y] = pt(i, 118), c = Math.cos(ang(i));
+    const anchor = Math.abs(c) < 0.2 ? "middle" : c > 0 ? "start" : "end";
+    const dy = i === 0 ? -6 : 4;
+    s += `<text class="axis-label" x="${x.toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${anchor}">${DIM_SHORT[i]}</text>`;
+    s += `<text class="axis-sub" x="${x.toFixed(1)}" y="${(y + dy + 13).toFixed(1)}" text-anchor="${anchor}">${d.k} · peso ${Math.round(d.w * 100)}%</text>`;
+  });
+  series.slice().reverse().forEach(se => { s += `<polygon class="${se.cls}" points="${poly(se.vals)}"></polygon>`; });
+  series.slice().reverse().forEach(se => se.vals.forEach((v, i) => {
+    if (v === null) return;
+    const [x, y] = pt(i, v);
+    s += `<circle class="pt ${se.cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5"></circle>`;
+  }));
+  DIMS.forEach((d, i) => { const [x, y] = pt(i, 60); s += `<circle class="hit" data-i="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(R * 0.55).toFixed(0)}"></circle>`; });
+  svg.innerHTML = s;
+  svg.querySelectorAll(".hit").forEach(h => {
+    const i = +h.dataset.i;
+    bindTip(h, () => `<b>${DIMS[i].k} · ${DIMS[i].n}</b><br>` + series.map(se => `${esc(se.name)}: ${fmt(se.vals[i], 0)}`).join("<br>"));
+  });
+  const t = document.getElementById("radarTable");
+  t.querySelector("thead").innerHTML = `<tr><th>Dimensão</th><th class="r">${esc(MUN[j].replace(/-..$/, ""))}</th><th class="r">Média</th><th class="r">Proposto</th></tr>`;
+  t.querySelector("tbody").innerHTML = DIMS.map((d, i) => {
+    const a = CUR[j].ds[i], m = AVG[i], p = prop[j].ics !== null ? prop[j].ds[i] : null;
+    const diff = a - m, sign = diff > 0.5 ? "▲" : diff < -0.5 ? "▼" : "=";
+    return `<tr><td>${dimTag(d.k)}${DIM_SHORT[i]}</td><td class="r num">${fmt(a, 0)} <span class="small" title="em relação à média">${sign}</span></td><td class="r num">${fmt(m, 0)}</td><td class="r num">${p === null ? "—" : fmt(p, 0)}</td></tr>`;
+  }).join("") + `<tr><td><strong>ICS-MP</strong></td><td class="r num"><strong>${fmt(CUR[j].ics, 1)}</strong></td><td class="r num">${fmt(MUN.reduce((a, m, k) => a + CUR[k].ics, 0) / MUN.length, 1)}</td><td class="r num"><strong>${prop[j].ics === null ? "—" : fmt(prop[j].ics, 1)}</strong></td></tr>`;
+  document.getElementById("radarLegend").innerHTML = series.map(se => `<span><i class="sw ${se.sw}"></i>${esc(se.name)}</span>`).join("") +
+    (prop[j].ics === null ? `<span class="small">Proposto aparece quando as notas IEGM de ${esc(MUN[j])} estiverem completas (seção 5).</span>` : "");
+}
+// ---------- cabeçalho e navegação ----------
+function dimTag(k) { return `<span class="dim-tag ${k.toLowerCase()}">${k}</span>`; }
+function nivelOf(x) { return x === null ? "—" : x >= 76 ? "Referência" : x >= 51 ? "Avançado" : x >= 26 ? "Em desenvolvimento" : "Iniciante"; }
+(function header() {
+  document.getElementById("hdrScore").textContent = fmt(CUR[0].ics, 1);
+  const rank = MUN.map((m, j) => CUR[j].ics).filter(v => v > CUR[0].ics).length + 1;
+  document.getElementById("hdrNivel").textContent = `${nivelOf(CUR[0].ics)} · ${rank}º / 8`;
+})();
+(function navSpy() {
+  const links = [...document.querySelectorAll(".toc-in a")];
+  const secs = links.map(a => document.querySelector(a.getAttribute("href")));
+  function upd() {
+    let cur = 0;
+    secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top < 120) cur = i; });
+    links.forEach((a, i) => a.classList.toggle("on", i === cur));
+  }
+  addEventListener("scroll", upd, {passive: true}); upd();
+})();
+function complete(j) { return IEGM_ALL.every(x => state.v[x.key][j] !== null && !Number.isNaN(state.v[x.key][j])); }
+function refresh() {
+  refreshPills();
+  renderMatrix();
+  const rows = proposedRows();
+  const anyNew = NEW.some(x => state.v[x.key].some(v => v !== null));
+  const prop = scores(rows).map((s, j) => complete(j) ? s : {ds: s.ds, ics: null, partial: true});
+  document.getElementById("hdrProp").innerHTML = prop[0].ics !== null ? `Proposto com IEGM: <b>${fmt(prop[0].ics, 1)}</b>` : "Proposto: aguarda notas IEGM";
+  renderRadar(prop);
+  renderBars(prop, anyNew);
+  renderScores(prop, anyNew);
+  renderHeat(rows);
+  const lede = document.getElementById("resultLede");
+  const cur = MUN.map((m, j) => CUR[j].ics), amp = Math.max(...cur) - Math.min(...cur);
+  if (!anyNew) {
+    lede.innerHTML = `Na REV05 o ICS-MP varia de <strong>${fmt(Math.min(...cur),1)}</strong> a <strong>${fmt(Math.max(...cur),1)}</strong> (amplitude de ${fmt(amp,1)} pontos). O cenário proposto aparece para cada município assim que as cinco notas do IEGM dele forem informadas na seção 5.`;
+  } else {
+    const done = MUN.map((m, j) => j).filter(complete);
+    if (done.length < 2) {
+      lede.innerHTML = `${done.length} de 8 municípios com as cinco notas IEGM completas. O ICS-MP proposto só é exibido para municípios completos, para não comparar scores calculados com conjuntos diferentes de indicadores.`;
+    } else {
+      const c2 = done.map(j => CUR[j].ics), p2 = done.map(j => prop[j].ics);
+      const ca = Math.max(...c2) - Math.min(...c2), pa = Math.max(...p2) - Math.min(...p2);
+      lede.innerHTML = `${done.length} de 8 municípios com notas completas. Entre eles, a amplitude do ICS-MP é de <strong>${fmt(ca,1)}</strong> pontos na REV05 e <strong>${fmt(pa,1)}</strong> pontos na proposta. Amplitude maior indica ganho de poder discriminatório do protocolo.` + (done.length < 8 ? ` Os demais aparecem como “incompleto”.` : "");
+    }
+  }
+}
+
+// ---------- events ----------
+const bandSel = document.getElementById("bandSel");
+bandSel.value = state.band;
+bandSel.addEventListener("change", () => { state.band = bandSel.value; save(); refresh(); });
+document.getElementById("clearBtn").addEventListener("click", () => {
+  if (!confirm("Apagar as notas do i-Planejamento, i-Fiscal, i-Amb e i-Cidade e restaurar o i-Gov-TI da REV05?")) return;
+  NEW.forEach(x => state.v[x.key] = Array(8).fill(null));
+  state.v.igovti = govtiRaw.slice();
+  save(); renderInputs(); refresh();
+});
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const rows = proposedRows(), prop = scores(rows);
+  const head = ["Municipio", ...IEGM_ALL.map(x => x.c + " " + x.short), ...DIMS.map(d => "Score " + d.k), "ICS-MP atual", "ICS-MP proposto"];
+  const lines = [head.join(";")];
+  MUN.forEach((m, j) => lines.push([m, ...IEGM_ALL.map(x => fmt(state.v[x.key][j])), ...prop[j].ds.map(s => fmt(s,1)), fmt(CUR[j].ics,1), fmt(prop[j].ics,1)].join(";")));
+  const blob = new Blob(["﻿" + lines.join("\n")], {type: "text/csv;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ICS-MP_IEGM.csv"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+document.getElementById("pasteBtn").addEventListener("click", () => {
+  const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  let ok = 0, miss = [];
+  document.getElementById("pasteBox").value.split(/\r?\n/).forEach(line => {
+    if (!line.trim()) return;
+    const f = line.split(/[;\t]/);
+    const j = MUN.findIndex(m => norm(m).startsWith(norm(f[0])) || norm(m).includes(norm(f[0])));
+    if (j < 0 || !f[0].trim()) { miss.push(f[0]); return; }
+    IEGM_ALL.forEach((x, k) => {
+      if (f[k + 1] === undefined || f[k + 1].trim() === "") return;
+      const v = parseNum(f[k + 1]);
+      if (!Number.isNaN(v)) state.v[x.key][j] = v;
+    });
+    ok++;
+  });
+  save(); renderInputs(); refresh();
+  document.getElementById("pasteMsg").textContent = `${ok} linha(s) aplicada(s)` + (miss.length ? ` · não reconhecidas: ${miss.join(", ")}` : "");
+});
+document.getElementById("themeBtn").addEventListener("click", () => {
+  const r = document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark";
+});
+
+renderInputs();
+refresh();
+</script>
+</body>
+</html>
