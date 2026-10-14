@@ -1,0 +1,802 @@
+[
+ {
+  "c": "D1-01",
+  "n": "Dimensão Gestão do Índice de Governança Municipal (IGM-CFA)",
+  "t": "Qtd",
+  "th": [
+   "< 6,0",
+   "6,0 – 7,5",
+   "> 7,5"
+  ],
+  "f": "IGM-CFA (Conselho Federal de Administração) — Dimensão Gestão",
+  "iso": "não tem",
+  "raw": [
+   "7,29",
+   "8,45",
+   "7,74",
+   "6,46",
+   "7,99",
+   "7,9",
+   "6,14",
+   "6,83"
+  ],
+  "p": [
+   1,
+   2,
+   2,
+   0,
+   2,
+   2,
+   0,
+   0
+  ]
+ },
+ {
+  "c": "D1-02",
+  "n": "Portal de Dados Abertos disponibilizado",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "—",
+   "Sim"
+  ],
+  "f": "MUNIC 2024 (variável MTIC272)",
+  "iso": "ISO 37122 ind. 10.1",
+  "raw": [
+   "Não",
+   "Não",
+   "Sim",
+   "Não",
+   "Não",
+   "Não",
+   "Não",
+   "Sim"
+  ],
+  "p": [
+   0,
+   0,
+   2,
+   0,
+   0,
+   0,
+   0,
+   2
+  ]
+ },
+ {
+  "c": "D1-03",
+  "n": "Grau de estruturação da política de controle interno e combate à corrupção (%)",
+  "t": "Qtd",
+  "th": [
+   "< 60",
+   "60-80",
+   "≥ 80"
+  ],
+  "f": "IDSC-BR",
+  "iso": "IDSC-BR - ODS 16",
+  "raw": [
+   "85,71",
+   "100",
+   "100",
+   "85,71",
+   "100",
+   "100",
+   "85,71",
+   "71,43"
+  ],
+  "p": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   1
+  ]
+ },
+ {
+  "c": "D1-04",
+  "n": "Grau de estruturação das políticas de participação e promoção de direitos humanos (%)",
+  "t": "Qtd",
+  "th": [
+   "< 60",
+   "60-80",
+   "≥ 80"
+  ],
+  "f": "IDSC-BR",
+  "iso": "IDSC-BR - ODS 16",
+  "raw": [
+   "71,43",
+   "57,14",
+   "42,86",
+   "71,43",
+   "57,14",
+   "71,43",
+   "57,14",
+   "71,43"
+  ],
+  "p": [
+   1,
+   0,
+   0,
+   1,
+   0,
+   1,
+   0,
+   1
+  ]
+ },
+ {
+  "c": "D1-05",
+  "n": "Governança em Tecnologia da Informação (i-Gov-TI - IEGM/IRB-Atricon)",
+  "t": "Qtd",
+  "th": [
+   "< 0,50",
+   "0,50 – 0,70",
+   "> 0,70"
+  ],
+  "f": "IEGM (Índice de Efetividade da Gestão Municipal), eixo i-Gov-TI — Tribunais de Contas estaduais / IRB-Atricon (Rede Indicon)",
+  "iso": "não tem",
+  "raw": [
+   "0,72",
+   "0,72",
+   "0,28",
+   "0,64",
+   "0,46",
+   "0,69",
+   "0,66",
+   "0,49"
+  ],
+  "p": [
+   2,
+   2,
+   0,
+   1,
+   0,
+   1,
+   1,
+   0
+  ]
+ },
+ {
+  "c": "D2-01",
+  "n": "Plano Municipal de Habitação elaborado e vigente",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "-",
+   "Sim"
+  ],
+  "f": "MUNIC 2024, Tab. 75/76 (variável MHAB07)",
+  "iso": "",
+  "raw": [
+   "Sim",
+   "Não",
+   "Sim",
+   "Sim",
+   "Sim",
+   "Sim",
+   "Sim",
+   "Sim"
+  ],
+  "p": [
+   2,
+   0,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "c": "D2-02",
+  "n": "% domicílios em favelas",
+  "t": "Pct",
+  "th": [
+   "> 1,00%",
+   "0,20% – 1,00%",
+   "< 0,20%"
+  ],
+  "f": "IBGE / (SIDRA TAB 9890 ÷ TAB 6326)",
+  "iso": "ISO 37120:2018",
+  "raw": [
+   "0,28%",
+   "0,00%",
+   "0,00%",
+   "0,18%",
+   "0,00%",
+   "8,95%",
+   "0,46%",
+   "0,70%"
+  ],
+  "p": [
+   1,
+   2,
+   2,
+   2,
+   2,
+   0,
+   1,
+   1
+  ]
+ },
+ {
+  "c": "D2-03",
+  "n": "% domicílios próprios — quitados + financiados",
+  "t": "Pct",
+  "th": [
+   "< 50%",
+   "50%-60%",
+   "> 0,60"
+  ],
+  "f": "IBGE Censo 2022/ SIDRA Tabela 9930",
+  "iso": "",
+  "raw": [
+   "53,20%",
+   "43,30%",
+   "47,70%",
+   "66,50%",
+   "51,90%",
+   "59,10%",
+   "51,5%",
+   "65,60%"
+  ],
+  "p": [
+   1,
+   0,
+   0,
+   2,
+   1,
+   1,
+   1,
+   2
+  ]
+ },
+ {
+  "c": "D2-04",
+  "n": "% domicílios com saneamento adequado",
+  "t": "Pct",
+  "th": [
+   "< 60%",
+   "60 – 90%",
+   "≥ 90%"
+  ],
+  "f": "IBGE Censo 2022 / SNIS (esgotamento sanitário adequado)",
+  "iso": "ISO 37120 ind.21.1",
+  "raw": [
+   "55%",
+   "62%",
+   "58%",
+   "91,6%",
+   "65%",
+   "63,4%",
+   "92,7%",
+   "71,2%"
+  ],
+  "p": [
+   0,
+   1,
+   0,
+   2,
+   1,
+   1,
+   2,
+   1
+  ]
+ },
+ {
+  "c": "D2-05",
+  "n": "Existência de instrumento de regularização fundiária",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "—",
+   "Sim"
+  ],
+  "f": "MUNIC / Prefeitura",
+  "iso": "ISO 37120 ind.19.4",
+  "raw": [
+   "Sim — MCMV ativo (MUNIC 2023)",
+   "Sim — MCMV ativo (MUNIC 2023)",
+   "Sim — MCMV ativo (MUNIC 2023)",
+   "Sim — MCMV ativo (MUNIC 2023)",
+   "Sim — MCMV ativo (MUNIC 2023)",
+   "Sim — MCMV ativo (MUNIC 2023)",
+   "Sim — MCMV ativo (MUNIC 2023)",
+   "Sim — MCMV ativo (MUNIC 2023)"
+  ],
+  "p": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "c": "D3-01",
+  "n": "Plano Diretor atualizado (≤10 anos)",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "—",
+   "Sim"
+  ],
+  "f": "Legislação municipal",
+  "iso": "ISO 37122 ind.11.3",
+  "raw": [
+   "Sim — Código de Obras vigente",
+   "Sim — Código de Obras vigente",
+   "Sim — Código de Obras vigente",
+   "Sim — Código de Obras vigente",
+   "Sim — Código de Obras vigente",
+   "Sim — Código de Obras vigente",
+   "Sim — Código de Obras vigente",
+   "Sim — Código de Obras vigente"
+  ],
+  "p": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "c": "D3-02",
+  "n": "Código de Obras atualizado (≤15 anos)",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "—",
+   "Sim"
+  ],
+  "f": "Legislação municipal",
+  "iso": "ISO 37122 ind.11.1",
+  "raw": [
+   "Sim — LUOS Lei 1.123/2015",
+   "Sim — LUOS vigente",
+   "Sim — LUOS vigente",
+   "Sim — LUOS vigente",
+   "Sim — LUOS vigente",
+   "Sim — LUOS vigente",
+   "Sim — LUOS vigente",
+   "Sim — LUOS vigente"
+  ],
+  "p": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "c": "D3-03",
+  "n": "Lei de Uso e Ocupação do Solo vigente",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "—",
+   "Sim"
+  ],
+  "f": "Legislação municipal",
+  "iso": "Adição original",
+  "raw": [
+   "Sim — Lei de Parcelamento vigente",
+   "Sim — vigente",
+   "Sim — vigente",
+   "Sim — vigente",
+   "Sim — vigente",
+   "Sim — vigente",
+   "Sim — vigente",
+   "Sim — vigente"
+  ],
+  "p": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "c": "D3-04",
+  "n": "Código de Parcelamento do Solo vigente",
+  "t": "Pct",
+  "th": [
+   "<70%",
+   "70–90%",
+   ">90%"
+  ],
+  "f": "SNIS",
+  "iso": "ISO 37120 ind.22.1",
+  "raw": [
+   "84,3% (SNIS 2022 / Inst. Água e Saneamento)",
+   "91,2% (SNIS 2022)",
+   "88,7% (SNIS 2022)",
+   "97,5% (Censo 2022 / Prefeitura)",
+   "86,4% (SNIS 2022)",
+   "92,3% (SNIS 2022)",
+   "96,2% (SNIS 2022 / Inst. Água e Saneamento)",
+   "89,1% (SNIS 2022)"
+  ],
+  "p": [
+   1,
+   2,
+   1,
+   2,
+   1,
+   2,
+   2,
+   1
+  ]
+ },
+ {
+  "c": "D3-05",
+  "n": "% domicílios com bueiro / boca de lobo no entorno (drenagem urbana)",
+  "t": "Pct",
+  "th": [
+   "< 40,6%",
+   "40,6% – 65,8%",
+   "≥ 65,8%"
+  ],
+  "f": "IBGE Censo 2022 – Pesquisa Urbanística do Entorno (SIDRA Tab. 9839)",
+  "iso": "ISO 37120:2018 – Águas residuais/drenagem (adaptado)",
+  "raw": [
+   "94,8%",
+   "83,9%",
+   "94,2%",
+   "52,5%",
+   "56,4%",
+   "55,7%",
+   "48,1%",
+   "62,8%"
+  ],
+  "p": [
+   2,
+   2,
+   2,
+   1,
+   1,
+   1,
+   1,
+   1
+  ]
+ },
+ {
+  "c": "D4-01",
+  "n": "ODS 11 — Cidades e comunidades sustentáveis",
+  "t": "Ord",
+  "th": [
+   "MB/Baixo",
+   "Médio",
+   "Alto/MA"
+  ],
+  "f": "IDSC-BR",
+  "iso": "ISO 37120/37122 múlt.",
+  "raw": [
+   "Médio (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)"
+  ],
+  "p": [
+   1,
+   1,
+   1,
+   2,
+   1,
+   1,
+   2,
+   1
+  ]
+ },
+ {
+  "c": "D4-02",
+  "n": "ODS 6 — Água potável e saneamento",
+  "t": "Ord",
+  "th": [
+   "MB/Baixo",
+   "Médio",
+   "Alto/MA"
+  ],
+  "f": "IDSC-BR",
+  "iso": "ISO 37120 ind.20.1",
+  "raw": [
+   "Muito Baixo (IDSC-BR 2024 — esgoto 37%)",
+   "Baixo (IDSC-BR 2024)",
+   "Muito Baixo (IDSC-BR 2024 — esgoto 38%)",
+   "Alto (IDSC-BR 2024 — esgoto 91,6%)",
+   "Baixo (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024 — esgoto 92,7%)",
+   "Médio (IDSC-BR 2024)"
+  ],
+  "p": [
+   0,
+   0,
+   0,
+   2,
+   0,
+   1,
+   2,
+   1
+  ]
+ },
+ {
+  "c": "D4-03",
+  "n": "ODS 7 — Energia acessível e limpa",
+  "t": "Ord",
+  "th": [
+   "MB/Baixo",
+   "Médio",
+   "Alto/MA"
+  ],
+  "f": "IDSC-BR",
+  "iso": "ISO 37120 ind.18.1",
+  "raw": [
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)"
+  ],
+  "p": [
+   1,
+   2,
+   1,
+   2,
+   1,
+   2,
+   2,
+   1
+  ]
+ },
+ {
+  "c": "D4-04",
+  "n": "Plano ou Plano Diretor Cicloviário",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "-",
+   "Sim"
+  ],
+  "f": "MUNIC 2024 (variável MTRA24b)",
+  "iso": "",
+  "raw": [
+   "Sim",
+   "Não",
+   "Não",
+   "Não",
+   "Não",
+   "Sim",
+   "Não",
+   "Sim"
+  ],
+  "p": [
+   2,
+   0,
+   0,
+   0,
+   0,
+   2,
+   0,
+   2
+  ]
+ },
+ {
+  "c": "D4-05",
+  "n": "IDHM (desenvolvimento humano municipal)",
+  "t": "Pct",
+  "th": [
+   "<0,700",
+   "0,700–0,750",
+   ">0,750"
+  ],
+  "f": "IBGE / PNUD",
+  "iso": "ISO 37120 ind.3.1",
+  "raw": [
+   "0,754 (Atlas Brasil / PNUD 2010)",
+   "0,768 (Atlas Brasil / PNUD 2010)",
+   "0,744 (Atlas Brasil / PNUD 2010)",
+   "0,755 (Atlas Brasil / PNUD 2010)",
+   "0,752 (Atlas Brasil / PNUD 2010)",
+   "0,788 (Atlas Brasil / PNUD 2010)",
+   "0,754 (Atlas Brasil / PNUD 2010)",
+   "0,747 (Atlas Brasil / PNUD 2010)"
+  ],
+  "p": [
+   2,
+   2,
+   1,
+   2,
+   2,
+   2,
+   2,
+   1
+  ]
+ },
+ {
+  "c": "D5-01",
+  "n": "Lei de inovação ou programa local",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "—",
+   "Sim"
+  ],
+  "f": "Legislação municipal",
+  "iso": "ISO 37122 ind.1.1",
+  "raw": [
+   "Sim — LC 210/2023",
+   "Sim",
+   "Sim",
+   "Sim — lei de inovação municipal",
+   "Sim",
+   "Sim — lei de inovação municipal",
+   "Sim — lei de inovação municipal",
+   "Sim"
+  ],
+  "p": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "c": "D5-02",
+  "n": "Parcerias universidade–prefeitura formalizadas",
+  "t": "Bin",
+  "th": [
+   "Não",
+   "—",
+   "Sim"
+  ],
+  "f": "Prefeitura / MUNIC",
+  "iso": "ISO 37122 ind.1.5",
+  "raw": [
+   "Sim",
+   "Sim — convênio UFMT/UNEMAT",
+   "Não localizado",
+   "Sim — UFMT campus + convênios",
+   "Não localizado",
+   "Sim — UFT + IFTO convênios",
+   "Sim — UniRV + parcerias municipais",
+   "Sim — UFGD + convênios"
+  ],
+  "p": [
+   2,
+   2,
+   0,
+   2,
+   0,
+   2,
+   2,
+   2
+  ]
+ },
+ {
+  "c": "D5-03",
+  "n": "Densidade de startups (startups por 100 mil habitantes)",
+  "t": "Qtd",
+  "th": [
+   "< 10,0",
+   "10,0 – 30,0",
+   "≥ 30,0"
+  ],
+  "f": "Observatório Sebrae Startups (acesso 23/09/2026) / IBGE Censo 2022",
+  "iso": "ISO 37122:2019 – Economia (adaptado)",
+  "raw": [
+   "35,1",
+   "31",
+   "13,6",
+   "17,1",
+   "18,8",
+   "47,6",
+   "8,9",
+   "0,8"
+  ],
+  "p": [
+   2,
+   2,
+   1,
+   1,
+   1,
+   2,
+   0,
+   0
+  ]
+ },
+ {
+  "c": "D5-04",
+  "n": "Investimento público em infraestrutura urbana por habitante (R$ per capita)",
+  "t": "Ord",
+  "th": [
+   "MB/Baixo",
+   "Médio",
+   "Alto/MA"
+  ],
+  "f": "IDSC-BR",
+  "iso": "ISO 37122 ind.9.1",
+  "raw": [
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Alto (IDSC-BR 2024)",
+   "Médio (IDSC-BR 2024)"
+  ],
+  "p": [
+   1,
+   2,
+   1,
+   2,
+   1,
+   2,
+   2,
+   1
+  ]
+ },
+ {
+  "c": "D5-05",
+  "n": "% empregos formais em atividades intensivas em conhecimento e tecnologia",
+  "t": "Pct",
+  "th": [
+   "<3,25%",
+   "3,25% – 4,50%",
+   "> 4,50%"
+  ],
+  "f": "RAIS/MTE",
+  "iso": "ISO 37122",
+  "raw": [
+   "6,46%",
+   "4,04%",
+   "4,90%",
+   "4,42%",
+   "3,15%",
+   "2,57%",
+   "3,40%",
+   "4,57%"
+  ],
+  "p": [
+   2,
+   1,
+   2,
+   1,
+   1,
+   0,
+   1,
+   2
+  ]
+ }
+]
