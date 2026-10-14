@@ -21,4 +21,6 @@ Na seção 5 da página ("Dados"):
 
 O botão "Voltar para a amostra da dissertação" restaura os 8 municípios da REV05.
 
+O **manual de aplicação** (seção 8 da página) traz o passo a passo, o guia de coleta de cada indicador (fonte, como preencher e limiares), as regras de cálculo, os cuidados e as perguntas frequentes.
+
 Os dados da REV05 estão embutidos nas páginas. Nenhuma nota IEGM nova (i-Fiscal, i-Planejamento, i-Cidade, i-Amb) vem preenchida: elas devem ser coletadas no painel do IRB ou nos portais dos Tribunais de Contas.
