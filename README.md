@@ -24,3 +24,11 @@ O botão "Voltar para a amostra da dissertação" restaura os 8 municípios da R
 O **manual de aplicação** (seção 8 da página) traz o passo a passo, o guia de coleta de cada indicador (fonte, como preencher e limiares), as regras de cálculo, os cuidados e as perguntas frequentes.
 
 Os dados da REV05 estão embutidos nas páginas. Nenhuma nota IEGM nova (i-Fiscal, i-Planejamento, i-Cidade, i-Amb) vem preenchida: elas devem ser coletadas no painel do IRB ou nos portais dos Tribunais de Contas.
+
+## Código-fonte e montagem
+
+- `src/page.html`: modelo da página (estilos, textos e script), com os marcadores `/*DATA*/[]` e `/*REGIONAL*/[]`.
+- `src/data/rev05.json`: os 25 indicadores da Matriz REV05 (dados brutos e níveis dos 8 municípios).
+- `src/data/regional.json`: os 48 municípios acima de 50 mil habitantes (população e notas do IEGM).
+- `src/data/iegm/`: exportações CSV do painel IEGM Brasil usadas na página.
+- `src/build.py`: monta `index.html` e `publicada/icsmp-iegm.html`. Rode `python3 src/build.py` depois de editar qualquer arquivo de `src/`.
