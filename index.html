@@ -225,6 +225,28 @@ summary { cursor: pointer; font-family: var(--sans); font-size: 14px; color: var
 .card h4 { margin: 0 0 6px; font-size: 16px; }
 .card p { font-size: 15px; margin-bottom: 8px; }
 .arrow { font-family: var(--sans); color: var(--muted); }
+/* radar */
+.radar-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 760px) { .radar-grid { grid-template-columns: 1fr; } }
+.radar-svg { width: 100%; max-width: 460px; height: auto; display: block; margin: 0 auto; }
+.radar-svg .ring { fill: none; stroke: var(--grid); stroke-width: 1; }
+.radar-svg .spoke { stroke: var(--grid); stroke-width: 1; }
+.radar-svg .tick { fill: var(--muted); font: 10px var(--sans); }
+.radar-svg .axis-label { fill: var(--ink); font: 600 12px var(--sans); }
+.radar-svg .axis-sub { fill: var(--muted); font: 10px var(--sans); }
+.radar-svg .r-cur { stroke: var(--series-1); fill: var(--series-1); fill-opacity: .12; stroke-width: 2; }
+.radar-svg .r-avg { stroke: var(--muted); fill: var(--muted); fill-opacity: .06; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.radar-svg .r-prop { stroke: var(--series-2); fill: var(--series-2); fill-opacity: .10; stroke-width: 2; }
+.radar-svg .pt { stroke: var(--surface); stroke-width: 2; }
+.radar-svg .pt.r-cur { fill: var(--series-1); fill-opacity: 1; }
+.radar-svg .pt.r-avg { fill: var(--muted); fill-opacity: 1; stroke-dasharray: none; }
+.radar-svg .pt.r-prop { fill: var(--series-2); fill-opacity: 1; }
+.radar-svg .hit { fill: transparent; stroke: none; cursor: default; }
+.legend i.sw { display: inline-block; width: 18px; height: 0; border-radius: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+#radarTable th, #radarTable td { padding: 8px 10px; }
+.legend i.sw.cur { border-color: var(--series-1); }
+.legend i.sw.avg { border-color: var(--muted); border-top-style: dashed; }
+.legend i.sw.prop { border-color: var(--series-2); }
 section ul { max-width: 72ch; }
 ol.refs { font-size: 14px; color: var(--ink-2); padding-left: 20px; }
 ol.refs li { margin-bottom: 6px; }
@@ -383,6 +405,23 @@ footer { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--grid);
 <section id="resultado">
 <h2>6. Resultado: ICS-MP atual × proposto</h2>
 <p id="resultLede"></p>
+<div class="chart" id="radarCard">
+  <div class="toolbar" style="margin:0 0 4px">
+    <p class="chart-title" style="margin:0">Radar de maturidade — 5 dimensões</p>
+    <label for="radarSel" class="small" style="margin-left:auto">Município:</label>
+    <select id="radarSel" class="btn"></select>
+  </div>
+  <p class="chart-sub">Score 0–100 por dimensão · município × média da amostra (REV05) e, com as notas IEGM completas, o cenário proposto</p>
+  <div class="radar-grid">
+    <div><svg class="radar-svg" id="radarSvg" viewBox="-15 5 490 390" role="img" aria-label="Radar das cinco dimensões"></svg></div>
+    <div style="min-width:0">
+      <div class="table-wrap" style="margin:0">
+        <table id="radarTable"><thead></thead><tbody></tbody></table>
+      </div>
+      <div class="legend" id="radarLegend"></div>
+    </div>
+  </div>
+</div>
 <div class="chart" id="barChart" role="img" aria-label="ICS-MP atual e proposto por município"></div>
 <div class="legend">
   <span><i style="background:var(--series-1)"></i>ICS-MP REV05 (atual)</span>
@@ -740,6 +779,57 @@ function renderHeat(rows) {
     });
   });
 }
+// ---------- radar ----------
+const DIM_SHORT = ["Governança","Habitação","Planejamento","Sustentabilidade","Inovação/TT"];
+const radarSel = document.getElementById("radarSel");
+radarSel.innerHTML = MUN.map((m, j) => `<option value="${j}">${esc(m)}</option>`).join("");
+radarSel.value = "0";
+radarSel.addEventListener("change", () => refresh());
+const AVG = DIMS.map((d, i) => MUN.reduce((a, m, j) => a + CUR[j].ds[i], 0) / MUN.length);
+function renderRadar(prop) {
+  const j = +radarSel.value, svg = document.getElementById("radarSvg");
+  const cx = 230, cy = 205, R = 135, n = DIMS.length;
+  const ang = i => -Math.PI / 2 + i * 2 * Math.PI / n;
+  const pt = (i, v) => [cx + Math.cos(ang(i)) * R * v / 100, cy + Math.sin(ang(i)) * R * v / 100];
+  const poly = vals => vals.map((v, i) => pt(i, v === null ? 0 : v).map(x => x.toFixed(1)).join(",")).join(" ");
+  const series = [
+    {name: MUN[j] + " (REV05)", vals: CUR[j].ds, cls: "r-cur", sw: "cur"},
+    {name: "Média da amostra (REV05)", vals: AVG, cls: "r-avg", sw: "avg"},
+  ];
+  if (prop[j].ics !== null) series.push({name: MUN[j] + " (proposto com IEGM)", vals: prop[j].ds, cls: "r-prop", sw: "prop"});
+  let s = "";
+  [25, 50, 75, 100].forEach(t => { s += `<polygon class="ring" points="${poly(Array(n).fill(t))}"></polygon>`; });
+  DIMS.forEach((d, i) => { const [x, y] = pt(i, 100); s += `<line class="spoke" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"></line>`; });
+  [25, 50, 75, 100].forEach(t => { s += `<text class="tick" x="${cx + 4}" y="${(cy - R * t / 100 + 3).toFixed(1)}">${t}</text>`; });
+  DIMS.forEach((d, i) => {
+    const [x, y] = pt(i, 118), c = Math.cos(ang(i));
+    const anchor = Math.abs(c) < 0.2 ? "middle" : c > 0 ? "start" : "end";
+    const dy = i === 0 ? -6 : 4;
+    s += `<text class="axis-label" x="${x.toFixed(1)}" y="${(y + dy).toFixed(1)}" text-anchor="${anchor}">${DIM_SHORT[i]}</text>`;
+    s += `<text class="axis-sub" x="${x.toFixed(1)}" y="${(y + dy + 13).toFixed(1)}" text-anchor="${anchor}">${d.k} · peso ${Math.round(d.w * 100)}%</text>`;
+  });
+  series.slice().reverse().forEach(se => { s += `<polygon class="${se.cls}" points="${poly(se.vals)}"></polygon>`; });
+  series.slice().reverse().forEach(se => se.vals.forEach((v, i) => {
+    if (v === null) return;
+    const [x, y] = pt(i, v);
+    s += `<circle class="pt ${se.cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5"></circle>`;
+  }));
+  DIMS.forEach((d, i) => { const [x, y] = pt(i, 60); s += `<circle class="hit" data-i="${i}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(R * 0.55).toFixed(0)}"></circle>`; });
+  svg.innerHTML = s;
+  svg.querySelectorAll(".hit").forEach(h => {
+    const i = +h.dataset.i;
+    bindTip(h, () => `<b>${DIMS[i].k} · ${DIMS[i].n}</b><br>` + series.map(se => `${esc(se.name)}: ${fmt(se.vals[i], 0)}`).join("<br>"));
+  });
+  const t = document.getElementById("radarTable");
+  t.querySelector("thead").innerHTML = `<tr><th>Dimensão</th><th class="r">${esc(MUN[j].replace(/-..$/, ""))}</th><th class="r">Média</th><th class="r">Proposto</th></tr>`;
+  t.querySelector("tbody").innerHTML = DIMS.map((d, i) => {
+    const a = CUR[j].ds[i], m = AVG[i], p = prop[j].ics !== null ? prop[j].ds[i] : null;
+    const diff = a - m, sign = diff > 0.5 ? "▲" : diff < -0.5 ? "▼" : "=";
+    return `<tr><td><span class="code">${d.k}</span> ${DIM_SHORT[i]}</td><td class="r num">${fmt(a, 0)} <span class="small" title="em relação à média">${sign}</span></td><td class="r num">${fmt(m, 0)}</td><td class="r num">${p === null ? "—" : fmt(p, 0)}</td></tr>`;
+  }).join("") + `<tr><td><strong>ICS-MP</strong></td><td class="r num"><strong>${fmt(CUR[j].ics, 1)}</strong></td><td class="r num">${fmt(MUN.reduce((a, m, k) => a + CUR[k].ics, 0) / MUN.length, 1)}</td><td class="r num"><strong>${prop[j].ics === null ? "—" : fmt(prop[j].ics, 1)}</strong></td></tr>`;
+  document.getElementById("radarLegend").innerHTML = series.map(se => `<span><i class="sw ${se.sw}"></i>${esc(se.name)}</span>`).join("") +
+    (prop[j].ics === null ? `<span class="small">Proposto aparece quando as notas IEGM de ${esc(MUN[j])} estiverem completas (seção 5).</span>` : "");
+}
 function complete(j) { return IEGM_ALL.every(x => state.v[x.key][j] !== null && !Number.isNaN(state.v[x.key][j])); }
 function refresh() {
   refreshPills();
@@ -747,6 +837,7 @@ function refresh() {
   const rows = proposedRows();
   const anyNew = NEW.some(x => state.v[x.key].some(v => v !== null));
   const prop = scores(rows).map((s, j) => complete(j) ? s : {ds: s.ds, ics: null, partial: true});
+  renderRadar(prop);
   renderBars(prop, anyNew);
   renderScores(prop, anyNew);
   renderHeat(rows);
