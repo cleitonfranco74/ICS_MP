@@ -420,7 +420,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <h2>5. Coleta das notas do IEGM</h2>
 <p>As notas abaixo vêm do <strong>IEGM 2025, exercício 2024</strong>, exportado do painel IEGM Brasil. Para corrigir ou completar, edite os campos (0 a 1), sempre com notas do <strong>mesmo exercício</strong>. Elas estão no painel do IRB (<a href="https://iegm.irbcontas.org.br/" target="_blank" rel="noopener">iegm.irbcontas.org.br</a>, filtro por UF e exercício) e nos portais dos tribunais competentes (TCE-MT, TCE-TO, TCE-MS e, para Rio Verde-GO, TCM-GO). Valores em porcentagem (ex.: 72) são convertidos para 0,72. Quem tiver acesso de edição a esta página grava as notas para todos que a abrirem.</p>
 <div class="callout">
-  <p><strong>Fonte:</strong> exportação CSV do painel IEGM Brasil (IRB/Atricon), exercício 2024, tribunais TCE-MT, TCE-MS e TCM-GO. <strong>Faltam dois municípios:</strong> Rondonópolis-MT não consta da exportação do TCE-MT, e Palmas-TO não foi exportado (TCE-TO). Para os dois, o i-Gov-TI mantém o valor da REV05 e o ICS-MP proposto fica como “incompleto” até as notas serem informadas.</p>
+  <p><strong>Fonte:</strong> exportação CSV do painel IEGM Brasil (IRB/Atricon), exercício 2024, tribunais TCE-MT, TCE-MS e TCM-GO. <strong>Exceções:</strong> Palmas-TO usa o exercício 2023 (TCE-TO), o único disponível na exportação, e deve ser comparado com cautela. Rondonópolis-MT não consta da exportação do TCE-MT: o i-Gov-TI mantém o valor da REV05 e o ICS-MP proposto fica como “incompleto” até as notas serem informadas.</p>
 </div>
 <div class="toolbar">
   <label for="bandSel">Faixas para converter as notas:</label>
@@ -526,8 +526,9 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 
 <h3>O que os dados do IEGM 2024 mostram</h3>
 <ul>
-  <li><strong>i-Cidade e i-Amb não discriminam com as faixas oficiais.</strong> Nos seis municípios com dados, todas as notas de i-Cidade (0,01 a 0,46) e de i-Amb (0,27 a 0,59) ficam abaixo de 0,60, ou seja, todos em Iniciante. Trocar D3-02 e D3-03 por eles troca um “todos Avançado” por um “todos Iniciante”. Alternativas: pontuar a nota de forma contínua (pontos = 2 × nota), usar cortes pela distribuição nacional do IEGM, ou manter apenas i-Fiscal e i-Planejamento como substitutos.</li>
+  <li><strong>i-Cidade e i-Amb quase não discriminam com as faixas oficiais.</strong> Nos seis municípios com dados de 2024, todas as notas de i-Cidade (0,01 a 0,46) e de i-Amb (0,27 a 0,59) ficam abaixo de 0,60, ou seja, em Iniciante. A única exceção é o i-Cidade de Palmas (0,71, exercício 2023). Trocar D3-02 e D3-03 por eles troca um “todos Avançado” por um “quase todos Iniciante”. Alternativas: pontuar a nota de forma contínua (pontos = 2 × nota), usar cortes pela distribuição nacional do IEGM, ou manter apenas i-Fiscal e i-Planejamento como substitutos.</li>
   <li><strong>i-Fiscal e i-Planejamento discriminam.</strong> O i-Fiscal vai de 0,59 (Dourados) a 0,85 (Sorriso) e ocupa os três níveis. O i-Planejamento separa Lucas do Rio Verde (0,61) dos demais.</li>
+  <li><strong>Palmas-TO está em outro exercício.</strong> A exportação do TCE-TO só trouxe o exercício 2023. As notas foram usadas para não deixar Palmas fora da comparação, mas misturam anos diferentes; substitua pelas de 2024 quando o TCE-TO publicar.</li>
   <li><strong>i-Gov-TI de Lucas do Rio Verde diverge da REV05.</strong> A planilha registra 0,72 (o mesmo valor de Sinop); a exportação do exercício 2024 traz 0,57. A página usa 0,57. Vale conferir de onde veio o 0,72.</li>
 </ul>
 
@@ -578,15 +579,16 @@ const NEW = [
 ];
 const GOVTI = {c:"D1-05", key:"igovti", short:"i-Gov-TI"};
 // IEGM 2025, exercício 2024 — exportação CSV do painel IEGM Brasil (IRB/Atricon): TCE-MT, TCE-MS e TCM-GO.
-// Ordem de MUN. null = município ausente da exportação (Rondonópolis-MT; Palmas-TO sem arquivo do TCE-TO).
+// Ordem de MUN. null = município ausente da exportação (Rondonópolis-MT). Palmas-TO: TCE-TO, exercício 2023.
 const IEGM_EXERCICIO = "2024";
 const IEGM_2024 = {
-  ifiscal: [0.69, 0.72, 0.85, null, 0.78, null, 0.74, 0.59],
-  iplan:   [0.35, 0.61, 0.35, null, 0.27, null, 0.27, 0.22],
-  icidade: [0.41, 0.33, 0.46, null, 0.01, null, 0.22, 0.27],
-  iamb:    [0.59, 0.34, 0.55, null, 0.38, null, 0.27, 0.43],
-  igovti:  [0.72, 0.57, 0.28, null, 0.46, null, 0.66, 0.49],
+  ifiscal: [0.69, 0.72, 0.85, null, 0.78, 0.62, 0.74, 0.59],
+  iplan:   [0.35, 0.61, 0.35, null, 0.27, 0.39, 0.27, 0.22],
+  icidade: [0.41, 0.33, 0.46, null, 0.01, 0.71, 0.22, 0.27],
+  iamb:    [0.59, 0.34, 0.55, null, 0.38, 0.45, 0.27, 0.43],
+  igovti:  [0.72, 0.57, 0.28, null, 0.46, 0.69, 0.66, 0.49],
 };
+const IEGM_EXERC = ["2024", "2024", "2024", null, "2024", "2023", "2024", "2024"];
 const IEGM_ALL = [...NEW, {...GOVTI}];
 const BANDS = {
   oficial: {lo:0.60, hi:0.75, th:["< 0,60 (C, C+)","0,60 – 0,749 (B)","≥ 0,75 (B+, A)"]},
@@ -806,7 +808,7 @@ function renderInputs() {
   tb.innerHTML = "";
   MUN.forEach((m, j) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${esc(m)}</td>` + IEGM_ALL.map(x => {
+    tr.innerHTML = `<td>${esc(m)}${IEGM_EXERC[j] && IEGM_EXERC[j] !== IEGM_EXERCICIO ? `<br><span class="tag low">exercício ${IEGM_EXERC[j]}</span>` : ""}${!IEGM_EXERC[j] ? `<br><span class="tag ok">sem dados IEGM</span>` : ""}</td>` + IEGM_ALL.map(x => {
       const v = state.v[x.key][j];
       return `<td style="white-space:nowrap"><input class="iegm-input" inputmode="decimal" aria-label="${x.short} ${esc(m)}" data-k="${x.key}" data-j="${j}" value="${v === null ? "" : fmt(v)}" placeholder="—"><span class="pill" data-pill="${x.key}-${j}"></span></td>`;
     }).join("");
