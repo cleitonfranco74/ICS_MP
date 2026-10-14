@@ -418,9 +418,9 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <!-- 5 -->
 <section id="coleta">
 <h2>5. Coleta das notas do IEGM</h2>
-<p>Insira as notas (0 a 1) de cada município, todas do <strong>mesmo exercício</strong>. Elas estão no painel do IRB (<a href="https://iegm.irbcontas.org.br/" target="_blank" rel="noopener">iegm.irbcontas.org.br</a>, filtro por UF e exercício) e nos portais dos tribunais competentes (TCE-MT, TCE-TO, TCE-MS e, para Rio Verde-GO, TCM-GO). Valores em porcentagem (ex.: 72) são convertidos para 0,72. Os campos ficam salvos neste navegador.</p>
+<p>As notas abaixo vêm do <strong>IEGM 2025, exercício 2024</strong>, exportado do painel IEGM Brasil. Para corrigir ou completar, edite os campos (0 a 1), sempre com notas do <strong>mesmo exercício</strong>. Elas estão no painel do IRB (<a href="https://iegm.irbcontas.org.br/" target="_blank" rel="noopener">iegm.irbcontas.org.br</a>, filtro por UF e exercício) e nos portais dos tribunais competentes (TCE-MT, TCE-TO, TCE-MS e, para Rio Verde-GO, TCM-GO). Valores em porcentagem (ex.: 72) são convertidos para 0,72. Os campos ficam salvos neste navegador.</p>
 <div class="callout">
-  <p>Nenhuma nota foi inventada: os campos do i-Planejamento, i-Fiscal, i-Amb e i-Cidade começam vazios. O i-Gov-TI vem preenchido com os valores da REV05. Município sem nota fica fora do cálculo do indicador, como prevê a regra de “dado indisponível” da planilha.</p>
+  <p><strong>Fonte:</strong> exportação CSV do painel IEGM Brasil (IRB/Atricon), exercício 2024, tribunais TCE-MT, TCE-MS e TCM-GO. <strong>Faltam dois municípios:</strong> Rondonópolis-MT não consta da exportação do TCE-MT, e Palmas-TO não foi exportado (TCE-TO). Para os dois, o i-Gov-TI mantém o valor da REV05 e o ICS-MP proposto fica como “incompleto” até as notas serem informadas.</p>
 </div>
 <div class="toolbar">
   <label for="bandSel">Faixas para converter as notas:</label>
@@ -437,7 +437,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 </div>
 <div class="toolbar">
   <button class="btn" id="exportBtn" type="button">Exportar CSV</button>
-  <button class="btn" id="clearBtn" type="button">Limpar notas</button>
+  <button class="btn" id="clearBtn" type="button">Restaurar IEGM 2024</button>
   <span class="small" id="fillStatus"></span>
 </div>
 <details>
@@ -481,6 +481,15 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 </div>
 <p class="caption">Score_D = Σ pontos ÷ máximo possível × 100. ICS-MP = Σ(Score_D × Peso_D). Pesos: D1 20% · D2 25% · D3 20% · D4 20% · D5 15%. Nível: 0–25 Iniciante · 26–50 Em desenvolvimento · 51–75 Avançado · 76–100 Referência.</p>
 
+<h3>Poder discriminatório dos indicadores IEGM</h3>
+<p class="small" style="max-width:76ch">Distribuição dos níveis entre os municípios que têm nota, com a regra de faixas escolhida na seção 5. Um indicador IEGM só cumpre o papel de substituto se diferenciar os municípios.</p>
+<div class="table-wrap">
+<table id="iegmDiscr">
+  <thead><tr><th>Cód.</th><th>Indicador IEGM</th><th>Distribuição</th><th class="c">Com nota</th><th class="c">Níveis distintos</th><th>Poder discriminatório</th></tr></thead>
+  <tbody></tbody>
+</table>
+</div>
+
 <h3>Mapa de níveis da matriz proposta</h3>
 <div class="legend" aria-hidden="true">
   <span><i class="lv0"></i>Iniciante (0)</span>
@@ -508,6 +517,13 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
   <li><strong>D2-03</strong> usa “&gt; 0,60” no limiar Avançado, enquanto os outros limiares estão em %; padronizar para “&gt; 60%”.</li>
   <li>A aba “Instruções de uso” ainda cita 9 municípios (com Cascavel-PR); a amostra final tem 8.</li>
   <li>O TCC cita Sorriso e Primavera do Leste com 59,0, e a REV05 calcula 60,0 e 59,5. Vale atualizar o texto com os valores finais.</li>
+</ul>
+
+<h3>O que os dados do IEGM 2024 mostram</h3>
+<ul>
+  <li><strong>i-Cidade e i-Amb não discriminam com as faixas oficiais.</strong> Nos seis municípios com dados, todas as notas de i-Cidade (0,01 a 0,46) e de i-Amb (0,27 a 0,59) ficam abaixo de 0,60, ou seja, todos em Iniciante. Trocar D3-02 e D3-03 por eles troca um “todos Avançado” por um “todos Iniciante”. Alternativas: pontuar a nota de forma contínua (pontos = 2 × nota), usar cortes pela distribuição nacional do IEGM, ou manter apenas i-Fiscal e i-Planejamento como substitutos.</li>
+  <li><strong>i-Fiscal e i-Planejamento discriminam.</strong> O i-Fiscal vai de 0,59 (Dourados) a 0,85 (Sorriso) e ocupa os três níveis. O i-Planejamento separa Lucas do Rio Verde (0,61) dos demais.</li>
+  <li><strong>i-Gov-TI de Lucas do Rio Verde diverge da REV05.</strong> A planilha registra 0,72 (o mesmo valor de Sinop); a exportação do exercício 2024 traz 0,57. A página usa 0,57. Vale conferir de onde veio o 0,72.</li>
 </ul>
 
 <h3>Cuidados com o IEGM</h3>
@@ -556,6 +572,16 @@ const NEW = [
    why:"Uniforme. Avalia licenciamento, resíduos e áreas verdes, instrumentos ligados ao uso do solo."},
 ];
 const GOVTI = {c:"D1-05", key:"igovti", short:"i-Gov-TI"};
+// IEGM 2025, exercício 2024 — exportação CSV do painel IEGM Brasil (IRB/Atricon): TCE-MT, TCE-MS e TCM-GO.
+// Ordem de MUN. null = município ausente da exportação (Rondonópolis-MT; Palmas-TO sem arquivo do TCE-TO).
+const IEGM_EXERCICIO = "2024";
+const IEGM_2024 = {
+  ifiscal: [0.69, 0.72, 0.85, null, 0.78, null, 0.74, 0.59],
+  iplan:   [0.35, 0.61, 0.35, null, 0.27, null, 0.27, 0.22],
+  icidade: [0.41, 0.33, 0.46, null, 0.01, null, 0.22, 0.27],
+  iamb:    [0.59, 0.34, 0.55, null, 0.38, null, 0.27, 0.43],
+  igovti:  [0.72, 0.57, 0.28, null, 0.46, null, 0.66, 0.49],
+};
 const IEGM_ALL = [...NEW, {...GOVTI}];
 const BANDS = {
   oficial: {lo:0.60, hi:0.75, th:["< 0,60 (C, C+)","0,60 – 0,749 (B)","≥ 0,75 (B+, A)"]},
@@ -565,10 +591,14 @@ const byCode = Object.fromEntries(IND.map(i => [i.c, i]));
 const govtiRaw = byCode["D1-05"].raw.map(v => parseNum(v));
 
 // ---------- state ----------
-const STORE_KEY = "icsmp-iegm-v1";
+const STORE_KEY = "icsmp-iegm-v2";
 let state = { band: "oficial", v: {} };
-IEGM_ALL.forEach(x => state.v[x.key] = Array(8).fill(null));
-state.v.igovti = govtiRaw.slice();
+// Padrão: IEGM exercício 2024; i-Gov-TI de quem não está na exportação mantém o valor da REV05.
+function resetToOfficial() {
+  NEW.forEach(x => state.v[x.key] = IEGM_2024[x.key].slice());
+  state.v.igovti = IEGM_2024.igovti.map((v, j) => v !== null ? v : govtiRaw[j]);
+}
+resetToOfficial();
 try {
   const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
   if (s && s.v) { state.band = s.band || state.band; for (const k in s.v) if (state.v[k]) state.v[k] = s.v[k]; }
@@ -896,6 +926,25 @@ function nivelOf(x) { return x === null ? "—" : x >= 76 ? "Referência" : x >=
   }
   addEventListener("scroll", upd, {passive: true}); upd();
 })();
+function renderIegmDiscr() {
+  const tb = document.querySelector("#iegmDiscr tbody");
+  tb.innerHTML = "";
+  IEGM_ALL.forEach(x => {
+    const lv = state.v[x.key].map(level), have = lv.filter(v => v !== null);
+    const c = [0, 0, 0]; have.forEach(v => c[v]++);
+    const distinct = c.filter(Boolean).length, mode = Math.max(...c);
+    const cls = !have.length ? "ok" : distinct === 1 ? "null" : mode >= have.length - 1 ? "low" : "ok";
+    const label = !have.length ? "Sem dados" : distinct === 1 ? "Nulo" : mode >= have.length - 1 ? "Baixo" : "Adequado";
+    const segs = c.map((n, l) => n ? `<span class="lv${l}" data-lv="${l}" style="flex:${n}"></span>` : "").join("");
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="code">${x.c}</td><td>${x.short}</td><td><div class="dist">${segs}</div><div class="small num" style="margin-top:3px">${c[0]} · ${c[1]} · ${c[2]}</div></td><td class="c num">${have.length}/8</td><td class="c num">${distinct}</td><td><span class="tag ${cls}">${label}</span></td>`;
+    tr.querySelectorAll(".dist span").forEach(s => {
+      const l = +s.dataset.lv;
+      bindTip(s, () => `<b>${x.short} · ${LV[l]}</b><br>` + MUN.filter((m, j) => lv[j] === l).map((m) => { const j = MUN.indexOf(m); return `${esc(m)}: ${fmt(state.v[x.key][j])}`; }).join("<br>"));
+    });
+    tb.appendChild(tr);
+  });
+}
 function complete(j) { return IEGM_ALL.every(x => state.v[x.key][j] !== null && !Number.isNaN(state.v[x.key][j])); }
 function refresh() {
   refreshPills();
@@ -904,6 +953,7 @@ function refresh() {
   const anyNew = NEW.some(x => state.v[x.key].some(v => v !== null));
   const prop = scores(rows).map((s, j) => complete(j) ? s : {ds: s.ds, ics: null, partial: true});
   document.getElementById("hdrProp").innerHTML = prop[0].ics !== null ? `Proposto com IEGM: <b>${fmt(prop[0].ics, 1)}</b>` : "Proposto: aguarda notas IEGM";
+  renderIegmDiscr();
   renderRadar(prop);
   renderBars(prop, anyNew);
   renderScores(prop, anyNew);
@@ -929,9 +979,8 @@ const bandSel = document.getElementById("bandSel");
 bandSel.value = state.band;
 bandSel.addEventListener("change", () => { state.band = bandSel.value; save(); refresh(); });
 document.getElementById("clearBtn").addEventListener("click", () => {
-  if (!confirm("Apagar as notas do i-Planejamento, i-Fiscal, i-Amb e i-Cidade e restaurar o i-Gov-TI da REV05?")) return;
-  NEW.forEach(x => state.v[x.key] = Array(8).fill(null));
-  state.v.igovti = govtiRaw.slice();
+  if (!confirm("Descartar as alterações e restaurar as notas do IEGM 2024?")) return;
+  resetToOfficial();
   save(); renderInputs(); refresh();
 });
 document.getElementById("exportBtn").addEventListener("click", () => {
