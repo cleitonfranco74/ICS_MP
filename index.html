@@ -2,7 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</head>
+<body>
 <title>Matriz ICS-MP com IEGM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -272,6 +274,16 @@ code { font-size: 13px; }
 .strip { position: relative; height: 18px; min-width: 160px; }
 .strip::before { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: var(--grid); border-radius: 2px; }
 .strip i { position: absolute; top: 3px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; border: 2px solid var(--surface); }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin: 16px 0; }
+.step { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.step h4 { font-family: var(--display); font-size: 14px; margin: 0; }
+.step p { font-size: 13px; color: var(--ink-2); margin: 0; }
+.step .toolbar { margin: auto 0 0; }
+.step-n { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; align-items: center; justify-content: center; background: var(--navy); color: var(--on-navy); font: 700 12px var(--display); margin-right: 8px; }
+.file-in { position: relative; display: inline-flex; align-items: center; }
+.file-in input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.file-in:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 20px; }
+.ds-line { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 14px; margin: 4px 0 0; }
 #cmpTable td.sel, #cmpTable th.sel { background: var(--accent-wash); }
 #cmpTable tfoot td { background: var(--surface-2); font-weight: 600; border-top: 1px solid var(--axis); }
 
@@ -288,8 +300,6 @@ ol.refs li { margin-bottom: 6px; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid); font-size: 12px; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
-</head>
-<body>
 <header class="header">
  <div class="header-in">
   <div class="header-top">
@@ -299,7 +309,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
       <p class="header-sub">Substituição dos indicadores de baixo poder discriminatório por dimensões do Índice de Efetividade da Gestão Municipal (IEGM), mantendo as cinco dimensões, os pesos e a pontuação 0-1-2. Diálogo com o TCE-MT.</p>
     </div>
     <div class="ics-score-box">
-      <div class="ics-label">ICS-MP Sinop-MT · REV05</div>
+      <div class="ics-label" id="hdrLabel">ICS-MP Sinop-MT · REV05</div>
       <div class="ics-value" id="hdrScore">—</div>
       <div class="ics-nivel" id="hdrNivel">—</div>
       <div class="ics-prop" id="hdrProp">Proposto: aguarda notas IEGM</div>
@@ -309,7 +319,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
     <div class="meta-item"><strong>Dissertação</strong>Rhaissa Estevão — PROFNIT</div>
     <div class="meta-item"><strong>Orientador</strong>Dr. Cleiton Franco</div>
     <div class="meta-item"><strong>Base</strong>Matriz REV05 · TCC REV 27</div>
-    <div class="meta-item"><strong>Municípios</strong>8 municípios benchmarking</div>
+    <div class="meta-item"><strong>Municípios</strong><span id="hdrMun">8 municípios benchmarking</span></div>
   </div>
  </div>
 </header>
@@ -320,7 +330,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
   <a href="#iegm">O IEGM</a>
   <a href="#proposta">Substituições</a>
   <a href="#matriz">Matriz proposta</a>
-  <a href="#coleta">Coleta IEGM</a>
+  <a href="#coleta">Dados</a>
   <a href="#resultado">Resultado</a>
   <a href="#notas">Notas</a>
   <button class="theme-btn" id="themeBtn" type="button" aria-label="Alternar tema claro ou escuro">◐ Tema</button>
@@ -329,6 +339,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 
 <div class="wrap">
 <div class="kpis" id="kpis"></div>
+<div class="callout warn" id="dsBanner" hidden></div>
 
 <!-- 1 -->
 <section id="diagnostico">
@@ -423,11 +434,35 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 
 <!-- 5 -->
 <section id="coleta">
-<h2>5. Coleta das notas do IEGM</h2>
-<p>As notas abaixo vêm do <strong>IEGM 2025, exercício 2024</strong>, exportado do painel IEGM Brasil. Para corrigir ou completar, edite os campos (0 a 1), sempre com notas do <strong>mesmo exercício</strong>. Elas estão no painel do IRB (<a href="https://iegm.irbcontas.org.br/" target="_blank" rel="noopener">iegm.irbcontas.org.br</a>, filtro por UF e exercício) e nos portais dos tribunais competentes (TCE-MT, TCE-TO, TCE-MS e, para Rio Verde-GO, TCM-GO). Valores em porcentagem (ex.: 72) são convertidos para 0,72. Os campos ficam salvos neste navegador.</p>
+<h2>5. Dados dos municípios e notas do IEGM</h2>
+<p>A ferramenta pode ser aplicada a qualquer conjunto de municípios. Baixe a planilha-modelo, preencha com os dados brutos de cada indicador e carregue o arquivo: os níveis são calculados pelos limiares da matriz. As notas do IEGM podem vir da própria planilha ou do CSV exportado do painel IEGM Brasil.</p>
+<p class="ds-line"><span class="small">Dados em uso:</span> <strong id="dsName">Amostra da dissertação</strong> <button class="btn" id="sampleBtn" type="button" hidden>Voltar para a amostra da dissertação</button></p>
+<div class="steps">
+  <div class="step">
+    <h4><span class="step-n">1</span>Baixar a planilha-modelo</h4>
+    <p>CSV com uma linha por município e uma coluna por indicador, já preenchido com os dados em uso como exemplo. O dicionário explica o formato de cada coluna.</p>
+    <div class="toolbar"><button class="btn primary" id="tplBtn" type="button">Planilha-modelo</button><button class="btn" id="dictBtn" type="button">Dicionário</button></div>
+  </div>
+  <div class="step">
+    <h4><span class="step-n">2</span>Carregar a planilha preenchida</h4>
+    <p>Salve como CSV (ponto e vírgula) no Excel ou LibreOffice. Sim/Não, Baixo/Médio/Alto e números com vírgula são reconhecidos; =0, =1 ou =2 informam o nível direto.</p>
+    <div class="toolbar"><label class="btn file-in">Escolher arquivo CSV<input type="file" id="tplFile" accept=".csv,text/csv"></label></div>
+  </div>
+  <div class="step">
+    <h4><span class="step-n">3</span>Importar o CSV do IEGM</h4>
+    <p>Arquivos exportados do painel IEGM Brasil (um por tribunal; pode selecionar vários). Os municípios são identificados pelo nome e pela UF do tribunal.</p>
+    <div class="toolbar"><label class="btn file-in">Escolher CSV do IEGM<input type="file" id="iegmFile" accept=".csv,text/csv" multiple></label></div>
+  </div>
+</div>
+<div id="importReport" hidden></div>
+<h3>Notas do IEGM</h3>
+<div id="sampleIegmNote">
+<p>As notas abaixo vêm do <strong>IEGM 2025, exercício 2024</strong>, exportado do painel IEGM Brasil. Para corrigir ou completar, edite os campos (0 a 1), sempre com notas do <strong>mesmo exercício</strong>. Elas estão no painel do IRB (<a href="https://iegm.irbcontas.org.br/" target="_blank" rel="noopener">iegm.irbcontas.org.br</a>, filtro por UF e exercício) e nos portais dos tribunais competentes (TCE-MT, TCE-TO, TCE-MS e, para Rio Verde-GO, TCM-GO). Valores em porcentagem (ex.: 72) são convertidos para 0,72. Quem tiver acesso de edição a esta página grava as notas para todos que a abrirem.</p>
 <div class="callout">
   <p><strong>Fonte:</strong> exportação CSV do painel IEGM Brasil (IRB/Atricon), exercício 2024, tribunais TCE-MT, TCE-MS e TCM-GO. <strong>Exceções:</strong> Palmas-TO usa o exercício 2023 (TCE-TO), o único disponível na exportação, e deve ser comparado com cautela. Rondonópolis-MT não consta da exportação do TCE-MT: o i-Gov-TI mantém o valor da REV05 e o ICS-MP proposto fica como “incompleto” até as notas serem informadas.</p>
 </div>
+</div>
+<p id="customIegmNote" hidden>Notas do IEGM informadas na planilha ou importadas do painel IEGM Brasil. Para corrigir ou completar, edite os campos (0 a 1), sempre com notas do <strong>mesmo exercício</strong>; a etiqueta abaixo do nome indica quando um município está em outro exercício ou sem dados.</p>
 <div class="toolbar">
   <label for="bandSel">Faixas para converter as notas:</label>
   <select id="bandSel" class="btn">
@@ -444,8 +479,15 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 </div>
 <div class="toolbar">
   <button class="btn" id="exportBtn" type="button">Exportar CSV</button>
-  <button class="btn" id="clearBtn" type="button">Restaurar IEGM 2024</button>
+  <button class="btn" id="clearBtn" type="button">Desfazer edições das notas</button>
   <span class="small" id="fillStatus"></span>
+</div>
+<p class="small" id="syncStatus" style="font-family:var(--sans)">Notas salvas neste navegador.</p>
+<div id="csvOut" hidden>
+  <p class="small" id="csvTitle" style="margin:8px 0 6px;font-weight:600"></p>
+  <p class="small" style="margin:0 0 6px">Se o download não começar, copie o conteúdo abaixo e salve como arquivo .csv.</p>
+  <textarea id="csvText" readonly aria-label="CSV gerado"></textarea>
+  <div class="toolbar"><button class="btn" id="copyCsv" type="button">Copiar CSV</button><span class="small" id="copyMsg"></span></div>
 </div>
 <details>
   <summary>Colar notas em bloco (CSV)</summary>
@@ -524,6 +566,9 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <h3>Dados de D3 deslocados na planilha</h3>
 <p>Na aba “Matriz de Coleta”, o dado bruto de cada linha binária de D3 corresponde ao indicador da linha seguinte: D3-01 (Plano Diretor) registra “Código de Obras vigente”, D3-02 (Código de Obras) registra “LUOS”, D3-03 (LUOS) registra “Lei de Parcelamento”, e D3-04 (Código de Parcelamento) traz percentuais do SNIS, típicos de cobertura de abastecimento. Com a substituição de D3-01 a D3-03 o problema sai da matriz, mas o D3-04 precisa ser conferido: o nome, a fonte e os limiares (&lt;70% · 70–90% · &gt;90%) indicam outro indicador.</p>
 
+<h3>Conferência dos limiares da REV05</h3>
+<div id="ruleCheck"></div>
+
 <h3>Outros ajustes na REV05</h3>
 <ul>
   <li><strong>D5-04</strong> se chama “Investimento público em infraestrutura urbana por habitante (R$ per capita)”, mas os dados e limiares são uma classificação ordinal do IDSC-BR (Médio/Alto). Convém renomear ou coletar o valor em R$ no FINBRA/Siconfi.</li>
@@ -564,7 +609,6 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 
 <script>
 const IND = [{"c": "D1-01", "n": "Dimensão Gestão do Índice de Governança Municipal (IGM-CFA)", "t": "Qtd", "th": ["< 6,0", "6,0 – 7,5", "> 7,5"], "f": "IGM-CFA (Conselho Federal de Administração) — Dimensão Gestão", "iso": "não tem", "raw": ["7,29", "8,45", "7,74", "6,46", "7,99", "7,9", "6,14", "6,83"], "p": [1, 2, 2, 0, 2, 2, 0, 0]}, {"c": "D1-02", "n": "Portal de Dados Abertos disponibilizado", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "MUNIC 2024 (variável MTIC272)", "iso": "ISO 37122 ind. 10.1", "raw": ["Não", "Não", "Sim", "Não", "Não", "Não", "Não", "Sim"], "p": [0, 0, 2, 0, 0, 0, 0, 2]}, {"c": "D1-03", "n": "Grau de estruturação da política de controle interno e combate à corrupção (%)", "t": "Qtd", "th": ["< 60", "60-80", "≥ 80"], "f": "IDSC-BR", "iso": "IDSC-BR - ODS 16", "raw": ["85,71", "100", "100", "85,71", "100", "100", "85,71", "71,43"], "p": [2, 2, 2, 2, 2, 2, 2, 1]}, {"c": "D1-04", "n": "Grau de estruturação das políticas de participação e promoção de direitos humanos (%)", "t": "Qtd", "th": ["< 60", "60-80", "≥ 80"], "f": "IDSC-BR", "iso": "IDSC-BR - ODS 16", "raw": ["71,43", "57,14", "42,86", "71,43", "57,14", "71,43", "57,14", "71,43"], "p": [1, 0, 0, 1, 0, 1, 0, 1]}, {"c": "D1-05", "n": "Governança em Tecnologia da Informação (i-Gov-TI - IEGM/IRB-Atricon)", "t": "Qtd", "th": ["< 0,50", "0,50 – 0,70", "> 0,70"], "f": "IEGM (Índice de Efetividade da Gestão Municipal), eixo i-Gov-TI — Tribunais de Contas estaduais / IRB-Atricon (Rede Indicon)", "iso": "não tem", "raw": ["0,72", "0,72", "0,28", "0,64", "0,46", "0,69", "0,66", "0,49"], "p": [2, 2, 0, 1, 0, 1, 1, 0]}, {"c": "D2-01", "n": "Plano Municipal de Habitação elaborado e vigente", "t": "Bin", "th": ["Não", "-", "Sim"], "f": "MUNIC 2024, Tab. 75/76 (variável MHAB07)", "iso": "", "raw": ["Sim", "Não", "Sim", "Sim", "Sim", "Sim", "Sim", "Sim"], "p": [2, 0, 2, 2, 2, 2, 2, 2]}, {"c": "D2-02", "n": "% domicílios em favelas", "t": "Pct", "th": ["> 1,00%", "0,20% – 1,00%", "< 0,20%"], "f": "IBGE / (SIDRA TAB 9890 ÷ TAB 6326)", "iso": "ISO 37120:2018", "raw": ["0,28%", "0,00%", "0,00%", "0,18%", "0,00%", "8,95%", "0,46%", "0,70%"], "p": [1, 2, 2, 2, 2, 0, 1, 1]}, {"c": "D2-03", "n": "% domicílios próprios — quitados + financiados", "t": "Pct", "th": ["< 50%", "50%-60%", "> 0,60"], "f": "IBGE Censo 2022/ SIDRA Tabela 9930", "iso": "", "raw": ["53,20%", "43,30%", "47,70%", "66,50%", "51,90%", "59,10%", "51,5%", "65,60%"], "p": [1, 0, 0, 2, 1, 1, 1, 2]}, {"c": "D2-04", "n": "% domicílios com saneamento adequado", "t": "Pct", "th": ["< 60%", "60 – 90%", "≥ 90%"], "f": "IBGE Censo 2022 / SNIS (esgotamento sanitário adequado)", "iso": "ISO 37120 ind.21.1", "raw": ["55%", "62%", "58%", "91,6%", "65%", "63,4%", "92,7%", "71,2%"], "p": [0, 1, 0, 2, 1, 1, 2, 1]}, {"c": "D2-05", "n": "Existência de instrumento de regularização fundiária", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "MUNIC / Prefeitura", "iso": "ISO 37120 ind.19.4", "raw": ["Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)", "Sim — MCMV ativo (MUNIC 2023)"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D3-01", "n": "Plano Diretor atualizado (≤10 anos)", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Legislação municipal", "iso": "ISO 37122 ind.11.3", "raw": ["Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente", "Sim — Código de Obras vigente"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D3-02", "n": "Código de Obras atualizado (≤15 anos)", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Legislação municipal", "iso": "ISO 37122 ind.11.1", "raw": ["Sim — LUOS Lei 1.123/2015", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente", "Sim — LUOS vigente"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D3-03", "n": "Lei de Uso e Ocupação do Solo vigente", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Legislação municipal", "iso": "Adição original", "raw": ["Sim — Lei de Parcelamento vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente", "Sim — vigente"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D3-04", "n": "Código de Parcelamento do Solo vigente", "t": "Pct", "th": ["<70%", "70–90%", ">90%"], "f": "SNIS", "iso": "ISO 37120 ind.22.1", "raw": ["84,3% (SNIS 2022 / Inst. Água e Saneamento)", "91,2% (SNIS 2022)", "88,7% (SNIS 2022)", "97,5% (Censo 2022 / Prefeitura)", "86,4% (SNIS 2022)", "92,3% (SNIS 2022)", "96,2% (SNIS 2022 / Inst. Água e Saneamento)", "89,1% (SNIS 2022)"], "p": [1, 2, 1, 2, 1, 2, 2, 1]}, {"c": "D3-05", "n": "% domicílios com bueiro / boca de lobo no entorno (drenagem urbana)", "t": "Pct", "th": ["< 40,6%", "40,6% – 65,8%", "≥ 65,8%"], "f": "IBGE Censo 2022 – Pesquisa Urbanística do Entorno (SIDRA Tab. 9839)", "iso": "ISO 37120:2018 – Águas residuais/drenagem (adaptado)", "raw": ["94,8%", "83,9%", "94,2%", "52,5%", "56,4%", "55,7%", "48,1%", "62,8%"], "p": [2, 2, 2, 1, 1, 1, 1, 1]}, {"c": "D4-01", "n": "ODS 11 — Cidades e comunidades sustentáveis", "t": "Ord", "th": ["MB/Baixo", "Médio", "Alto/MA"], "f": "IDSC-BR", "iso": "ISO 37120/37122 múlt.", "raw": ["Médio (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)"], "p": [1, 1, 1, 2, 1, 1, 2, 1]}, {"c": "D4-02", "n": "ODS 6 — Água potável e saneamento", "t": "Ord", "th": ["MB/Baixo", "Médio", "Alto/MA"], "f": "IDSC-BR", "iso": "ISO 37120 ind.20.1", "raw": ["Muito Baixo (IDSC-BR 2024 — esgoto 37%)", "Baixo (IDSC-BR 2024)", "Muito Baixo (IDSC-BR 2024 — esgoto 38%)", "Alto (IDSC-BR 2024 — esgoto 91,6%)", "Baixo (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024 — esgoto 92,7%)", "Médio (IDSC-BR 2024)"], "p": [0, 0, 0, 2, 0, 1, 2, 1]}, {"c": "D4-03", "n": "ODS 7 — Energia acessível e limpa", "t": "Ord", "th": ["MB/Baixo", "Médio", "Alto/MA"], "f": "IDSC-BR", "iso": "ISO 37120 ind.18.1", "raw": ["Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)"], "p": [1, 2, 1, 2, 1, 2, 2, 1]}, {"c": "D4-04", "n": "Plano ou Plano Diretor Cicloviário", "t": "Bin", "th": ["Não", "-", "Sim"], "f": "MUNIC 2024 (variável MTRA24b)", "iso": "", "raw": ["Sim", "Não", "Não", "Não", "Não", "Sim", "Não", "Sim"], "p": [2, 0, 0, 0, 0, 2, 0, 2]}, {"c": "D4-05", "n": "IDHM (desenvolvimento humano municipal)", "t": "Pct", "th": ["<0,700", "0,700–0,750", ">0,750"], "f": "IBGE / PNUD", "iso": "ISO 37120 ind.3.1", "raw": ["0,754 (Atlas Brasil / PNUD 2010)", "0,768 (Atlas Brasil / PNUD 2010)", "0,744 (Atlas Brasil / PNUD 2010)", "0,755 (Atlas Brasil / PNUD 2010)", "0,752 (Atlas Brasil / PNUD 2010)", "0,788 (Atlas Brasil / PNUD 2010)", "0,754 (Atlas Brasil / PNUD 2010)", "0,747 (Atlas Brasil / PNUD 2010)"], "p": [2, 2, 1, 2, 2, 2, 2, 1]}, {"c": "D5-01", "n": "Lei de inovação ou programa local", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Legislação municipal", "iso": "ISO 37122 ind.1.1", "raw": ["Sim — LC 210/2023", "Sim", "Sim", "Sim — lei de inovação municipal", "Sim", "Sim — lei de inovação municipal", "Sim — lei de inovação municipal", "Sim"], "p": [2, 2, 2, 2, 2, 2, 2, 2]}, {"c": "D5-02", "n": "Parcerias universidade–prefeitura formalizadas", "t": "Bin", "th": ["Não", "—", "Sim"], "f": "Prefeitura / MUNIC", "iso": "ISO 37122 ind.1.5", "raw": ["Sim", "Sim — convênio UFMT/UNEMAT", "Não localizado", "Sim — UFMT campus + convênios", "Não localizado", "Sim — UFT + IFTO convênios", "Sim — UniRV + parcerias municipais", "Sim — UFGD + convênios"], "p": [2, 2, 0, 2, 0, 2, 2, 2]}, {"c": "D5-03", "n": "Densidade de startups (startups por 100 mil habitantes)", "t": "Qtd", "th": ["< 10,0", "10,0 – 30,0", "≥ 30,0"], "f": "Observatório Sebrae Startups (acesso 23/09/2026) / IBGE Censo 2022", "iso": "ISO 37122:2019 – Economia (adaptado)", "raw": ["35,1", "31", "13,6", "17,1", "18,8", "47,6", "8,9", "0,8"], "p": [2, 2, 1, 1, 1, 2, 0, 0]}, {"c": "D5-04", "n": "Investimento público em infraestrutura urbana por habitante (R$ per capita)", "t": "Ord", "th": ["MB/Baixo", "Médio", "Alto/MA"], "f": "IDSC-BR", "iso": "ISO 37122 ind.9.1", "raw": ["Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Alto (IDSC-BR 2024)", "Médio (IDSC-BR 2024)"], "p": [1, 2, 1, 2, 1, 2, 2, 1]}, {"c": "D5-05", "n": "% empregos formais em atividades intensivas em conhecimento e tecnologia", "t": "Pct", "th": ["<3,25%", "3,25% – 4,50%", "> 4,50%"], "f": "RAIS/MTE", "iso": "ISO 37122", "raw": ["6,46%", "4,04%", "4,90%", "4,42%", "3,15%", "2,57%", "3,40%", "4,57%"], "p": [2, 1, 2, 1, 1, 0, 1, 2]}];
-const MUN = ["Sinop-MT","Lucas do Rio Verde-MT","Sorriso-MT","Rondonópolis-MT","Primavera do Leste-MT","Palmas-TO","Rio Verde-GO","Dourados-MS"];
 const DIMS = [
   {k:"D1", n:"Governança e capacidade institucional", w:.20},
   {k:"D2", n:"Habitação e regularização fundiária", w:.25},
@@ -576,27 +620,16 @@ const LV = ["Iniciante","Intermediário","Avançado"];
 const IEGM_SRC = "IEGM — IRB/Atricon (Rede Indicon), Tribunal de Contas competente";
 // IEGM indicators in the proposed matrix. key = storage key.
 const NEW = [
-  {c:"D1-03", key:"ifiscal", n:"Gestão fiscal efetiva (i-Fiscal — IEGM/IRB-Atricon)", short:"i-Fiscal", out:"D1-03",
+  {c:"D1-03", key:"ifiscal", col:"i-Fiscal", n:"Gestão fiscal efetiva (i-Fiscal — IEGM/IRB-Atricon)", short:"i-Fiscal", out:"D1-03",
    why:"7 de 8 municípios em Avançado. O i-Fiscal mede responsabilidade fiscal efetiva, inclui controle interno e é o eixo que o TCE-MT acompanha nas contas anuais."},
-  {c:"D3-01", key:"iplan", n:"Efetividade do planejamento municipal (i-Planejamento — IEGM/IRB-Atricon)", short:"i-Plan", out:"D3-01",
+  {c:"D3-01", key:"iplan", col:"i-Plan", n:"Efetividade do planejamento municipal (i-Planejamento — IEGM/IRB-Atricon)", short:"i-Plan", out:"D3-01",
    why:"Uniforme. Mede se o planejamento, inclusive o Plano Diretor, é implementado e monitorado, não só se existe."},
-  {c:"D3-02", key:"icidade", n:"Proteção urbana e defesa civil (i-Cidade — IEGM/IRB-Atricon)", short:"i-Cidade", out:"D3-02",
+  {c:"D3-02", key:"icidade", col:"i-Cidade", n:"Proteção urbana e defesa civil (i-Cidade — IEGM/IRB-Atricon)", short:"i-Cidade", out:"D3-02",
    why:"Uniforme. Avalia mapeamento de áreas de risco e planos de contingência, resultado material das regras de ocupação do solo."},
-  {c:"D3-03", key:"iamb", n:"Efetividade da política ambiental (i-Amb — IEGM/IRB-Atricon)", short:"i-Amb", out:"D3-03",
+  {c:"D3-03", key:"iamb", col:"i-Amb", n:"Efetividade da política ambiental (i-Amb — IEGM/IRB-Atricon)", short:"i-Amb", out:"D3-03",
    why:"Uniforme. Avalia licenciamento, resíduos e áreas verdes, instrumentos ligados ao uso do solo."},
 ];
-const GOVTI = {c:"D1-05", key:"igovti", short:"i-Gov-TI"};
-// IEGM 2025, exercício 2024 — exportação CSV do painel IEGM Brasil (IRB/Atricon): TCE-MT, TCE-MS e TCM-GO.
-// Ordem de MUN. null = município ausente da exportação (Rondonópolis-MT). Palmas-TO: TCE-TO, exercício 2023.
-const IEGM_EXERCICIO = "2024";
-const IEGM_2024 = {
-  ifiscal: [0.69, 0.72, 0.85, null, 0.78, 0.62, 0.74, 0.59],
-  iplan:   [0.35, 0.61, 0.35, null, 0.27, 0.39, 0.27, 0.22],
-  icidade: [0.41, 0.33, 0.46, null, 0.01, 0.71, 0.22, 0.27],
-  iamb:    [0.59, 0.34, 0.55, null, 0.38, 0.45, 0.27, 0.43],
-  igovti:  [0.72, 0.57, 0.28, null, 0.46, 0.69, 0.66, 0.49],
-};
-const IEGM_EXERC = ["2024", "2024", "2024", null, "2024", "2023", "2024", "2024"];
+const GOVTI = {c:"D1-05", key:"igovti", col:"i-GovTI", short:"i-Gov-TI"};
 const IEGM_ALL = [...NEW, {...GOVTI}];
 const BANDS = {
   oficial: {lo:0.60, hi:0.75, th:["< 0,60 (C, C+)","0,60 – 0,749 (B)","≥ 0,75 (B+, A)"]},
@@ -604,22 +637,173 @@ const BANDS = {
   continua: {cont:true, th:["nota 0 → 0 pts","pontos = 2 × nota","nota 1 → 2 pts"]},
 };
 const byCode = Object.fromEntries(IND.map(i => [i.c, i]));
-const govtiRaw = byCode["D1-05"].raw.map(v => parseNum(v));
 
-// ---------- state ----------
-const STORE_KEY = "icsmp-iegm-v2";
-let state = { band: "oficial", v: {} };
-// Padrão: IEGM exercício 2024; i-Gov-TI de quem não está na exportação mantém o valor da REV05.
-function resetToOfficial() {
-  NEW.forEach(x => state.v[x.key] = IEGM_2024[x.key].slice());
-  state.v.igovti = IEGM_2024.igovti.map((v, j) => v !== null ? v : govtiRaw[j]);
+// Regras de classificação dos dados brutos (limiares declarados na REV05), usadas na planilha-modelo.
+// num: Iniciante abaixo de lo, Avançado acima de hi (hiStrict: estritamente acima); down: menor é melhor.
+const RULES = {
+  "D1-01": {t:"num", lo:6.0, hi:7.5, unit:"nota 0–10"},
+  "D1-02": {t:"bin"},
+  "D1-03": {t:"num", lo:60, hi:80, unit:"%"},
+  "D1-04": {t:"num", lo:60, hi:80, unit:"%"},
+  "D1-05": {t:"num", lo:0.50, hi:0.70, hiStrict:true, unit:"nota 0–1"},
+  "D2-01": {t:"bin"},
+  "D2-02": {t:"num", lo:0.20, hi:1.00, down:true, unit:"%"},
+  "D2-03": {t:"num", lo:50, hi:60, hiStrict:true, unit:"%"},
+  "D2-04": {t:"num", lo:60, hi:90, unit:"%"},
+  "D2-05": {t:"bin"},
+  "D3-01": {t:"bin"}, "D3-02": {t:"bin"}, "D3-03": {t:"bin"},
+  "D3-04": {t:"num", lo:70, hi:90, hiStrict:true, unit:"%"},
+  "D3-05": {t:"num", lo:40.6, hi:65.8, unit:"%"},
+  "D4-01": {t:"ord"}, "D4-02": {t:"ord"}, "D4-03": {t:"ord"},
+  "D4-04": {t:"bin"},
+  "D4-05": {t:"num", lo:0.700, hi:0.750, hiStrict:true, unit:"índice 0–1"},
+  "D5-01": {t:"bin"}, "D5-02": {t:"bin"},
+  "D5-03": {t:"num", lo:10, hi:30, unit:"por 100 mil hab."},
+  "D5-04": {t:"ord"},
+  "D5-05": {t:"num", lo:3.25, hi:4.50, hiStrict:true, unit:"%"},
+};
+const firstNum = s => { const m = String(s).replace(/\t/g, "").match(/-?\d+(?:[.,]\d+)?/); return m ? Number(m[0].replace(",", ".")) : null; };
+const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+// Devolve {p, err}: p = 0/1/2 ou null (vazio). "=0", "=1", "=2" informam os pontos diretamente.
+function classify(code, raw) {
+  const s = String(raw ?? "").trim();
+  if (!s) return {p: null};
+  const direct = s.match(/^=\s*([012])$/);
+  if (direct) return {p: +direct[1]};
+  const r = RULES[code];
+  if (!r) return {p: null, err: "indicador sem regra"};
+  if (r.t === "bin") {
+    const t = norm(s);
+    if (t.startsWith("sim")) return {p: 2};
+    if (t.startsWith("nao")) return {p: 0};
+    return {p: null, err: `esperado Sim ou Não, veio “${s}”`};
+  }
+  if (r.t === "ord") {
+    const t = norm(s);
+    if (/muito baixo|^mb\b|^baixo/.test(t)) return {p: 0};
+    if (/^medio|\bmedio\b/.test(t)) return {p: 1};
+    if (/muito alto|^ma\b|^alto|\balto\b/.test(t)) return {p: 2};
+    return {p: null, err: `esperado Muito baixo/Baixo/Médio/Alto/Muito alto, veio “${s}”`};
+  }
+  const x = firstNum(s);
+  if (x === null) return {p: null, err: `esperado número, veio “${s}”`};
+  if (r.down) return {p: x > r.hi ? 0 : x < r.lo ? 2 : 1};
+  return {p: x < r.lo ? 0 : (r.hiStrict ? x > r.hi : x >= r.hi) ? 2 : 1};
 }
-resetToOfficial();
+
+// ---------- conjunto de dados (amostra da dissertação ou planilha carregada) ----------
+const SAMPLE = {
+  name: "Amostra da dissertação (REV05)",
+  mun: ["Sinop-MT","Lucas do Rio Verde-MT","Sorriso-MT","Rondonópolis-MT","Primavera do Leste-MT","Palmas-TO","Rio Verde-GO","Dourados-MS"],
+  raw: Object.fromEntries(IND.map(i => [i.c, i.raw.slice()])),
+  pts: Object.fromEntries(IND.map(i => [i.c, i.p.slice()])),
+  // IEGM 2025, exercício 2024 — exportação CSV do painel IEGM Brasil (TCE-MT, TCE-MS, TCM-GO).
+  // Rondonópolis-MT ausente da exportação; Palmas-TO: TCE-TO, exercício 2023.
+  iegm: {
+    ifiscal: [0.69, 0.72, 0.85, null, 0.78, 0.62, 0.74, 0.59],
+    iplan:   [0.35, 0.61, 0.35, null, 0.27, 0.39, 0.27, 0.22],
+    icidade: [0.41, 0.33, 0.46, null, 0.01, 0.71, 0.22, 0.27],
+    iamb:    [0.59, 0.34, 0.55, null, 0.38, 0.45, 0.27, 0.43],
+    igovti:  [0.72, 0.57, 0.28, 0.64, 0.46, 0.69, 0.66, 0.49],
+  },
+  exerc: ["2024", "2024", "2024", null, "2024", "2023", "2024", "2024"],
+};
+const IEGM_EXERCICIO = "2024";
+let DS = SAMPLE;       // conjunto ativo
+let MUN = DS.mun;
+let N = MUN.length;
+let CUR = [], AVG = [];
+const ufOf = m => { const r = String(m).match(/-([A-Z]{2})$/); return r ? r[1] : ""; };
+const nameOf = m => String(m).replace(/-[A-Z]{2}$/, "");
+// Um conjunto carregado guarda dados brutos; os pontos saem das regras.
+function buildDataset(obj) {
+  const pts = {}, issues = [];
+  IND.forEach(i => {
+    if (i.c === "D1-05") { pts[i.c] = obj.iegm.igovti.map(v => v === null ? null : classify("D1-05", String(v)).p); return; }
+    pts[i.c] = obj.raw[i.c].map((v, j) => {
+      const r = classify(i.c, v);
+      if (r.err) issues.push(`${obj.mun[j]} · ${i.c}: ${r.err}`);
+      return r.p;
+    });
+  });
+  return {...obj, pts, issues};
+}
+function setDataset(ds) {
+  DS = ds; MUN = ds.mun; N = MUN.length;
+  IND.forEach(i => { i.p = ds.pts[i.c].slice(); i.raw = (ds.raw[i.c] || []).slice(); });
+  CUR = scores(IND.map(i => ({c: i.c, n: i.n, p: i.p})));
+  AVG = DIMS.map((d, k) => { const v = CUR.map(c => c.ds[k]).filter(x => x !== null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; });
+}
+
+// ---------- estado ----------
+const STORE_KEY = "icsmp-iegm-v3";
+let state = { band: "oficial", v: {}, exerc: [], ds: null };
+function resetIegm() {
+  IEGM_ALL.forEach(x => state.v[x.key] = DS.iegm[x.key].slice());
+  state.exerc = DS.exerc.slice();
+}
+function dsPayload() { return DS === SAMPLE ? null : {name: DS.name, mun: DS.mun, raw: DS.raw, iegm: DS.iegm, exerc: DS.exerc}; }
+function loadPayload(p) { setDataset(p ? buildDataset(p) : SAMPLE); }
+loadPayload(null);
+resetIegm();
 try {
   const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
-  if (s && s.v) { state.band = s.band || state.band; for (const k in s.v) if (state.v[k]) state.v[k] = s.v[k]; }
-} catch (e) {}
-function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+  if (s && s.v) {
+    if (s.ds && Array.isArray(s.ds.mun)) loadPayload(s.ds);
+    state.band = BANDS[s.band] ? s.band : state.band;
+    resetIegm();
+    for (const k in state.v) if (Array.isArray(s.v[k]) && s.v[k].length === N) state.v[k] = s.v[k];
+    if (Array.isArray(s.exerc) && s.exerc.length === N) state.exerc = s.exerc;
+  }
+} catch (e) { loadPayload(null); resetIegm(); }
+const snapshot = () => ({band: state.band, v: state.v, exerc: state.exerc, ds: dsPayload()});
+
+let notesDoc = null, readOnly = false, pushTimer = null, lastSent = null, downloadsApi = null;
+const IN_VIEWER = !!(window.claude && window.claude.use);
+function setSync(msg) { const el = document.getElementById("syncStatus"); if (el) el.textContent = msg; }
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(snapshot())); } catch (e) {}
+  if (!notesDoc || readOnly) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    const snap = snapshot();
+    lastSent = JSON.stringify(snap);
+    setSync("Salvando…");
+    notesDoc.set({...snap, updatedAt: Date.now()})
+      .then(() => setSync("Dados salvos e compartilhados com quem abre esta página."))
+      .catch(e => {
+        if (e && e.code === "invalid_argument") { readOnly = true; setSync("Você pode ver os dados compartilhados, mas não alterá-los. O que mudar fica só neste navegador."); }
+        else setSync("Não foi possível salvar agora. Os dados ficam neste navegador; edite de novo para tentar outra vez.");
+      });
+  }, 700);
+}
+function applyRemote(d) {
+  if (!d || typeof d.v !== "object") return;
+  const incoming = JSON.stringify({band: d.band, v: d.v, exerc: d.exerc, ds: d.ds || null});
+  if (incoming === lastSent || incoming === JSON.stringify(snapshot())) return;
+  const dsChanged = JSON.stringify(d.ds || null) !== JSON.stringify(dsPayload());
+  if (dsChanged) loadPayload(d.ds || null);
+  if (d.band && BANDS[d.band]) state.band = d.band;
+  resetIegm();
+  for (const k in state.v) if (Array.isArray(d.v[k]) && d.v[k].length === N) state.v[k] = d.v[k].map(x => typeof x === "number" ? x : null);
+  if (Array.isArray(d.exerc) && d.exerc.length === N) state.exerc = d.exerc;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(snapshot())); } catch (e) {}
+  const a = document.activeElement;
+  const focused = a && a.classList.contains("iegm-input") ? [a.dataset.k, a.dataset.j] : null;
+  document.getElementById("bandSel").value = state.band;
+  rebuild();
+  if (focused) { const el = document.querySelector(`input[data-k="${focused[0]}"][data-j="${focused[1]}"]`); if (el) el.focus(); }
+}
+async function connect() {
+  if (!IN_VIEWER) return;
+  claude.use("downloads").then(d => { downloadsApi = d; }).catch(() => {});
+  let db = null;
+  try { db = await claude.use("db"); } catch (e) {}
+  if (!db) return;
+  notesDoc = db.doc("iegm/notas");
+  setSync("Dados compartilhados: quem tem acesso de edição grava para todos.");
+  notesDoc.onSnapshot(s => { if (s.exists) applyRemote(s.data()); }, () => setSync("Conexão com os dados compartilhados perdida. Recarregue a página."));
+}
 
 function parseNum(s) {
   if (s === null || s === undefined) return null;
@@ -641,8 +825,7 @@ function level(x, band) {
   return 1;
 }
 
-// ---------- matrices ----------
-function currentPts(ind) { return ind.p.slice(); }
+// ---------- matrizes ----------
 // pontos contínuos (0–2) recebem a cor do inteiro mais próximo
 function lvClass(v) { return v === null || v === undefined ? "lvna" : "lv" + Math.min(2, Math.max(0, Math.round(v))); }
 function lvText(v) { return v === null || v === undefined ? "–" : Number.isInteger(v) ? String(v) : fmt(v, 1); }
@@ -653,7 +836,7 @@ function proposedRows(band) {
     const sub = NEW.find(n => n.c === ind.c);
     if (sub) return {c: ind.c, n: sub.n, sub, iegm: true, p: state.v[sub.key].map(lv)};
     if (ind.c === "D1-05") return {c: ind.c, n: ind.n, iegm: true, p: state.v.igovti.map(lv)};
-    return {c: ind.c, n: ind.n, p: currentPts(ind)};
+    return {c: ind.c, n: ind.n, p: ind.p.slice()};
   });
 }
 function scores(rows) {
@@ -667,18 +850,16 @@ function scores(rows) {
     return {ds, ics: wsum ? tot / wsum : null};
   });
 }
-const curRows = IND.map(i => ({c: i.c, n: i.n, p: i.p}));
-const CUR = scores(curRows);
 function maturity(x) { return x === null ? "—" : x <= 25 ? "Iniciante" : x <= 50 ? "Em desenvolvimento" : x <= 75 ? "Avançado" : "Referência"; }
-
 function discr(p) {
-  const c = [0,0,0]; p.forEach(v => c[v]++);
+  const have = p.filter(v => v !== null && v !== undefined);
+  const c = [0,0,0]; have.forEach(v => c[v]++);
   const distinct = c.filter(Boolean).length, mode = Math.max(...c);
-  const cls = distinct === 1 ? "null" : mode >= 7 ? "low" : "ok";
-  return {c, distinct, cls, label: cls === "null" ? "Nulo" : cls === "low" ? "Baixo" : "Adequado"};
+  const cls = !have.length ? "ok" : distinct === 1 ? "null" : have.length > 2 && mode >= have.length - 1 ? "low" : "ok";
+  return {c, n: have.length, distinct, cls, label: !have.length ? "Sem dados" : cls === "null" ? "Nulo" : cls === "low" ? "Baixo" : "Adequado"};
 }
 
-// ---------- tooltip ----------
+// ---------- dica flutuante ----------
 const tip = document.getElementById("tip");
 function showTip(e, html) { tip.innerHTML = html; tip.style.opacity = 1; moveTip(e); }
 function moveTip(e) {
@@ -695,24 +876,38 @@ function bindTip(el, html) {
   el.addEventListener("mouseleave", hideTip);
 }
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+function dimTag(k) { return `<span class="dim-tag ${k.toLowerCase()}">${k}</span>`; }
+const shortName = m => { const n = nameOf(m); return n.length <= 10 ? n : n.split(" ")[0].slice(0, 9) + "."; };
 
-// ---------- KPIs ----------
-(function kpis() {
+// ---------- cabeçalho, KPIs e aviso do conjunto ----------
+function renderHeader() {
+  document.getElementById("hdrLabel").textContent = `ICS-MP ${MUN[0]} · ${DS === SAMPLE ? "REV05" : "matriz atual"}`;
+  document.getElementById("hdrScore").textContent = fmt(CUR[0].ics, 1);
+  const rank = CUR.filter(c => c.ics > CUR[0].ics).length + 1;
+  document.getElementById("hdrNivel").textContent = `${maturity(CUR[0].ics)} · ${rank}º / ${N}`;
+  document.getElementById("hdrMun").textContent = `${N} município${N > 1 ? "s" : ""}${DS === SAMPLE ? " benchmarking" : " carregados"}`;
+  const banner = document.getElementById("dsBanner");
+  banner.hidden = DS === SAMPLE;
+  if (DS !== SAMPLE) banner.innerHTML = `<p><strong>Dados carregados:</strong> ${esc(DS.name)} (${N} municípios). As tabelas e gráficos usam esses dados. Os textos analíticos das seções 2, 3 e 7 descrevem a amostra da dissertação. <a href="#coleta">Voltar para a amostra</a> na seção 5.</p>`;
+}
+function renderKpis() {
   const d = IND.map(i => discr(i.p));
   const nul = d.filter(x => x.cls === "null").length, low = d.filter(x => x.cls === "low").length;
+  const ufs = [...new Set(MUN.map(ufOf).filter(Boolean))];
   const items = [
     ["Indicadores", IND.length, "mantidos na matriz proposta", "var(--ink)"],
-    ["Municípios", MUN.length, "MT, TO, GO e MS", "var(--d1)"],
+    ["Municípios", N, ufs.length ? ufs.join(", ") : "—", "var(--d1)"],
     ["Poder discrim. nulo", nul, "todos os municípios no mesmo nível", "var(--ini-t)"],
-    ["Poder discrim. baixo", low, "7 de 8 municípios no mesmo nível", "var(--int-t)"],
+    ["Poder discrim. baixo", low, `${Math.max(N - 1, 1)} de ${N} municípios no mesmo nível`, "var(--int-t)"],
     ["Substituições IEGM", NEW.length, "i-Fiscal, i-Plan, i-Cidade, i-Amb", "var(--avd-t)"],
   ];
-  document.getElementById("kpis").innerHTML = items.map(([t, v, l, c]) => `<div class="kpi"><div class="t">${t}</div><div class="v" style="color:${c}">${v}</div><div class="l">${l}</div></div>`).join("");
-})();
+  document.getElementById("kpis").innerHTML = items.map(([t, v, l, c]) => `<div class="kpi"><div class="t">${t}</div><div class="v" style="color:${c}">${v}</div><div class="l">${esc(l)}</div></div>`).join("");
+}
 
-// ---------- 1. diagnostic table ----------
-(function diag() {
+// ---------- 1. diagnóstico ----------
+function renderDiag() {
   const tb = document.querySelector("#diagTable tbody");
+  tb.innerHTML = "";
   DIMS.forEach(d => {
     tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="5">${dimTag(d.k)}${d.n} — peso ${Math.round(d.w*100)}%</td></tr>`);
     IND.filter(i => i.c.startsWith(d.k)).forEach(i => {
@@ -731,11 +926,12 @@ const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">"
       tb.appendChild(tr);
     });
   });
-})();
+}
 
-// ---------- 3. substitution table ----------
-(function subs() {
+// ---------- 3. substituições ----------
+function renderSubs() {
   const tb = document.getElementById("subsTable");
+  tb.innerHTML = "";
   NEW.forEach(n => {
     const old = byCode[n.out], r = discr(old.p);
     tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">${old.c}</span><br>${esc(old.n)}</td>
@@ -743,18 +939,15 @@ const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">"
       <td><span class="code">${n.c}</span><br><strong>${esc(n.short)}</strong> <span class="tag iegm">IEGM</span></td>
       <td class="small">${esc(n.why)}</td></tr>`);
   });
-  tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">D2-01</span><br>${esc(byCode["D2-01"].n)}</td>
-      <td><span class="tag low">Baixo</span></td><td class="arrow">=</td><td class="small">Mantido</td>
-      <td class="small">Diferencia Lucas do Rio Verde dos demais e não tem equivalente no IEGM.</td></tr>`);
-  ["D2-05","D5-01"].forEach(c => {
-    const old = byCode[c];
+  [["D2-01", "Diferencia Lucas do Rio Verde dos demais e não tem equivalente no IEGM."], ["D2-05", "Sem dimensão equivalente no IEGM. Uniformidade registrada como limitação."], ["D5-01", "Sem dimensão equivalente no IEGM. Uniformidade registrada como limitação."]].forEach(([c, why]) => {
+    const old = byCode[c], r = discr(old.p);
     tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">${c}</span><br>${esc(old.n)}</td>
-      <td><span class="tag null">Nulo</span></td><td class="arrow">=</td><td class="small">Mantido</td>
-      <td class="small">Sem dimensão equivalente no IEGM. Uniformidade registrada como limitação.</td></tr>`);
+      <td><span class="tag ${r.cls}">${r.label}</span></td><td class="arrow">=</td><td class="small">Mantido</td>
+      <td class="small">${esc(why)}</td></tr>`);
   });
-})();
+}
 
-// ---------- 4. matrix ----------
+// ---------- 4. matriz ----------
 function renderMatrix() {
   const tb = document.querySelector("#matrixTable tbody");
   tb.innerHTML = "";
@@ -763,8 +956,7 @@ function renderMatrix() {
     tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="7">${dimTag(d.k)}${d.n} — peso ${Math.round(d.w*100)}%</td></tr>`);
     IND.filter(i => i.c.startsWith(d.k)).forEach(i => {
       const sub = NEW.find(n => n.c === i.c);
-      const isGov = i.c === "D1-05";
-      if (sub || isGov) {
+      if (sub || i.c === "D1-05") {
         const name = sub ? sub.n : i.n;
         tb.insertAdjacentHTML("beforeend", `<tr class="${sub ? "sub" : ""}"><td class="code">${i.c}</td>
           <td>${esc(name)} <span class="tag iegm">IEGM</span>${sub ? ` <span class="small">(substitui: ${esc(byCode[sub.out].n)})</span>` : ""}</td>
@@ -777,15 +969,16 @@ function renderMatrix() {
   });
 }
 
-// ---------- 5. inputs ----------
+// ---------- 5. notas IEGM ----------
 function renderInputs() {
   const t = document.getElementById("inputTable");
   t.querySelector("thead").innerHTML = `<tr><th>Município</th>${IEGM_ALL.map(x => `<th>${x.c}<br><span class="small">${x.short}</span></th>`).join("")}</tr>`;
   const tb = t.querySelector("tbody");
   tb.innerHTML = "";
   MUN.forEach((m, j) => {
+    const ex = state.exerc[j];
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${esc(m)}${IEGM_EXERC[j] && IEGM_EXERC[j] !== IEGM_EXERCICIO ? `<br><span class="tag low">exercício ${IEGM_EXERC[j]}</span>` : ""}${!IEGM_EXERC[j] ? `<br><span class="tag ok">sem dados IEGM</span>` : ""}</td>` + IEGM_ALL.map(x => {
+    tr.innerHTML = `<td>${esc(m)}${ex && ex !== IEGM_EXERCICIO ? `<br><span class="tag low">exercício ${esc(ex)}</span>` : ""}${!ex ? `<br><span class="tag ok">sem dados IEGM</span>` : ""}</td>` + IEGM_ALL.map(x => {
       const v = state.v[x.key][j];
       return `<td style="white-space:nowrap"><input class="iegm-input" inputmode="decimal" aria-label="${x.short} ${esc(m)}" data-k="${x.key}" data-j="${j}" value="${v === null ? "" : fmt(v)}" placeholder="—"><span class="pill" data-pill="${x.key}-${j}"></span></td>`;
     }).join("");
@@ -803,16 +996,17 @@ function renderInputs() {
 function refreshPills() {
   IEGM_ALL.forEach(x => MUN.forEach((m, j) => {
     const el = document.querySelector(`[data-pill="${x.key}-${j}"]`);
+    if (!el) return;
     const lv = level(state.v[x.key][j]);
     el.className = "pill " + lvClass(lv);
     el.textContent = lvText(lv);
     el.title = lvLabel(lv);
   }));
   const filled = NEW.reduce((a, x) => a + state.v[x.key].filter(v => v !== null).length, 0);
-  document.getElementById("fillStatus").textContent = `${filled} de ${NEW.length * MUN.length} notas novas preenchidas`;
+  document.getElementById("fillStatus").textContent = `${filled} de ${NEW.length * N} notas novas preenchidas`;
 }
 
-// ---------- 6. results ----------
+// ---------- 6. resultados ----------
 function renderBars(prop, anyNew) {
   const el = document.getElementById("barChart");
   const ticks = [0, 25, 50, 75, 100];
@@ -823,7 +1017,7 @@ function renderBars(prop, anyNew) {
     const a = CUR[j].ics, b = prop[j].ics;
     h += `<div class="brow" data-j="${j}"><div class="name" title="${esc(MUN[j])}">${esc(MUN[j])}</div><div class="track">
       <div class="gridlines">${ticks.map(t => `<span style="left:${t}%"></span>`).join("")}</div>
-      <div class="bar s1" style="width:${a}%"></div>
+      <div class="bar s1" style="width:${a ?? 0}%"></div>
       ${anyNew && b !== null ? `<div class="bar s2" style="width:${b}%"></div>` : ""}
       </div><div class="vals">${fmt(a,1)}${anyNew ? (b !== null ? `<br>${fmt(b,1)}` : `<br><span style="color:var(--muted)">incompleto</span>`) : ""}</div></div>`;
   });
@@ -838,27 +1032,25 @@ function renderBars(prop, anyNew) {
     });
   });
 }
-function renderScores(prop, anyNew) {
+function renderScores(prop) {
   const t = document.getElementById("scoreTable");
   t.querySelector("thead").innerHTML = `<tr><th>Município</th>${DIMS.map(d => `<th class="r">${d.k}</th>`).join("")}<th class="r">ICS-MP atual</th><th class="r">ICS-MP proposto</th><th>Nível proposto</th></tr>`;
-  const ranked = MUN.map((m, j) => j);
-  t.querySelector("tbody").innerHTML = ranked.map(j => {
+  t.querySelector("tbody").innerHTML = MUN.map((m, j) => {
     const ds = DIMS.map((d, i) => {
       const a = CUR[j].ds[i], b = prop[j].ds[i];
-      const changed = prop[j].ics !== null && b !== null && Math.abs(a - b) > 0.05;
+      const changed = prop[j].ics !== null && a !== null && b !== null && Math.abs(a - b) > 0.05;
       return `<td class="r num dv" style="color:var(--${d.k.toLowerCase()})">${changed ? `<span class="small" style="text-decoration:line-through">${fmt(a,0)}</span> ${fmt(b,0)}` : fmt(a,0)}</td>`;
     }).join("");
-    return `<tr class="${j === 0 ? "hl" : ""}"><td>${esc(MUN[j])}</td>${ds}<td class="r num dv">${fmt(CUR[j].ics,1)}</td><td class="r num dv"><strong>${prop[j].ics !== null ? fmt(prop[j].ics,1) : "—"}</strong></td><td>${prop[j].ics !== null ? maturity(prop[j].ics) : '<span class="small">aguarda notas</span>'}</td></tr>`;
+    return `<tr class="${j === 0 ? "hl" : ""}"><td>${esc(m)}</td>${ds}<td class="r num dv">${fmt(CUR[j].ics,1)}</td><td class="r num dv"><strong>${prop[j].ics !== null ? fmt(prop[j].ics,1) : "—"}</strong></td><td>${prop[j].ics !== null ? maturity(prop[j].ics) : '<span class="small">aguarda notas</span>'}</td></tr>`;
   }).join("");
 }
 function renderHeat(rows) {
   const t = document.getElementById("heatTable");
-  const short = ["Sinop","Lucas","Sorriso","Rondon.","Primavera","Palmas","Rio Verde","Dourados"];
-  t.querySelector("thead").innerHTML = `<tr><th>Cód.</th><th>Indicador</th>${short.map((s, j) => `<th class="c small" title="${esc(MUN[j])}">${s}</th>`).join("")}</tr>`;
+  t.querySelector("thead").innerHTML = `<tr><th>Cód.</th><th>Indicador</th>${MUN.map((m, j) => `<th class="c small" title="${esc(m)}">${esc(shortName(m))}</th>`).join("")}</tr>`;
   const tb = t.querySelector("tbody");
   tb.innerHTML = "";
   DIMS.forEach(d => {
-    tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="${2 + MUN.length}">${dimTag(d.k)}${d.n}</td></tr>`);
+    tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="${2 + N}">${dimTag(d.k)}${d.n}</td></tr>`);
     rows.filter(r => r.c.startsWith(d.k)).forEach(r => {
       const tr = document.createElement("tr");
       if (r.sub) tr.className = "sub";
@@ -869,9 +1061,7 @@ function renderHeat(rows) {
         const j = +cell.dataset.j;
         bindTip(cell, () => {
           const v = r.p[j];
-          let raw;
-          if (r.iegm) { const key = r.sub ? r.sub.key : "igovti"; raw = fmt(state.v[key][j]); }
-          else raw = byCode[r.c].raw[j];
+          const raw = r.iegm ? fmt(state.v[r.sub ? r.sub.key : "igovti"][j]) : byCode[r.c].raw[j];
           return `<b>${r.c} · ${esc(MUN[j])}</b><br>${esc(nm)}<br>Dado: ${esc(raw || "—")}<br>Pontos: ${lvLabel(v)}`;
         });
       });
@@ -882,19 +1072,22 @@ function renderHeat(rows) {
 // ---------- radar ----------
 const DIM_SHORT = ["Governança","Habitação","Planejamento","Sustentabilidade","Inovação/TT"];
 const radarSel = document.getElementById("radarSel");
-radarSel.innerHTML = MUN.map((m, j) => `<option value="${j}">${esc(m)}</option>`).join("");
-radarSel.value = "0";
 radarSel.addEventListener("change", () => refresh());
-const AVG = DIMS.map((d, i) => MUN.reduce((a, m, j) => a + CUR[j].ds[i], 0) / MUN.length);
+function fillRadarSel() {
+  const keep = +radarSel.value || 0;
+  radarSel.innerHTML = MUN.map((m, j) => `<option value="${j}">${esc(m)}</option>`).join("");
+  radarSel.value = String(keep < N ? keep : 0);
+}
 function renderRadar(prop) {
-  const j = +radarSel.value, svg = document.getElementById("radarSvg");
+  const j = +radarSel.value || 0, svg = document.getElementById("radarSvg");
   const cx = 230, cy = 205, R = 135, n = DIMS.length;
   const ang = i => -Math.PI / 2 + i * 2 * Math.PI / n;
   const pt = (i, v) => [cx + Math.cos(ang(i)) * R * v / 100, cy + Math.sin(ang(i)) * R * v / 100];
   const poly = vals => vals.map((v, i) => pt(i, v === null ? 0 : v).map(x => x.toFixed(1)).join(",")).join(" ");
+  const tag = DS === SAMPLE ? "REV05" : "atual";
   const series = [
-    {name: MUN[j] + " (REV05)", vals: CUR[j].ds, cls: "r-cur", sw: "cur"},
-    {name: "Média da amostra (REV05)", vals: AVG, cls: "r-avg", sw: "avg"},
+    {name: `${MUN[j]} (${tag})`, vals: CUR[j].ds, cls: "r-cur", sw: "cur"},
+    {name: `Média da amostra (${tag})`, vals: AVG, cls: "r-avg", sw: "avg"},
   ];
   if (prop[j].ics !== null) series.push({name: MUN[j] + " (proposto com IEGM)", vals: prop[j].ds, cls: "r-prop", sw: "prop"});
   let s = "";
@@ -921,44 +1114,28 @@ function renderRadar(prop) {
     bindTip(h, () => `<b>${DIMS[i].k} · ${DIMS[i].n}</b><br>` + series.map(se => `${esc(se.name)}: ${fmt(se.vals[i], 0)}`).join("<br>"));
   });
   const t = document.getElementById("radarTable");
-  t.querySelector("thead").innerHTML = `<tr><th>Dimensão</th><th class="r">${esc(MUN[j].replace(/-..$/, ""))}</th><th class="r">Média</th><th class="r">Proposto</th></tr>`;
+  t.querySelector("thead").innerHTML = `<tr><th>Dimensão</th><th class="r">${esc(nameOf(MUN[j]))}</th><th class="r">Média</th><th class="r">Proposto</th></tr>`;
+  const icsAvg = CUR.reduce((a, c) => a + (c.ics || 0), 0) / N;
   t.querySelector("tbody").innerHTML = DIMS.map((d, i) => {
     const a = CUR[j].ds[i], m = AVG[i], p = prop[j].ics !== null ? prop[j].ds[i] : null;
-    const diff = a - m, sign = diff > 0.5 ? "▲" : diff < -0.5 ? "▼" : "=";
+    const diff = (a ?? 0) - (m ?? 0), sign = diff > 0.5 ? "▲" : diff < -0.5 ? "▼" : "=";
     return `<tr><td>${dimTag(d.k)}${DIM_SHORT[i]}</td><td class="r num">${fmt(a, 0)} <span class="small" title="em relação à média">${sign}</span></td><td class="r num">${fmt(m, 0)}</td><td class="r num">${p === null ? "—" : fmt(p, 0)}</td></tr>`;
-  }).join("") + `<tr><td><strong>ICS-MP</strong></td><td class="r num"><strong>${fmt(CUR[j].ics, 1)}</strong></td><td class="r num">${fmt(MUN.reduce((a, m, k) => a + CUR[k].ics, 0) / MUN.length, 1)}</td><td class="r num"><strong>${prop[j].ics === null ? "—" : fmt(prop[j].ics, 1)}</strong></td></tr>`;
+  }).join("") + `<tr><td><strong>ICS-MP</strong></td><td class="r num"><strong>${fmt(CUR[j].ics, 1)}</strong></td><td class="r num">${fmt(icsAvg, 1)}</td><td class="r num"><strong>${prop[j].ics === null ? "—" : fmt(prop[j].ics, 1)}</strong></td></tr>`;
   document.getElementById("radarLegend").innerHTML = series.map(se => `<span><i class="sw ${se.sw}"></i>${esc(se.name)}</span>`).join("") +
     (prop[j].ics === null ? `<span class="small">Proposto aparece quando as notas IEGM de ${esc(MUN[j])} estiverem completas (seção 5).</span>` : "");
 }
-// ---------- cabeçalho e navegação ----------
-function dimTag(k) { return `<span class="dim-tag ${k.toLowerCase()}">${k}</span>`; }
-function nivelOf(x) { return x === null ? "—" : x >= 76 ? "Referência" : x >= 51 ? "Avançado" : x >= 26 ? "Em desenvolvimento" : "Iniciante"; }
-(function header() {
-  document.getElementById("hdrScore").textContent = fmt(CUR[0].ics, 1);
-  const rank = MUN.map((m, j) => CUR[j].ics).filter(v => v > CUR[0].ics).length + 1;
-  document.getElementById("hdrNivel").textContent = `${nivelOf(CUR[0].ics)} · ${rank}º / 8`;
-})();
-(function navSpy() {
-  const links = [...document.querySelectorAll(".toc-in a")];
-  const secs = links.map(a => document.querySelector(a.getAttribute("href")));
-  function upd() {
-    let cur = 0;
-    secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top < 120) cur = i; });
-    links.forEach((a, i) => a.classList.toggle("on", i === cur));
-  }
-  addEventListener("scroll", upd, {passive: true}); upd();
-})();
 const MODE_LABEL = {oficial: "Faixas oficiais IEGM", rev05: "Faixas REV05", continua: "Contínua (2 × nota)"};
 function renderCompare() {
   const modes = ["oficial", "rev05", "continua"];
   const done = MUN.map((m, j) => j).filter(complete);
   const res = Object.fromEntries(modes.map(m => [m, scores(proposedRows(m)).map((s, j) => complete(j) ? s.ics : null)]));
   const t = document.getElementById("cmpTable");
-  t.querySelector("thead").innerHTML = `<tr><th>Município</th><th class="r">REV05 atual</th>${modes.map(m => `<th class="r ${m === state.band ? "sel" : ""}">${MODE_LABEL[m]}</th>`).join("")}</tr>`;
+  const tag = DS === SAMPLE ? "REV05 atual" : "Matriz atual";
+  t.querySelector("thead").innerHTML = `<tr><th>Município</th><th class="r">${tag}</th>${modes.map(m => `<th class="r ${m === state.band ? "sel" : ""}">${MODE_LABEL[m]}</th>`).join("")}</tr>`;
   t.querySelector("tbody").innerHTML = MUN.map((mun, j) => `<tr class="${j === 0 ? "hl" : ""}"><td>${esc(mun)}</td><td class="r num">${fmt(CUR[j].ics, 1)}</td>${modes.map(m => `<td class="r num ${m === state.band ? "sel" : ""}">${res[m][j] === null ? '<span class="small">incompleto</span>' : fmt(res[m][j], 1)}</td>`).join("")}</tr>`).join("");
   const amp = arr => { const v = done.map(j => arr[j]); return v.length > 1 ? Math.max(...v) - Math.min(...v) : null; };
   const sd = arr => { const v = done.map(j => arr[j]); if (v.length < 2) return null; const mu = v.reduce((a, b) => a + b, 0) / v.length; return Math.sqrt(v.reduce((a, b) => a + (b - mu) ** 2, 0) / v.length); };
-  const cur = MUN.map((m, j) => CUR[j].ics);
+  const cur = CUR.map(c => c.ics);
   t.querySelector("tfoot").innerHTML =
     `<tr><td>Amplitude (${done.length} municípios)</td><td class="r num">${fmt(amp(cur), 1)}</td>${modes.map(m => `<td class="r num ${m === state.band ? "sel" : ""}">${fmt(amp(res[m]), 1)}</td>`).join("")}</tr>` +
     `<tr><td>Desvio padrão</td><td class="r num">${fmt(sd(cur), 1)}</td>${modes.map(m => `<td class="r num ${m === state.band ? "sel" : ""}">${fmt(sd(res[m]), 1)}</td>`).join("")}</tr>`;
@@ -973,31 +1150,44 @@ function renderIegmDiscr() {
   IEGM_ALL.forEach(x => {
     const lv = state.v[x.key].map(v => level(v)), have = lv.filter(v => v !== null);
     if (BANDS[state.band].cont) {
-      const mn = Math.min(...have), mx = Math.max(...have), spread = have.length ? mx - mn : 0;
+      const mn = have.length ? Math.min(...have) : 0, mx = have.length ? Math.max(...have) : 0, spread = mx - mn;
       const cls = !have.length ? "ok" : spread === 0 ? "null" : spread < 0.3 ? "low" : "ok";
       const label = !have.length ? "Sem dados" : spread === 0 ? "Nulo" : spread < 0.3 ? "Baixo" : "Adequado";
-      const dots = lv.map((v, j) => v === null ? "" : `<i class="${lvClass(v)}" data-j="${j}" style="left:${(v / 2 * 100).toFixed(1)}%;background:var(--${["ini", "int", "avd"][Math.min(2, Math.round(v))]}-m)"></i>`).join("");
+      const dots = lv.map((v, j) => v === null ? "" : `<i data-j="${j}" style="left:${(v / 2 * 100).toFixed(1)}%;background:var(--${["ini", "int", "avd"][Math.min(2, Math.round(v))]}-m)"></i>`).join("");
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td class="code">${x.c}</td><td>${x.short}</td><td><div class="strip">${dots}</div><div class="small num" style="margin-top:3px">${have.length ? fmt(mn, 2) + " a " + fmt(mx, 2) + " pts" : "—"}</div></td><td class="c num">${have.length}/8</td><td class="c num">${new Set(have).size}</td><td><span class="tag ${cls}">${label}</span></td>`;
+      tr.innerHTML = `<td class="code">${x.c}</td><td>${x.short}</td><td><div class="strip">${dots}</div><div class="small num" style="margin-top:3px">${have.length ? fmt(mn, 2) + " a " + fmt(mx, 2) + " pts" : "—"}</div></td><td class="c num">${have.length}/${N}</td><td class="c num">${new Set(have).size}</td><td><span class="tag ${cls}">${label}</span></td>`;
       tr.querySelectorAll(".strip i").forEach(d => { const j = +d.dataset.j; bindTip(d, () => `<b>${esc(MUN[j])}</b><br>${x.short}: nota ${fmt(state.v[x.key][j])} → ${fmt(lv[j], 2)} pts`); });
       tb.appendChild(tr);
       return;
     }
-    const c = [0, 0, 0]; have.forEach(v => c[v]++);
-    const distinct = c.filter(Boolean).length, mode = Math.max(...c);
-    const cls = !have.length ? "ok" : distinct === 1 ? "null" : mode >= have.length - 1 ? "low" : "ok";
-    const label = !have.length ? "Sem dados" : distinct === 1 ? "Nulo" : mode >= have.length - 1 ? "Baixo" : "Adequado";
-    const segs = c.map((n, l) => n ? `<span class="lv${l}" data-lv="${l}" style="flex:${n}"></span>` : "").join("");
+    const r = discr(lv);
+    const segs = r.c.map((n, l) => n ? `<span class="lv${l}" data-lv="${l}" style="flex:${n}"></span>` : "").join("");
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td class="code">${x.c}</td><td>${x.short}</td><td><div class="dist">${segs}</div><div class="small num" style="margin-top:3px">${c[0]} · ${c[1]} · ${c[2]}</div></td><td class="c num">${have.length}/8</td><td class="c num">${distinct}</td><td><span class="tag ${cls}">${label}</span></td>`;
+    tr.innerHTML = `<td class="code">${x.c}</td><td>${x.short}</td><td><div class="dist">${segs}</div><div class="small num" style="margin-top:3px">${r.c[0]} · ${r.c[1]} · ${r.c[2]}</div></td><td class="c num">${r.n}/${N}</td><td class="c num">${r.distinct}</td><td><span class="tag ${r.cls}">${r.label}</span></td>`;
     tr.querySelectorAll(".dist span").forEach(s => {
       const l = +s.dataset.lv;
-      bindTip(s, () => `<b>${x.short} · ${LV[l]}</b><br>` + MUN.filter((m, j) => lv[j] === l).map((m) => { const j = MUN.indexOf(m); return `${esc(m)}: ${fmt(state.v[x.key][j])}`; }).join("<br>"));
+      bindTip(s, () => `<b>${x.short} · ${LV[l]}</b><br>` + MUN.map((m, j) => lv[j] === l ? `${esc(m)}: ${fmt(state.v[x.key][j])}` : "").filter(Boolean).join("<br>"));
     });
     tb.appendChild(tr);
   });
 }
-function complete(j) { return IEGM_ALL.every(x => state.v[x.key][j] !== null && !Number.isNaN(state.v[x.key][j])); }
+// Conferência: o nível registrado segue os limiares declarados? (só para a amostra com níveis da planilha)
+function renderRuleCheck() {
+  const el = document.getElementById("ruleCheck");
+  if (DS !== SAMPLE) { el.innerHTML = `<p>Nos dados carregados, todos os níveis são calculados pelos limiares declarados, então não há divergência a conferir.</p>`; return; }
+  const out = [];
+  IND.forEach(i => {
+    if (i.c === "D1-05") return;
+    i.raw.forEach((raw, j) => {
+      const r = classify(i.c, raw);
+      if (r.p !== null && r.p !== i.p[j]) out.push(`<li><strong>${i.c}</strong> · ${esc(MUN[j])}: dado “${esc(String(raw).trim())}”, limiar declarado (${esc(i.th.join(" · "))}) dá <strong>${LV[r.p]}</strong>, mas a planilha registra <strong>${LV[i.p[j]]}</strong>.</li>`);
+    });
+  });
+  el.innerHTML = out.length
+    ? `<p>A página reproduz os níveis da planilha. Ao aplicar os limiares declarados aos dados brutos, ${out.length} célula${out.length > 1 ? "s divergem" : " diverge"}. Na planilha-modelo (seção 5) os níveis são sempre calculados pelos limiares, então esses casos mudam de nível se a amostra for recarregada por ela.</p><ul>${out.join("")}</ul>`
+    : `<p>Todos os níveis da planilha seguem os limiares declarados.</p>`;
+}
+function complete(j) { return IEGM_ALL.every(x => state.v[x.key][j] !== null && state.v[x.key][j] !== undefined && !Number.isNaN(state.v[x.key][j])); }
 function refresh() {
   refreshPills();
   renderMatrix();
@@ -1009,50 +1199,227 @@ function refresh() {
   renderCompare();
   renderRadar(prop);
   renderBars(prop, anyNew);
-  renderScores(prop, anyNew);
+  renderScores(prop);
   renderHeat(rows);
   const lede = document.getElementById("resultLede");
-  const cur = MUN.map((m, j) => CUR[j].ics), amp = Math.max(...cur) - Math.min(...cur);
+  const cur = CUR.map(c => c.ics).filter(v => v !== null), amp = cur.length ? Math.max(...cur) - Math.min(...cur) : 0;
+  const tag = DS === SAMPLE ? "Na REV05" : "Na matriz atual";
   if (!anyNew) {
-    lede.innerHTML = `Na REV05 o ICS-MP varia de <strong>${fmt(Math.min(...cur),1)}</strong> a <strong>${fmt(Math.max(...cur),1)}</strong> (amplitude de ${fmt(amp,1)} pontos). O cenário proposto aparece para cada município assim que as cinco notas do IEGM dele forem informadas na seção 5.`;
+    lede.innerHTML = `${tag} o ICS-MP varia de <strong>${fmt(Math.min(...cur),1)}</strong> a <strong>${fmt(Math.max(...cur),1)}</strong> (amplitude de ${fmt(amp,1)} pontos). O cenário proposto aparece para cada município assim que as cinco notas do IEGM dele forem informadas na seção 5.`;
   } else {
     const done = MUN.map((m, j) => j).filter(complete);
     if (done.length < 2) {
-      lede.innerHTML = `${done.length} de 8 municípios com as cinco notas IEGM completas. O ICS-MP proposto só é exibido para municípios completos, para não comparar scores calculados com conjuntos diferentes de indicadores.`;
+      lede.innerHTML = `${done.length} de ${N} municípios com as cinco notas IEGM completas. O ICS-MP proposto só é exibido para municípios completos, para não comparar scores calculados com conjuntos diferentes de indicadores.`;
     } else {
       const c2 = done.map(j => CUR[j].ics), p2 = done.map(j => prop[j].ics);
       const ca = Math.max(...c2) - Math.min(...c2), pa = Math.max(...p2) - Math.min(...p2);
-      lede.innerHTML = `${done.length} de 8 municípios com notas completas. Entre eles, a amplitude do ICS-MP é de <strong>${fmt(ca,1)}</strong> pontos na REV05 e <strong>${fmt(pa,1)}</strong> pontos na proposta. Amplitude maior indica ganho de poder discriminatório do protocolo.` + (done.length < 8 ? ` Os demais aparecem como “incompleto”.` : "");
+      lede.innerHTML = `${done.length} de ${N} municípios com notas completas. Entre eles, a amplitude do ICS-MP é de <strong>${fmt(ca,1)}</strong> pontos na matriz atual e <strong>${fmt(pa,1)}</strong> pontos na proposta. Amplitude maior indica ganho de poder discriminatório do protocolo.` + (done.length < N ? ` Os demais aparecem como “incompleto”.` : "");
     }
   }
 }
+// Tudo que depende do conjunto de municípios.
+function rebuild() {
+  renderHeader(); renderKpis(); renderDiag(); renderSubs(); renderRuleCheck(); fillRadarSel(); renderInputs(); refresh();
+  document.getElementById("dsName").textContent = `${DS.name} · ${N} municípios`;
+  document.getElementById("sampleBtn").hidden = DS === SAMPLE;
+  document.getElementById("sampleIegmNote").hidden = DS !== SAMPLE;
+  document.getElementById("customIegmNote").hidden = DS === SAMPLE;
+}
 
-// ---------- events ----------
+// ---------- CSV: leitura, planilha-modelo e importação do IEGM ----------
+function parseCSV(text) {
+  text = text.replace(/^﻿/, "");
+  const firstLine = text.split(/\r?\n/, 1)[0] || "";
+  const sep = [";", ",", "\t"].map(s => [s, firstLine.split(s).length]).sort((a, b) => b[1] - a[1])[0][0];
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) {
+      if (ch === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; }
+      else f += ch;
+    } else if (ch === '"') q = true;
+    else if (ch === sep) { row.push(f); f = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(f); rows.push(row); row = []; f = ""; }
+    else f += ch;
+  }
+  if (f !== "" || row.length) { row.push(f); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ""));
+}
+async function readFileText(file) {
+  const buf = await file.arrayBuffer();
+  try { return new TextDecoder("utf-8", {fatal: true}).decode(buf); }
+  catch (e) { return new TextDecoder("windows-1252").decode(buf); }
+}
+const TEMPLATE_CODES = IND.map(i => i.c).filter(c => c !== "D1-05");
+const IEGM_COLS = ["i-Fiscal", "i-Plan", "i-Cidade", "i-Amb", "i-GovTI"];
+const csvCell = v => { const s = v === null || v === undefined ? "" : String(v).replace(/\t/g, "").trim(); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+function templateCSV() {
+  const head = ["Municipio", "UF", ...TEMPLATE_CODES, ...IEGM_COLS, "Exercicio IEGM"];
+  const lines = [head.join(";")];
+  MUN.forEach((m, j) => {
+    const raw = TEMPLATE_CODES.map(c => DS === SAMPLE && byCode[c].t === "Pct" ? String(byCode[c].raw[j]).replace("%", "").trim() : byCode[c].raw[j]);
+    const ieg = IEGM_ALL.map(x => state.v[x.key][j] === null ? "" : fmt(state.v[x.key][j]));
+    lines.push([nameOf(m), ufOf(m), ...raw, ...ieg, state.exerc[j] || ""].map(csvCell).join(";"));
+  });
+  return lines.join("\r\n");
+}
+function dictionaryCSV() {
+  const head = ["Codigo", "Indicador", "Tipo", "Iniciante (0)", "Intermediario (1)", "Avancado (2)", "Como preencher", "Fonte"];
+  const how = c => { const r = RULES[c]; if (!r) return ""; if (r.t === "bin") return "Sim ou Não"; if (r.t === "ord") return "Muito baixo, Baixo, Médio, Alto ou Muito alto (classificação do IDSC-BR)"; return `Número (${r.unit}), vírgula como decimal${r.down ? "; menor é melhor" : ""}`; };
+  const lines = [head.join(";")];
+  IND.filter(i => i.c !== "D1-05").forEach(i => lines.push([i.c, i.n, i.t, ...i.th, how(i.c), i.f].map(csvCell).join(";")));
+  IEGM_ALL.forEach(x => lines.push([x.col, x.short + " (IEGM)", "Nota", "", "", "", "Nota de 0 a 1 do IEGM (ex.: 0,72), do painel IEGM Brasil ou do Tribunal de Contas", IEGM_SRC].map(csvCell).join(";")));
+  lines.push(["Exercicio IEGM", "Ano-base das notas IEGM", "Ano", "", "", "", "Ex.: 2024", ""].map(csvCell).join(";"));
+  lines.push(["(qualquer código)", "Pontos informados diretamente", "", "", "", "", "Escreva =0, =1 ou =2 para informar o nível sem dado bruto", ""].map(csvCell).join(";"));
+  return lines.join("\r\n");
+}
+function offerFile(filename, text, label) {
+  const data = "﻿" + text;
+  const out = document.getElementById("csvOut");
+  document.getElementById("csvTitle").textContent = label;
+  document.getElementById("csvText").value = text;
+  if (downloadsApi) { downloadsApi.save({filename, data}).catch(() => {}); out.hidden = false; return; }
+  if (!IN_VIEWER) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([data], {type: "text/csv;charset=utf-8"}));
+    a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  out.hidden = false;
+}
+function report(html, kind) {
+  const el = document.getElementById("importReport");
+  el.className = "callout" + (kind === "warn" ? " warn" : "");
+  el.innerHTML = html; el.hidden = false;
+  el.scrollIntoView({behavior: "smooth", block: "nearest"});
+}
+function loadTemplate(rows, fileName) {
+  const head = rows[0].map(h => norm(h));
+  const col = name => head.indexOf(norm(name));
+  const iMun = col("Municipio"), iUf = col("UF");
+  if (iMun < 0) return report(`<p><strong>Planilha não reconhecida.</strong> A primeira linha precisa ter a coluna “Municipio”. Baixe a planilha-modelo e preencha a partir dela.</p>`, "warn");
+  const missing = TEMPLATE_CODES.filter(c => col(c) < 0);
+  const body = rows.slice(1).filter(r => (r[iMun] || "").trim());
+  if (!body.length) return report(`<p><strong>Nenhum município encontrado</strong> em ${esc(fileName)}.</p>`, "warn");
+  const mun = body.map(r => { const n = r[iMun].trim(), uf = iUf >= 0 ? (r[iUf] || "").trim().toUpperCase() : ""; return uf && !/-[A-Z]{2}$/.test(n) ? `${n}-${uf}` : n; });
+  const raw = Object.fromEntries(TEMPLATE_CODES.map(c => [c, body.map(r => col(c) >= 0 ? (r[col(c)] || "").trim() : "")]));
+  raw["D1-05"] = body.map(() => "");
+  const iegm = {}, badIegm = [];
+  IEGM_ALL.forEach((x, k) => {
+    const ci = col(IEGM_COLS[k]);
+    iegm[x.key] = body.map((r, j) => {
+      if (ci < 0) return null;
+      const v = parseNum(r[ci]);
+      if (Number.isNaN(v)) { badIegm.push(`${mun[j]} · ${IEGM_COLS[k]}: “${r[ci]}”`); return null; }
+      return v;
+    });
+  });
+  const ie = col("Exercicio IEGM");
+  const exerc = body.map((r, j) => ie >= 0 && (r[ie] || "").trim() ? r[ie].trim() : (IEGM_ALL.some(x => iegm[x.key][j] !== null) ? "?" : null));
+  raw["D1-05"] = iegm.igovti.map(v => v === null ? "" : fmt(v));
+  const payload = {name: `Planilha ${fileName}`, mun, raw, iegm, exerc};
+  loadPayload(payload);
+  resetIegm();
+  save(); rebuild();
+  const issues = [...DS.issues, ...badIegm];
+  const empty = IND.reduce((a, i) => a + i.p.filter(v => v === null).length, 0);
+  report(`<p><strong>${N} município${N > 1 ? "s" : ""} carregado${N > 1 ? "s" : ""}</strong> de ${esc(fileName)}. Os níveis foram calculados pelos limiares declarados de cada indicador.${empty ? ` ${empty} célula(s) vazia(s) ficam fora do cálculo, como prevê a regra de dado indisponível.` : ""}</p>` +
+    (missing.length ? `<p>Colunas ausentes (tratadas como vazias): ${missing.join(", ")}.</p>` : "") +
+    (issues.length ? `<p><strong>${issues.length} valor(es) não reconhecido(s)</strong>, tratados como vazios:</p><ul>${issues.slice(0, 30).map(s => `<li>${esc(s)}</li>`).join("")}${issues.length > 30 ? `<li>… e mais ${issues.length - 30}</li>` : ""}</ul>` : ""),
+    issues.length || missing.length ? "warn" : "");
+}
+function tribunalUf(t) { const m = String(t || "").toUpperCase().match(/^TC[EM]?([A-Z]{2})$/) || String(t || "").toUpperCase().match(/([A-Z]{2})$/); return m ? m[1] : ""; }
+function importIegm(files) {
+  return Promise.all([...files].map(async f => ({name: f.name, rows: parseCSV(await readFileText(f))}))).then(list => {
+    const found = new Set(), notes = [], skipped = [];
+    let rowsRead = 0;
+    list.forEach(({name, rows}) => {
+      if (!rows.length) return;
+      const head = rows[0].map(h => norm(h));
+      const ci = n => head.indexOf(norm(n));
+      const iMun = ci("Município"), iTrib = head.findIndex(h => h.startsWith("tribun")), iEx = ci("Exercício");
+      const cols = {ifiscal: ci("i-Fiscal"), iplan: ci("i-Plan"), icidade: ci("i-Cidade"), iamb: ci("i-Amb"), igovti: ci("i-GovTI")};
+      if (iMun < 0 || cols.ifiscal < 0) { skipped.push(name); return; }
+      rows.slice(1).forEach(r => {
+        rowsRead++;
+        const uf = iTrib >= 0 ? tribunalUf(r[iTrib]) : "";
+        const nm = norm(r[iMun]);
+        const j = MUN.findIndex(m => norm(nameOf(m)) === nm && (!uf || !ufOf(m) || ufOf(m) === uf));
+        if (j < 0) return;
+        const ex = iEx >= 0 ? (r[iEx] || "").trim() : "";
+        // Se o mesmo município vier em mais de um exercício, fica o mais recente.
+        if (found.has(j) && state.exerc[j] && ex && ex < state.exerc[j]) return;
+        Object.entries(cols).forEach(([k, c]) => { if (c >= 0) { const v = parseNum(String(r[c] || "").replace(/[A-C]\+?$/, "")); if (!Number.isNaN(v) && v !== null) state.v[k][j] = v; } });
+        state.exerc[j] = ex || state.exerc[j] || "?";
+        found.add(j);
+      });
+    });
+    save(); renderInputs(); refresh();
+    const missing = MUN.filter((m, j) => !found.has(j));
+    const otherYear = MUN.filter((m, j) => found.has(j) && state.exerc[j] !== IEGM_EXERCICIO);
+    report(`<p><strong>IEGM importado:</strong> ${found.size} de ${N} municípios encontrados em ${list.length} arquivo(s) (${rowsRead} linhas lidas). O nome e a UF do tribunal são usados para identificar cada município.</p>` +
+      (otherYear.length ? `<p>Em exercício diferente de ${IEGM_EXERCICIO}: ${otherYear.map((m) => `${esc(m)} (${esc(state.exerc[MUN.indexOf(m)])})`).join(", ")}.</p>` : "") +
+      (missing.length ? `<p>Não encontrados nos arquivos: ${missing.map(esc).join(", ")}. Exporte o tribunal correspondente no painel do IRB ou preencha à mão.</p>` : "") +
+      (skipped.length ? `<p>Arquivos ignorados por não terem as colunas do painel IEGM Brasil: ${skipped.map(esc).join(", ")}.</p>` : ""),
+      missing.length || skipped.length ? "warn" : "");
+  });
+}
+
+// ---------- eventos ----------
 const bandSel = document.getElementById("bandSel");
 bandSel.value = state.band;
 bandSel.addEventListener("change", () => { state.band = bandSel.value; save(); refresh(); });
-document.getElementById("clearBtn").addEventListener("click", () => {
-  if (!confirm("Descartar as alterações e restaurar as notas do IEGM 2024?")) return;
-  resetToOfficial();
+let clearArmed = null;
+const clearBtn = document.getElementById("clearBtn");
+const CLEAR_LABEL = clearBtn.textContent;
+clearBtn.addEventListener("click", () => {
+  if (!clearArmed) {
+    clearBtn.textContent = "Confirmar: descartar edições";
+    clearArmed = setTimeout(() => { clearArmed = null; clearBtn.textContent = CLEAR_LABEL; }, 4000);
+    return;
+  }
+  clearTimeout(clearArmed); clearArmed = null; clearBtn.textContent = CLEAR_LABEL;
+  resetIegm();
   save(); renderInputs(); refresh();
 });
 document.getElementById("exportBtn").addEventListener("click", () => {
   const rows = proposedRows(), prop = scores(rows);
   const head = ["Municipio", ...IEGM_ALL.map(x => x.c + " " + x.short), ...DIMS.map(d => "Score " + d.k), "ICS-MP atual", "ICS-MP proposto"];
   const lines = [head.join(";")];
-  MUN.forEach((m, j) => lines.push([m, ...IEGM_ALL.map(x => fmt(state.v[x.key][j])), ...prop[j].ds.map(s => fmt(s,1)), fmt(CUR[j].ics,1), fmt(prop[j].ics,1)].join(";")));
-  const blob = new Blob(["﻿" + lines.join("\n")], {type: "text/csv;charset=utf-8"});
-  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "ICS-MP_IEGM.csv"; a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  MUN.forEach((m, j) => lines.push([m, ...IEGM_ALL.map(x => fmt(state.v[x.key][j])), ...prop[j].ds.map(s => fmt(s,1)), fmt(CUR[j].ics,1), fmt(prop[j].ics,1)].map(csvCell).join(";")));
+  offerFile("ICS-MP_resultados.csv", lines.join("\r\n"), "Resultados (CSV)");
+});
+document.getElementById("tplBtn").addEventListener("click", () => offerFile("ICS-MP_planilha-modelo.csv", templateCSV(), "Planilha-modelo (CSV)"));
+document.getElementById("dictBtn").addEventListener("click", () => offerFile("ICS-MP_dicionario-indicadores.csv", dictionaryCSV(), "Dicionário de indicadores (CSV)"));
+document.getElementById("tplFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { loadTemplate(parseCSV(await readFileText(f)), f.name); }
+  catch (err) { report(`<p><strong>Não foi possível ler ${esc(f.name)}.</strong> Salve a planilha como CSV (separado por ponto e vírgula) e tente de novo.</p>`, "warn"); }
+  e.target.value = "";
+});
+document.getElementById("iegmFile").addEventListener("change", async e => {
+  if (!e.target.files.length) return;
+  try { await importIegm(e.target.files); }
+  catch (err) { report(`<p><strong>Não foi possível ler o arquivo.</strong> Use o CSV exportado do painel IEGM Brasil.</p>`, "warn"); }
+  e.target.value = "";
+});
+document.getElementById("sampleBtn").addEventListener("click", () => {
+  loadPayload(null); resetIegm(); save(); rebuild();
+  report(`<p>Voltou para a amostra da dissertação (8 municípios, REV05 e IEGM 2024).</p>`);
+});
+document.getElementById("copyCsv").addEventListener("click", () => {
+  const ta = document.getElementById("csvText"), msg = document.getElementById("copyMsg");
+  navigator.clipboard.writeText(ta.value).then(() => { msg.textContent = "Copiado."; })
+    .catch(() => { ta.focus(); ta.select(); msg.textContent = "Selecionado. Use Ctrl+C para copiar."; });
 });
 document.getElementById("pasteBtn").addEventListener("click", () => {
-  const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-  let ok = 0, miss = [];
+  let ok = 0; const miss = [];
   document.getElementById("pasteBox").value.split(/\r?\n/).forEach(line => {
     if (!line.trim()) return;
     const f = line.split(/[;\t]/);
-    const j = MUN.findIndex(m => norm(m).startsWith(norm(f[0])) || norm(m).includes(norm(f[0])));
-    if (j < 0 || !f[0].trim()) { miss.push(f[0]); return; }
+    const key = norm(f[0]);
+    const j = key ? MUN.findIndex(m => norm(m).startsWith(key) || norm(m).includes(key)) : -1;
+    if (j < 0) { miss.push(f[0]); return; }
     IEGM_ALL.forEach((x, k) => {
       if (f[k + 1] === undefined || f[k + 1].trim() === "") return;
       const v = parseNum(f[k + 1]);
@@ -1068,9 +1435,19 @@ document.getElementById("themeBtn").addEventListener("click", () => {
   const dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
   r.dataset.theme = dark ? "light" : "dark";
 });
+(function navSpy() {
+  const links = [...document.querySelectorAll(".toc-in a")];
+  const secs = links.map(a => document.querySelector(a.getAttribute("href")));
+  function upd() {
+    let cur = 0;
+    secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top < 120) cur = i; });
+    links.forEach((a, i) => a.classList.toggle("on", i === cur));
+  }
+  addEventListener("scroll", upd, {passive: true}); upd();
+})();
 
-renderInputs();
-refresh();
+rebuild();
+connect();
 </script>
 </body>
 </html>
