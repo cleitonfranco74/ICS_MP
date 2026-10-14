@@ -269,6 +269,12 @@ code { font-size: 13px; }
 .legend i.sw.avg { border-color: var(--series-avg); border-top-style: dashed; }
 .legend i.sw.prop { border-color: var(--series-2); border-top-style: dashed; }
 #radarTable th, #radarTable td { padding: 8px 10px; }
+.strip { position: relative; height: 18px; min-width: 160px; }
+.strip::before { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: var(--grid); border-radius: 2px; }
+.strip i { position: absolute; top: 3px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; border: 2px solid var(--surface); }
+#cmpTable td.sel, #cmpTable th.sel { background: var(--accent-wash); }
+#cmpTable tfoot td { background: var(--surface-2); font-weight: 600; border-top: 1px solid var(--axis); }
+
 
 /* cartões de texto */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -427,6 +433,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
   <select id="bandSel" class="btn">
     <option value="oficial">Oficiais IEGM (C/C+ · B · B+/A) — recomendado</option>
     <option value="rev05">REV05 do D1-05 (&lt;0,50 · 0,50–0,70 · &gt;0,70)</option>
+    <option value="continua">Contínua: pontos = 2 × nota (sem faixas)</option>
   </select>
 </div>
 <div class="table-wrap">
@@ -452,6 +459,12 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <section id="resultado">
 <h2>6. Resultado: ICS-MP atual × proposto</h2>
 <p id="resultLede"></p>
+<h3>Comparação das regras de pontuação do IEGM</h3>
+<p class="small" style="max-width:76ch">ICS-MP proposto de cada município com as três regras para converter as notas do IEGM em pontos. A coluna destacada é a regra em uso na página. A amplitude considera só os municípios com todas as notas IEGM.</p>
+<div class="toolbar" id="cmpBtns" style="margin-top:4px"></div>
+<div class="table-wrap">
+<table id="cmpTable"><thead></thead><tbody></tbody><tfoot></tfoot></table>
+</div>
 <div class="chart" id="radarCard">
   <div class="toolbar" style="margin:0 0 4px">
     <p class="chart-title" style="margin:0">Radar de maturidade — 5 dimensões</p>
@@ -482,7 +495,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <p class="caption">Score_D = Σ pontos ÷ máximo possível × 100. ICS-MP = Σ(Score_D × Peso_D). Pesos: D1 20% · D2 25% · D3 20% · D4 20% · D5 15%. Nível: 0–25 Iniciante · 26–50 Em desenvolvimento · 51–75 Avançado · 76–100 Referência.</p>
 
 <h3>Poder discriminatório dos indicadores IEGM</h3>
-<p class="small" style="max-width:76ch">Distribuição dos níveis entre os municípios que têm nota, com a regra de faixas escolhida na seção 5. Um indicador IEGM só cumpre o papel de substituto se diferenciar os municípios.</p>
+<p class="small" style="max-width:76ch">Distribuição dos níveis entre os municípios que têm nota, com a regra escolhida na seção 5. Na regra contínua, cada ponto é um município na escala de 0 a 2 pontos; a classificação usa a amplitude (nula se todos iguais, baixa abaixo de 0,3 ponto). Um indicador IEGM só cumpre o papel de substituto se diferenciar os municípios.</p>
 <div class="table-wrap">
 <table id="iegmDiscr">
   <thead><tr><th>Cód.</th><th>Indicador IEGM</th><th>Distribuição</th><th class="c">Com nota</th><th class="c">Níveis distintos</th><th>Poder discriminatório</th></tr></thead>
@@ -588,6 +601,7 @@ const IEGM_ALL = [...NEW, {...GOVTI}];
 const BANDS = {
   oficial: {lo:0.60, hi:0.75, th:["< 0,60 (C, C+)","0,60 – 0,749 (B)","≥ 0,75 (B+, A)"]},
   rev05:   {lo:0.50, hi:0.70, th:["< 0,50","0,50 – 0,70","> 0,70"], hiStrict:true},
+  continua: {cont:true, th:["nota 0 → 0 pts","pontos = 2 × nota","nota 1 → 2 pts"]},
 };
 const byCode = Object.fromEntries(IND.map(i => [i.c, i]));
 const govtiRaw = byCode["D1-05"].raw.map(v => parseNum(v));
@@ -618,9 +632,10 @@ function parseNum(s) {
   return x;
 }
 const fmt = (x, d=2) => x === null || x === undefined || isNaN(x) ? "—" : x.toFixed(d).replace(".", ",");
-function level(x) {
+function level(x, band) {
   if (x === null || x === undefined || isNaN(x)) return null;
-  const b = BANDS[state.band];
+  const b = BANDS[band || state.band];
+  if (b.cont) return Math.round(x * 200) / 100;
   if (x < b.lo) return 0;
   if (b.hiStrict ? x > b.hi : x >= b.hi) return 2;
   return 1;
@@ -628,11 +643,16 @@ function level(x) {
 
 // ---------- matrices ----------
 function currentPts(ind) { return ind.p.slice(); }
-function proposedRows() {
+// pontos contínuos (0–2) recebem a cor do inteiro mais próximo
+function lvClass(v) { return v === null || v === undefined ? "lvna" : "lv" + Math.min(2, Math.max(0, Math.round(v))); }
+function lvText(v) { return v === null || v === undefined ? "–" : Number.isInteger(v) ? String(v) : fmt(v, 1); }
+function lvLabel(v) { return v === null || v === undefined ? "sem dado" : Number.isInteger(v) ? `${LV[v]} (${v})` : `${fmt(v, 2)} pts (contínua)`; }
+function proposedRows(band) {
+  const lv = x => level(x, band);
   return IND.map(ind => {
     const sub = NEW.find(n => n.c === ind.c);
-    if (sub) return {c: ind.c, n: sub.n, sub, iegm: true, p: state.v[sub.key].map(level)};
-    if (ind.c === "D1-05") return {c: ind.c, n: ind.n, iegm: true, p: state.v.igovti.map(level)};
+    if (sub) return {c: ind.c, n: sub.n, sub, iegm: true, p: state.v[sub.key].map(lv)};
+    if (ind.c === "D1-05") return {c: ind.c, n: ind.n, iegm: true, p: state.v.igovti.map(lv)};
     return {c: ind.c, n: ind.n, p: currentPts(ind)};
   });
 }
@@ -784,9 +804,9 @@ function refreshPills() {
   IEGM_ALL.forEach(x => MUN.forEach((m, j) => {
     const el = document.querySelector(`[data-pill="${x.key}-${j}"]`);
     const lv = level(state.v[x.key][j]);
-    el.className = "pill " + (lv === null ? "lvna" : "lv" + lv);
-    el.textContent = lv === null ? "–" : lv;
-    el.title = lv === null ? "Sem dado" : LV[lv];
+    el.className = "pill " + lvClass(lv);
+    el.textContent = lvText(lv);
+    el.title = lvLabel(lv);
   }));
   const filled = NEW.reduce((a, x) => a + state.v[x.key].filter(v => v !== null).length, 0);
   document.getElementById("fillStatus").textContent = `${filled} de ${NEW.length * MUN.length} notas novas preenchidas`;
@@ -844,7 +864,7 @@ function renderHeat(rows) {
       if (r.sub) tr.className = "sub";
       const nm = r.sub ? r.sub.short : r.n;
       tr.innerHTML = `<td class="code">${r.c}</td><td style="min-width:200px">${esc(nm)}${r.iegm ? ' <span class="tag iegm">IEGM</span>' : ""}</td>` +
-        r.p.map((v, j) => `<td class="grid-cell"><div class="${v === null ? "lvna" : "lv" + v}" data-j="${j}">${v === null ? "–" : v}</div></td>`).join("");
+        r.p.map((v, j) => `<td class="grid-cell"><div class="${lvClass(v)}" data-j="${j}">${lvText(v)}</div></td>`).join("");
       tr.querySelectorAll(".grid-cell div").forEach(cell => {
         const j = +cell.dataset.j;
         bindTip(cell, () => {
@@ -852,7 +872,7 @@ function renderHeat(rows) {
           let raw;
           if (r.iegm) { const key = r.sub ? r.sub.key : "igovti"; raw = fmt(state.v[key][j]); }
           else raw = byCode[r.c].raw[j];
-          return `<b>${r.c} · ${esc(MUN[j])}</b><br>${esc(nm)}<br>Dado: ${esc(raw || "—")}<br>Nível: ${v === null ? "sem dado" : LV[v] + " (" + v + ")"}`;
+          return `<b>${r.c} · ${esc(MUN[j])}</b><br>${esc(nm)}<br>Dado: ${esc(raw || "—")}<br>Pontos: ${lvLabel(v)}`;
         });
       });
       tb.appendChild(tr);
@@ -928,11 +948,41 @@ function nivelOf(x) { return x === null ? "—" : x >= 76 ? "Referência" : x >=
   }
   addEventListener("scroll", upd, {passive: true}); upd();
 })();
+const MODE_LABEL = {oficial: "Faixas oficiais IEGM", rev05: "Faixas REV05", continua: "Contínua (2 × nota)"};
+function renderCompare() {
+  const modes = ["oficial", "rev05", "continua"];
+  const done = MUN.map((m, j) => j).filter(complete);
+  const res = Object.fromEntries(modes.map(m => [m, scores(proposedRows(m)).map((s, j) => complete(j) ? s.ics : null)]));
+  const t = document.getElementById("cmpTable");
+  t.querySelector("thead").innerHTML = `<tr><th>Município</th><th class="r">REV05 atual</th>${modes.map(m => `<th class="r ${m === state.band ? "sel" : ""}">${MODE_LABEL[m]}</th>`).join("")}</tr>`;
+  t.querySelector("tbody").innerHTML = MUN.map((mun, j) => `<tr class="${j === 0 ? "hl" : ""}"><td>${esc(mun)}</td><td class="r num">${fmt(CUR[j].ics, 1)}</td>${modes.map(m => `<td class="r num ${m === state.band ? "sel" : ""}">${res[m][j] === null ? '<span class="small">incompleto</span>' : fmt(res[m][j], 1)}</td>`).join("")}</tr>`).join("");
+  const amp = arr => { const v = done.map(j => arr[j]); return v.length > 1 ? Math.max(...v) - Math.min(...v) : null; };
+  const sd = arr => { const v = done.map(j => arr[j]); if (v.length < 2) return null; const mu = v.reduce((a, b) => a + b, 0) / v.length; return Math.sqrt(v.reduce((a, b) => a + (b - mu) ** 2, 0) / v.length); };
+  const cur = MUN.map((m, j) => CUR[j].ics);
+  t.querySelector("tfoot").innerHTML =
+    `<tr><td>Amplitude (${done.length} municípios)</td><td class="r num">${fmt(amp(cur), 1)}</td>${modes.map(m => `<td class="r num ${m === state.band ? "sel" : ""}">${fmt(amp(res[m]), 1)}</td>`).join("")}</tr>` +
+    `<tr><td>Desvio padrão</td><td class="r num">${fmt(sd(cur), 1)}</td>${modes.map(m => `<td class="r num ${m === state.band ? "sel" : ""}">${fmt(sd(res[m]), 1)}</td>`).join("")}</tr>`;
+  document.getElementById("cmpBtns").innerHTML = '<span class="small">Usar na página:</span>' + modes.map(m => `<button type="button" class="btn ${m === state.band ? "primary" : ""}" data-mode="${m}">${MODE_LABEL[m]}</button>`).join("");
+  document.querySelectorAll("#cmpBtns button").forEach(b => b.addEventListener("click", () => {
+    state.band = b.dataset.mode; document.getElementById("bandSel").value = state.band; save(); refresh();
+  }));
+}
 function renderIegmDiscr() {
   const tb = document.querySelector("#iegmDiscr tbody");
   tb.innerHTML = "";
   IEGM_ALL.forEach(x => {
-    const lv = state.v[x.key].map(level), have = lv.filter(v => v !== null);
+    const lv = state.v[x.key].map(v => level(v)), have = lv.filter(v => v !== null);
+    if (BANDS[state.band].cont) {
+      const mn = Math.min(...have), mx = Math.max(...have), spread = have.length ? mx - mn : 0;
+      const cls = !have.length ? "ok" : spread === 0 ? "null" : spread < 0.3 ? "low" : "ok";
+      const label = !have.length ? "Sem dados" : spread === 0 ? "Nulo" : spread < 0.3 ? "Baixo" : "Adequado";
+      const dots = lv.map((v, j) => v === null ? "" : `<i class="${lvClass(v)}" data-j="${j}" style="left:${(v / 2 * 100).toFixed(1)}%;background:var(--${["ini", "int", "avd"][Math.min(2, Math.round(v))]}-m)"></i>`).join("");
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td class="code">${x.c}</td><td>${x.short}</td><td><div class="strip">${dots}</div><div class="small num" style="margin-top:3px">${have.length ? fmt(mn, 2) + " a " + fmt(mx, 2) + " pts" : "—"}</div></td><td class="c num">${have.length}/8</td><td class="c num">${new Set(have).size}</td><td><span class="tag ${cls}">${label}</span></td>`;
+      tr.querySelectorAll(".strip i").forEach(d => { const j = +d.dataset.j; bindTip(d, () => `<b>${esc(MUN[j])}</b><br>${x.short}: nota ${fmt(state.v[x.key][j])} → ${fmt(lv[j], 2)} pts`); });
+      tb.appendChild(tr);
+      return;
+    }
     const c = [0, 0, 0]; have.forEach(v => c[v]++);
     const distinct = c.filter(Boolean).length, mode = Math.max(...c);
     const cls = !have.length ? "ok" : distinct === 1 ? "null" : mode >= have.length - 1 ? "low" : "ok";
@@ -956,6 +1006,7 @@ function refresh() {
   const prop = scores(rows).map((s, j) => complete(j) ? s : {ds: s.ds, ics: null, partial: true});
   document.getElementById("hdrProp").innerHTML = prop[0].ics !== null ? `Proposto com IEGM: <b>${fmt(prop[0].ics, 1)}</b>` : "Proposto: aguarda notas IEGM";
   renderIegmDiscr();
+  renderCompare();
   renderRadar(prop);
   renderBars(prop, anyNew);
   renderScores(prop, anyNew);
