@@ -290,6 +290,13 @@ code { font-size: 13px; }
 #regTable td .pill { margin-left: 0; margin-right: 6px; }
 #regTable td.r { white-space: nowrap; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+ol.steps-list { max-width: 80ch; padding-left: 0; list-style: none; counter-reset: st; }
+ol.steps-list li { counter-increment: st; position: relative; padding: 10px 0 10px 40px; border-bottom: 1px solid var(--grid); }
+ol.steps-list li:last-child { border-bottom: none; }
+ol.steps-list li::before { content: counter(st); position: absolute; left: 0; top: 10px; width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: var(--on-navy); font: 700 12px/26px var(--display); text-align: center; }
+#manualTable td { font-size: 13px; }
+#manualTable td:nth-child(2) { min-width: 180px; }
+#manualTable td:nth-child(3) { min-width: 200px; }
 #cmpTable td.sel, #cmpTable th.sel { background: var(--accent-wash); }
 #cmpTable tfoot td { background: var(--surface-2); font-weight: 600; border-top: 1px solid var(--axis); }
 
@@ -339,6 +346,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
   <a href="#coleta">Dados</a>
   <a href="#resultado">Resultado</a>
   <a href="#regional">Regional</a>
+  <a href="#manual">Manual</a>
   <a href="#notas">Notas</a>
   <button class="theme-btn" id="themeBtn" type="button" aria-label="Alternar tema claro ou escuro">◐ Tema</button>
  </div>
@@ -587,9 +595,76 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <div class="toolbar"><button class="btn primary" id="regTplBtn" type="button">Baixar planilha-modelo regional</button><span class="small">48 municípios com as notas do IEGM preenchidas; os demais indicadores em branco para coleta.</span></div>
 </section>
 
+<!-- manual -->
+<section id="manual">
+<h2>8. Manual de aplicação</h2>
+<p>Este manual orienta a aplicação do protocolo ICS-MP a qualquer município, sem depender da equipe da pesquisa. Destina-se a técnicos de prefeituras, consórcios e associações de municípios, núcleos de inovação tecnológica e equipes de tribunais de contas. Quase todos os dados vêm de fontes públicas na internet.</p>
+
+<div class="two-col" style="margin:16px 0">
+  <div class="card">
+    <h4>O que o protocolo mede</h4>
+    <p>A maturidade de um município de médio porte como cidade inteligente, em cinco dimensões: governança, habitação, planejamento urbano, sustentabilidade e inovação. São 25 indicadores adaptados das normas ISO 37120 e ISO 37122, com dados públicos.</p>
+  </div>
+  <div class="card">
+    <h4>O que a aplicação entrega</h4>
+    <p>O ICS-MP de 0 a 100 e o nível de maturidade de cada município, o score de cada dimensão, a posição no grupo comparado e a lista dos indicadores em nível Iniciante, que são as prioridades de ação.</p>
+  </div>
+</div>
+
+<h3>Passo a passo</h3>
+<ol class="steps-list">
+  <li><strong>Defina o grupo de comparação e o período.</strong> Escolha o município de interesse e pelo menos quatro municípios de porte e perfil econômico semelhantes; o panorama regional (seção 7) ajuda a escolher. Fixe o exercício do IEGM (ex.: 2024) e use o mesmo para todos.</li>
+  <li><strong>Baixe a planilha-modelo e o dicionário</strong> na seção 5. A planilha tem uma linha por município e uma coluna por indicador; o dicionário traz o formato e os limiares de cada coluna. A planilha-modelo regional (seção 7) já vem com 48 municípios e as notas do IEGM.</li>
+  <li><strong>Colete os dados</strong> de cada indicador na fonte indicada no guia abaixo. Registre a data de acesso de cada fonte.</li>
+  <li><strong>Preencha a planilha</strong> com o dado bruto, não com o nível: o número (com vírgula decimal), Sim ou Não, ou a classificação do IDSC-BR. Deixe em branco o que não encontrar. Salve como CSV separado por ponto e vírgula.</li>
+  <li><strong>Carregue a planilha</strong> na seção 5. Leia o relatório de validação: ele lista valores não reconhecidos e colunas ausentes. Corrija na planilha e carregue de novo, se precisar.</li>
+  <li><strong>Importe as notas do IEGM.</strong> No painel IEGM Brasil, filtre o tribunal de contas do estado e o exercício, exporte o CSV e importe na seção 5 (pode selecionar vários arquivos). Confira quem não foi encontrado e quem está em outro exercício.</li>
+  <li><strong>Escolha a regra de pontuação do IEGM</strong> (seção 5): faixas oficiais, faixas REV05 ou contínua. Use a tabela comparativa da seção 6 para ver o efeito de cada uma e registre a escolha.</li>
+  <li><strong>Interprete os resultados</strong> (seção 6): o radar mostra as dimensões fortes e fracas; o mapa de níveis mostra os indicadores em Iniciante, que são o ponto de partida das recomendações; a tabela de scores mostra a posição do município no grupo.</li>
+  <li><strong>Registre e compartilhe.</strong> Exporte os resultados em CSV (seção 5) e guarde a planilha preenchida. Anote as fontes, as datas de acesso, a regra de pontuação usada e as anomalias encontradas: esse registro é o que permite repetir a aplicação no ano seguinte e comparar a evolução.</li>
+</ol>
+
+<h3>Guia de coleta por indicador</h3>
+<p class="small" style="max-width:76ch">Na matriz proposta, D1-03 e D3-01 a D3-03 são substituídos por dimensões do IEGM, mas continuam na planilha porque compõem a matriz atual (REV05), usada como referência de comparação. Os limiares são os declarados na REV05; a página aplica exatamente estas regras à planilha carregada.</p>
+<div class="table-wrap">
+<table id="manualTable">
+  <thead><tr><th>Cód.</th><th>Indicador</th><th>Onde obter</th><th>Como preencher</th><th>Iniciante · Intermediário · Avançado</th></tr></thead>
+  <tbody></tbody>
+</table>
+</div>
+
+<h3>Regras de cálculo</h3>
+<ul>
+  <li><strong>Pontos por indicador:</strong> Iniciante = 0, Intermediário = 1, Avançado = 2. Indicadores binários (Sim/Não) não têm nível intermediário. Na regra contínua do IEGM, pontos = 2 × nota.</li>
+  <li><strong>Score da dimensão:</strong> soma dos pontos ÷ máximo possível × 100, considerando só os indicadores com dado.</li>
+  <li><strong>ICS-MP:</strong> D1 × 20% + D2 × 25% + D3 × 20% + D4 × 20% + D5 × 15%.</li>
+  <li><strong>Nível de maturidade:</strong> 0–25 Iniciante · 26–50 Em desenvolvimento · 51–75 Avançado · 76–100 Referência.</li>
+  <li><strong>Dado indisponível:</strong> a célula vazia sai do cálculo da dimensão. Se mais de um indicador de uma dimensão estiver vazio, o score dessa dimensão perde comparabilidade; registre isso como limitação.</li>
+  <li><strong>ICS-MP proposto:</strong> só é calculado para municípios com as cinco notas do IEGM, para não comparar scores feitos com indicadores diferentes.</li>
+</ul>
+
+<h3>Cuidados</h3>
+<ul>
+  <li><strong>Mesmo ano para todos.</strong> Misturar exercícios do IEGM ou anos de fontes diferentes distorce a comparação. A página marca o município que está em outro exercício.</li>
+  <li><strong>Grupo homogêneo.</strong> Compare municípios de porte e perfil parecidos. O protocolo foi desenhado para municípios de médio porte.</li>
+  <li><strong>Natureza dos dados.</strong> O IEGM e parte da MUNIC são autodeclarados pelas prefeituras. Cite essa limitação no relatório.</li>
+  <li><strong>Poder discriminatório.</strong> Se um indicador der o mesmo nível para todos os municípios do grupo, ele não ajuda a comparar. A seção 1 mostra isso automaticamente para o grupo carregado.</li>
+  <li><strong>Atualização.</strong> Repita a aplicação a cada ano, depois da divulgação do IEGM e da MUNIC, mantendo as mesmas fontes e regras.</li>
+</ul>
+
+<h3>Perguntas frequentes</h3>
+<details><summary>Os acentos aparecem errados depois que abro a planilha no Excel.</summary><p class="small" style="margin-top:8px">A planilha-modelo é gravada em UTF-8. No Excel, use Dados › Obter dados › De texto/CSV e escolha a origem 65001 (UTF-8). A página aceita o arquivo de volta em UTF-8 ou no formato padrão do Excel (Windows-1252).</p></details>
+<details><summary>A importação do IEGM não encontrou um município.</summary><p class="small" style="margin-top:8px">Confira se o arquivo é do tribunal certo (TCE do estado; em Goiás, TCM-GO) e se o município respondeu ao IEGM no exercício escolhido. O nome precisa ser igual ao do IBGE; a UF vem da sigla do tribunal. Se não houver nota, digite à mão na tabela da seção 5 ou deixe em branco.</p></details>
+<details><summary>Já sei o nível, mas não tenho o dado bruto.</summary><p class="small" style="margin-top:8px">Escreva =0, =1 ou =2 na célula. Registre a origem dessa informação no registro metodológico.</p></details>
+<details><summary>Os dados que carreguei somem quando abro em outro computador.</summary><p class="small" style="margin-top:8px">No site do GitHub, os dados ficam só no navegador de quem carregou. Guarde a planilha CSV e carregue de novo. Na versão publicada no claude.ai, quem tem acesso de edição grava os dados para todos.</p></details>
+
+<h3>Como citar</h3>
+<p class="small" style="max-width:76ch">ESTEVÃO, Rhaissa; FRANCO, Cleiton. <em>ICS-MP: Índice de Cidades Inteligentes para Municípios de Médio Porte — ferramenta de diagnóstico com indicadores do IEGM</em>. Sinop: PROFNIT/UNEMAT, 2026. Disponível em: <a href="https://cleitonfranco74.github.io/ICS_MP/" target="_blank" rel="noopener">cleitonfranco74.github.io/ICS_MP</a>.</p>
+</section>
+
 <!-- 8 -->
 <section id="notas">
-<h2>8. Notas metodológicas e pendências da REV05</h2>
+<h2>9. Notas metodológicas e pendências da REV05</h2>
 <h3>Inconsistência de faixas no D1-05</h3>
 <p>O TCC descreve o D1-05 com as faixas oficiais (C e C+ em Iniciante, B em Intermediário, B+ e A em Avançado), mas a planilha usa &lt;0,50 / 0,50–0,70 / &gt;0,70. Com as faixas oficiais, Sinop (0,72) e Lucas do Rio Verde (0,72) passam de Avançado para Intermediário, e Primavera do Leste (0,46) e Dourados (0,49) permanecem em Iniciante. O próprio TCC, na seção de resultados, já registra Sinop como Intermediário em D1-05. O seletor da seção 5 aplica a regra escolhida a todos os indicadores IEGM da proposta, inclusive o D1-05.</p>
 
@@ -1471,6 +1546,52 @@ function regionalTemplateCSV() {
   return [head.join(";"), ...REGIONAL.map(r => [r.n, r.uf, ...TEMPLATE_CODES.map(() => ""), ...IEGM_ALL.map(x => typeof r[x.key] === "number" ? fmt(r[x.key]) : ""), r.ex || ""].map(csvCell).join(";"))].join("\r\n");
 }
 
+// ---------- 8. manual ----------
+const SIDRA = n => `<a href="https://sidra.ibge.gov.br/tabela/${n}" target="_blank" rel="noopener">SIDRA tabela ${n}</a>`;
+const LINK = (u, l) => `<a href="${u}" target="_blank" rel="noopener">${l}</a>`;
+const IDSC = LINK("https://idsc.cidadessustentaveis.org.br/", "IDSC-BR");
+const MANUAL = {
+  "D1-01": [LINK("https://igm.cfa.org.br/", "IGM-CFA") + " (Conselho Federal de Administração)", "Busque o município e anote a nota da dimensão Gestão (0 a 10)."],
+  "D1-02": ["MUNIC 2024 (IBGE), bloco Tecnologia da informação, variável MTIC272", "Sim se a prefeitura tem portal de dados abertos."],
+  "D1-03": [IDSC + ", ODS 16", "Percentual do indicador “grau de estruturação da política de controle interno e combate à corrupção”."],
+  "D1-04": [IDSC + ", ODS 16", "Percentual do indicador “grau de estruturação das políticas de participação e promoção de direitos humanos”."],
+  "D1-05": [LINK("https://iegm.irbcontas.org.br/", "Painel IEGM Brasil") + ", dimensão i-Gov-TI", "Vem da importação do CSV do IEGM (coluna i-GovTI da planilha)."],
+  "D2-01": ["MUNIC 2024 (IBGE), bloco Habitação, variável MHAB07", "Sim se há plano municipal de habitação elaborado e vigente."],
+  "D2-02": ["Censo 2022: " + SIDRA(9890) + " ÷ " + SIDRA(6326), "Domicílios em favelas e comunidades urbanas ÷ total de domicílios × 100 (%)."],
+  "D2-03": ["Censo 2022: " + SIDRA(9930), "(Próprio quitado + próprio em aquisição) ÷ total de domicílios × 100 (%)."],
+  "D2-04": ["Censo 2022 (esgotamento sanitário) ou SNIS/SINISA", "Percentual de domicílios com esgotamento sanitário adequado (%)."],
+  "D2-05": ["MUNIC (IBGE) ou prefeitura", "Sim se há instrumento de regularização fundiária (ex.: programa ou lei de REURB)."],
+  "D3-01": [LINK("https://leismunicipais.com.br/", "Leis Municipais") + " ou site da câmara", "Sim se o Plano Diretor tem até 10 anos."],
+  "D3-02": [LINK("https://leismunicipais.com.br/", "Leis Municipais") + " ou site da câmara", "Sim se o Código de Obras tem até 15 anos."],
+  "D3-03": [LINK("https://leismunicipais.com.br/", "Leis Municipais") + " ou site da câmara", "Sim se há Lei de Uso e Ocupação do Solo vigente."],
+  "D3-04": ["SNIS/SINISA (Ministério das Cidades)", "Percentual (%). Confira a definição do indicador antes de coletar (ver seção 9)."],
+  "D3-05": ["Censo 2022, entorno dos domicílios: " + SIDRA(9839), "Percentual de domicílios com bueiro ou boca de lobo no entorno (%)."],
+  "D4-01": [IDSC + ", ODS 11", "Classificação do ODS: Muito baixo, Baixo, Médio, Alto ou Muito alto."],
+  "D4-02": [IDSC + ", ODS 6", "Classificação do ODS: Muito baixo, Baixo, Médio, Alto ou Muito alto."],
+  "D4-03": [IDSC + ", ODS 7", "Classificação do ODS: Muito baixo, Baixo, Médio, Alto ou Muito alto."],
+  "D4-04": ["MUNIC 2024 (IBGE), bloco Transporte, variável MTRA24b", "Sim se há plano cicloviário ou plano diretor cicloviário."],
+  "D4-05": [LINK("http://www.atlasbrasil.org.br/", "Atlas Brasil") + " (PNUD)", "IDHM do último censo disponível (0 a 1), ex.: 0,754."],
+  "D5-01": [LINK("https://leismunicipais.com.br/", "Leis Municipais") + " ou site da prefeitura", "Sim se há lei municipal de inovação ou programa local formalizado."],
+  "D5-02": ["Prefeitura, universidades da região ou MUNIC", "Sim se há convênio ou acordo formal universidade–prefeitura vigente."],
+  "D5-03": ["Observatório Sebrae Startups + população do Censo 2022", "Número de startups ÷ população × 100.000."],
+  "D5-04": [IDSC, "Classificação do IDSC-BR usada na REV05 (ver nota da seção 9 sobre o nome deste indicador)."],
+  "D5-05": ["RAIS (PDET/Ministério do Trabalho)", "Empregos formais em atividades intensivas em conhecimento e tecnologia ÷ total de empregos formais × 100 (%)."],
+};
+function renderManual() {
+  const tb = document.querySelector("#manualTable tbody");
+  let html = "";
+  DIMS.forEach(d => {
+    html += `<tr class="dimrow"><td colspan="5">${dimTag(d.k)}${d.n} — peso ${Math.round(d.w * 100)}%</td></tr>`;
+    IND.filter(i => i.c.startsWith(d.k)).forEach(i => {
+      const [onde, como] = MANUAL[i.c] || ["", ""];
+      const sub = NEW.find(n => n.out === i.c);
+      html += `<tr><td class="code">${i.c}</td><td>${esc(i.n)}${sub ? `<br><span class="small">na proposta: ${esc(sub.short)} (IEGM)</span>` : ""}</td><td>${onde}</td><td>${como}</td><td class="num small">${esc(i.th.join(" · "))}</td></tr>`;
+    });
+  });
+  html += `<tr class="dimrow"><td colspan="5">Notas do IEGM (matriz proposta)</td></tr>` + IEGM_ALL.map(x => `<tr><td class="code">${x.col}</td><td>${esc(x.short)}</td><td>${LINK("https://iegm.irbcontas.org.br/", "Painel IEGM Brasil")}: filtre o tribunal e o exercício e exporte o CSV</td><td>Nota de 0 a 1 (ex.: 0,72). Prefira importar o CSV na seção 5.</td><td class="num small">${esc(BANDS.oficial.th.join(" · "))} (faixas oficiais)</td></tr>`).join("");
+  tb.innerHTML = html;
+}
+
 // ---------- eventos ----------
 const bandSel = document.getElementById("bandSel");
 bandSel.value = state.band;
@@ -1553,6 +1674,7 @@ document.getElementById("themeBtn").addEventListener("click", () => {
   addEventListener("scroll", upd, {passive: true}); upd();
 })();
 
+renderManual();
 rebuild();
 connect();
 </script>
