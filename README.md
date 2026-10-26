@@ -31,4 +31,5 @@ Os dados da REV05 estão embutidos nas páginas. Nenhuma nota IEGM nova (i-Fisca
 - `src/data/rev05.json`: os 25 indicadores da Matriz REV05 (dados brutos e níveis dos 8 municípios).
 - `src/data/regional.json`: os 48 municípios acima de 50 mil habitantes (população e notas do IEGM).
 - `src/data/iegm/`: exportações CSV do painel IEGM Brasil usadas na página.
+- `src/analise/INSTRUCOES_COLETA.md`: instruções para coletar os indicadores dos 48 municípios regionais (domínios a liberar, fontes, saídas e análise).
 - `src/build.py`: monta `index.html` e `publicada/icsmp-iegm.html`. Rode `python3 src/build.py` depois de editar qualquer arquivo de `src/`.
