@@ -102,6 +102,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
 .num { font-variant-numeric: tabular-nums; }
@@ -297,6 +298,7 @@ ol.steps-list li::before { content: counter(st); position: absolute; left: 0; to
 #manualTable td { font-size: 13px; }
 #manualTable td:nth-child(2) { min-width: 180px; }
 #manualTable td:nth-child(3) { min-width: 200px; }
+#bTable td { vertical-align: middle; }
 #cmpTable td.sel, #cmpTable th.sel { background: var(--accent-wash); }
 #cmpTable tfoot td { background: var(--surface-2); font-weight: 600; border-top: 1px solid var(--axis); }
 
@@ -325,7 +327,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
       <div class="ics-label" id="hdrLabel">ICS-MP Sinop-MT · REV05</div>
       <div class="ics-value" id="hdrScore">—</div>
       <div class="ics-nivel" id="hdrNivel">—</div>
-      <div class="ics-prop" id="hdrProp">Proposto: aguarda notas IEGM</div>
+      <div class="ics-prop" id="hdrProp">Proposta: aguarda dados</div>
     </div>
   </div>
   <div class="header-meta">
@@ -416,14 +418,15 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <!-- 3 -->
 <section id="proposta">
 <h2>3. Substituições propostas</h2>
-<p>A matriz mantém <strong>25 indicadores</strong> e os mesmos pesos por dimensão. Quatro indicadores com poder discriminatório nulo ou baixo dão lugar a notas do IEGM. Os dois demais uniformes (D2-05 e D5-01) não têm equivalente no IEGM e permanecem, com a uniformidade registrada como limitação.</p>
+<div class="toolbar chips" id="propBtns"></div>
+<div id="propIntro"></div>
 <div class="table-wrap">
 <table>
   <thead><tr><th>Sai (REV05)</th><th>Poder discrim.</th><th></th><th>Entra (proposta)</th><th>Justificativa</th></tr></thead>
   <tbody id="subsTable"></tbody>
 </table>
 </div>
-<div class="two-col" style="margin-top:16px">
+<div class="two-col" id="propACards" style="margin-top:16px">
   <div class="card">
     <h4>Por que o i-Amb fica em D3 e não em D4</h4>
     <p>D4 não tem indicador uniforme, então não há o que substituir sem perder variação. O i-Amb avalia licenciamento, resíduos e áreas verdes, que são instrumentos de ordenamento e uso do solo, o que justifica sua alocação em D3-03. Se a banca preferir D4, a alternativa é trocar o D4-03 (ODS 7), aceitando a perda de um indicador com variação.</p>
@@ -438,7 +441,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <!-- 4 -->
 <section id="matriz">
 <h2>4. Matriz proposta (25 indicadores)</h2>
-<p>Linhas em verde são as substituições. Indicadores do IEGM estão marcados.</p>
+<p>Linhas em verde são as substituições da proposta em exibição (escolha na seção 3). Indicadores do IEGM e de execução estão marcados.</p>
 <div class="table-wrap">
 <table id="matrixTable">
   <thead><tr><th>Cód.</th><th>Indicador</th><th>Tipo</th><th>Iniciante</th><th>Intermediário</th><th>Avançado</th><th>Fonte</th></tr></thead>
@@ -510,6 +513,11 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
   <textarea id="pasteBox" placeholder="Sinop;0,00;0,00;0,00;0,00;0,72"></textarea>
   <div class="toolbar"><button class="btn primary" id="pasteBtn" type="button">Aplicar</button><span class="small" id="pasteMsg"></span></div>
 </details>
+
+<h3>Indicadores de execução (proposta B)</h3>
+<p class="small" style="max-width:76ch">Valores brutos de cada município: números com vírgula decimal e sem separador de milhar (R$ por habitante, unidades por 1.000 domicílios, %). Na lei de inovação, escreva <code>Não</code>, <code>Lei</code> ou <code>Instrumento: …</code> (ou =0, =1, =2). O nível de D3-03 aparece na coluna de pavimentação e usa a média com a arborização quando ela existir. Também podem vir na planilha-modelo.</p>
+<div class="table-wrap"><table id="bTable"><thead></thead><tbody></tbody></table></div>
+<p class="small" id="bStatus"></p>
 </section>
 
 <!-- 6 -->
@@ -542,7 +550,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
 <div class="chart" id="barChart" role="img" aria-label="ICS-MP atual e proposto por município"></div>
 <div class="legend">
   <span><i style="background:var(--series-1)"></i>ICS-MP REV05 (atual)</span>
-  <span><i style="background:var(--series-2)"></i>ICS-MP proposto (com IEGM)</span>
+  <span><i style="background:var(--series-2)"></i>ICS-MP proposto</span>
 </div>
 
 <h3>Scores por dimensão</h3>
@@ -640,7 +648,8 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
   <li><strong>ICS-MP:</strong> D1 × 20% + D2 × 25% + D3 × 20% + D4 × 20% + D5 × 15%.</li>
   <li><strong>Nível de maturidade:</strong> 0–25 Iniciante · 26–50 Em desenvolvimento · 51–75 Avançado · 76–100 Referência.</li>
   <li><strong>Dado indisponível:</strong> a célula vazia sai do cálculo da dimensão. Se mais de um indicador de uma dimensão estiver vazio, o score dessa dimensão perde comparabilidade; registre isso como limitação.</li>
-  <li><strong>ICS-MP proposto:</strong> só é calculado para municípios com as cinco notas do IEGM, para não comparar scores feitos com indicadores diferentes.</li>
+  <li><strong>ICS-MP proposto:</strong> só é calculado para municípios com todos os dados da proposta em exibição (na B: os cinco indicadores de execução, o i-Fiscal e o i-Gov-TI; na A: as cinco notas do IEGM), para não comparar scores feitos com indicadores diferentes.</li>
+  <li><strong>Indicadores numéricos da proposta B:</strong> o nível sai dos tercis dos municípios comparados (terço inferior = 0, terço do meio = 1, terço superior = 2). Com outro grupo de municípios, os cortes mudam; registre os cortes usados.</li>
 </ul>
 
 <h3>Cuidados</h3>
@@ -690,6 +699,16 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--grid);
   <li><strong>i-Gov-TI de Lucas do Rio Verde diverge da REV05.</strong> A planilha registra 0,72 (o mesmo valor de Sinop); a exportação do exercício 2024 traz 0,57. A página usa 0,57. Vale conferir de onde veio o 0,72.</li>
 </ul>
 
+<h3>Proposta B: indicadores de execução</h3>
+<ul>
+  <li><strong>Período fixo.</strong> Defina e registre o período de cada indicador: contratações do MCMV (ex.: 2023 a 2025), média de três exercícios para despesa em urbanismo e IPTU, e “últimos 3 anos” para os instrumentos da lei de inovação.</li>
+  <li><strong>Proxy de D3-03.</strong> Usa a <em>média</em> dos percentuais de pavimentação e de arborização, não a soma. A soma iria de 0 a 200% e não teria leitura direta; a média fica entre 0 e 100% e ordena os municípios do mesmo jeito. Confirme no SIDRA se a variável de arborização existe no Censo 2022; se não existir, o indicador usa só a pavimentação.</li>
+  <li><strong>Redundância com D3-05.</strong> Pavimentação e bueiro (D3-05) vêm da mesma pesquisa e tendem a andar juntos. Depois da coleta, se a correlação passar de cerca de 0,7, avalie trocar um dos dois.</li>
+  <li><strong>Limiares provisórios.</strong> Sem meta oficial para MCMV, despesa em urbanismo e IPTU, a página usa os tercis dos municípios carregados. Para a versão final, fixe os cortes pelos tercis dos 48 municípios do panorama regional e passe a usar esses valores.</li>
+  <li><strong>Escala per capita.</strong> Despesa e IPTU por habitante tendem a ser maiores em municípios mais ricos e maiores. Compare municípios de porte semelhante, como recomenda o manual.</li>
+  <li><strong>D5-01 graduado.</strong> O indicador continua sendo a lei de inovação, mas distingue a lei que funciona da que só existe. Instrumentos aceitos: despesa liquidada na função 19 (Ciência e Tecnologia), fundo municipal de inovação com recursos executados, edital ou chamada de inovação, CPSI (LC 182/2021) ou encomenda tecnológica, conselho de CT&amp;I com reuniões registradas.</li>
+</ul>
+
 <h3>Cuidados com o IEGM</h3>
 <ul>
   <li><strong>Mesmo exercício para todos.</strong> O IEGM publicado em um ano se refere ao exercício anterior. Registre o exercício usado (ex.: “IEGM 2025, exercício 2024”) e aplique-o aos cinco indicadores IEGM.</li>
@@ -736,6 +755,42 @@ const NEW = [
 ];
 const GOVTI = {c:"D1-05", key:"igovti", col:"i-GovTI", short:"i-Gov-TI"};
 const IEGM_ALL = [...NEW, {...GOVTI}];
+// Proposta B: indicadores de execução que substituem D2-01, D3-01, D3-02, D3-03 e D5-01 (D1-03 continua i-Fiscal).
+// Indicadores numéricos são classificados pelos tercis dos municípios carregados (critério provisório).
+const PROP_B = [
+  {c:"D2-01", key:"mcmv", short:"MCMV por 1.000 domicílios", rule:"tercil", unit:"UH por 1.000 domicílios",
+   n:"Unidades habitacionais contratadas no Minha Casa, Minha Vida por 1.000 domicílios",
+   fonte:"Ministério das Cidades (dados abertos do MCMV) + domicílios do Censo 2022",
+   how:"Unidades contratadas no período fixado (ex.: 2023 a 2025) ÷ domicílios particulares permanentes ocupados × 1.000.",
+   why:"7 de 8 municípios têm plano de habitação. O MCMV mede a execução da política habitacional, não só a existência do plano."},
+  {c:"D3-01", key:"urb15", short:"Urbanismo por habitante", rule:"tercil", unit:"R$ por habitante",
+   n:"Despesa liquidada em Urbanismo (função 15) por habitante",
+   fonte:"Siconfi/FINBRA (Tesouro Nacional), despesa por função",
+   how:"Média de três exercícios da despesa liquidada na função 15 ÷ população.",
+   why:"Plano Diretor vigente é universal na amostra. A despesa em urbanismo mostra se o planejamento vira investimento."},
+  {c:"D3-02", key:"iptu", short:"IPTU por habitante", rule:"tercil", unit:"R$ por habitante",
+   n:"Arrecadação de IPTU por habitante",
+   fonte:"Siconfi/FINBRA (Tesouro Nacional), receitas",
+   how:"Média de três exercícios da receita arrecadada de IPTU ÷ população.",
+   why:"Código de Obras atualizado é universal na amostra. O IPTU reflete cadastro imobiliário atualizado e aplicação da política de uso do solo."},
+  {c:"D3-03", key:"pavarb", short:"Pavimentação e arborização", rule:"tercil", unit:"%",
+   n:"Qualificação do entorno: média de % de domicílios com via pavimentada e % com arborização no entorno",
+   fonte:"Censo 2022, Pesquisa Urbanística do Entorno dos Domicílios (SIDRA)",
+   how:"Média simples dos dois percentuais. Sem o dado de arborização, usa só a pavimentação (registre como proxy parcial).",
+   why:"Lei de Uso e Ocupação do Solo é universal na amostra. Pavimentação e arborização mostram o resultado material do parcelamento do solo."},
+  {c:"D5-01", key:"leiinov", short:"Lei de inovação (implementação)", rule:"lei",
+   th:["Sem lei municipal de inovação", "Lei vigente, sem instrumento funcionando", "Lei vigente e ≥ 1 instrumento funcionando nos últimos 3 anos"],
+   n:"Lei municipal de inovação e funcionamento dos seus instrumentos",
+   fonte:"Legislação municipal; Siconfi (função 19); diário oficial; Portal Nacional de Contratações Públicas",
+   how:"Escreva Não (sem lei), Lei (lei sem instrumento funcionando) ou Instrumento: e qual (ex.: “Instrumento: despesa na função 19 em 2024”). Instrumentos: despesa liquidada na função 19, fundo municipal de inovação com recursos executados, edital ou chamada de inovação, CPSI (LC 182/2021) ou encomenda tecnológica, conselho de CT&I com reuniões registradas.",
+   why:"Todos os municípios têm lei de inovação. O indicador continua o mesmo, mas separa a lei que funciona da que só existe."},
+];
+// Colunas da planilha (D3-03 usa duas).
+const B_COLS = [
+  {key:"mcmv", col:"MCMV_UH_por_mil_dom"}, {key:"urb15", col:"Urbanismo_per_capita"}, {key:"iptu", col:"IPTU_per_capita"},
+  {key:"pav", col:"Pavimentacao_pct"}, {key:"arb", col:"Arborizacao_pct"}, {key:"leiinov", col:"Lei_inovacao_nivel"},
+];
+const B_LABEL = {mcmv:"MCMV/1.000 dom.", urb15:"Urbanismo R$/hab.", iptu:"IPTU R$/hab.", pav:"Pavimentação %", arb:"Arborização %", leiinov:"Lei de inovação"};
 const BANDS = {
   oficial: {lo:0.60, hi:0.75, th:["< 0,60 (C, C+)","0,60 – 0,749 (B)","≥ 0,75 (B+, A)"]},
   rev05:   {lo:0.50, hi:0.70, th:["< 0,50","0,50 – 0,70","> 0,70"], hiStrict:true},
@@ -812,6 +867,8 @@ const SAMPLE = {
     igovti:  [0.72, 0.57, 0.28, 0.64, 0.46, 0.69, 0.66, 0.49],
   },
   exerc: ["2024", "2024", "2024", null, "2024", "2023", "2024", "2024"],
+  // Proposta B: ainda não coletada para a amostra.
+  b: Object.fromEntries(["mcmv", "urb15", "iptu", "pav", "arb", "leiinov"].map(k => [k, Array(8).fill("")])),
 };
 const IEGM_EXERCICIO = "2024";
 let DS = SAMPLE;       // conjunto ativo
@@ -842,12 +899,13 @@ function setDataset(ds) {
 
 // ---------- estado ----------
 const STORE_KEY = "icsmp-iegm-v3";
-let state = { band: "oficial", v: {}, exerc: [], ds: null };
+let state = { band: "oficial", v: {}, exerc: [], ds: null, b: {}, prop: "B" };
 function resetIegm() {
   IEGM_ALL.forEach(x => state.v[x.key] = DS.iegm[x.key].slice());
   state.exerc = DS.exerc.slice();
+  B_COLS.forEach(c => state.b[c.key] = (DS.b && Array.isArray(DS.b[c.key]) ? DS.b[c.key] : Array(N).fill("")).map(v => v ?? ""));
 }
-function dsPayload() { return DS === SAMPLE ? null : {name: DS.name, mun: DS.mun, raw: DS.raw, iegm: DS.iegm, exerc: DS.exerc}; }
+function dsPayload() { return DS === SAMPLE ? null : {name: DS.name, mun: DS.mun, raw: DS.raw, iegm: DS.iegm, exerc: DS.exerc, b: DS.b}; }
 function loadPayload(p) { setDataset(p ? buildDataset(p) : SAMPLE); }
 loadPayload(null);
 resetIegm();
@@ -859,9 +917,11 @@ try {
     resetIegm();
     for (const k in state.v) if (Array.isArray(s.v[k]) && s.v[k].length === N) state.v[k] = s.v[k];
     if (Array.isArray(s.exerc) && s.exerc.length === N) state.exerc = s.exerc;
+    if (s.b) for (const k in state.b) if (Array.isArray(s.b[k]) && s.b[k].length === N) state.b[k] = s.b[k];
+    if (s.prop === "A" || s.prop === "B") state.prop = s.prop;
   }
 } catch (e) { loadPayload(null); resetIegm(); }
-const snapshot = () => ({band: state.band, v: state.v, exerc: state.exerc, ds: dsPayload()});
+const snapshot = () => ({band: state.band, v: state.v, exerc: state.exerc, b: state.b, prop: state.prop, ds: dsPayload()});
 
 let notesDoc = null, readOnly = false, pushTimer = null, lastSent = null, downloadsApi = null;
 const IN_VIEWER = !!(window.claude && window.claude.use);
@@ -884,7 +944,7 @@ function save() {
 }
 function applyRemote(d) {
   if (!d || typeof d.v !== "object") return;
-  const incoming = JSON.stringify({band: d.band, v: d.v, exerc: d.exerc, ds: d.ds || null});
+  const incoming = JSON.stringify({band: d.band, v: d.v, exerc: d.exerc, b: d.b, prop: d.prop, ds: d.ds || null});
   if (incoming === lastSent || incoming === JSON.stringify(snapshot())) return;
   const dsChanged = JSON.stringify(d.ds || null) !== JSON.stringify(dsPayload());
   if (dsChanged) loadPayload(d.ds || null);
@@ -892,6 +952,8 @@ function applyRemote(d) {
   resetIegm();
   for (const k in state.v) if (Array.isArray(d.v[k]) && d.v[k].length === N) state.v[k] = d.v[k].map(x => typeof x === "number" ? x : null);
   if (Array.isArray(d.exerc) && d.exerc.length === N) state.exerc = d.exerc;
+  if (d.b) for (const k in state.b) if (Array.isArray(d.b[k]) && d.b[k].length === N) state.b[k] = d.b[k].map(x => x ?? "");
+  if (d.prop === "A" || d.prop === "B") state.prop = d.prop;
   try { localStorage.setItem(STORE_KEY, JSON.stringify(snapshot())); } catch (e) {}
   const a = document.activeElement;
   const focused = a && a.classList.contains("iegm-input") ? [a.dataset.k, a.dataset.j] : null;
@@ -930,6 +992,59 @@ function level(x, band) {
   return 1;
 }
 
+// ---------- proposta B: valores e níveis ----------
+// Número em formato brasileiro: vírgula decimal, ponto de milhar opcional quando há vírgula.
+function parseBR(s) {
+  let x = String(s ?? "").replace(/[^\d.,-]/g, "");
+  if (!x || x === "-") return null;
+  if (x.includes(",")) x = x.replace(/\./g, "").replace(",", ".");
+  const n = Number(x);
+  return isFinite(n) ? n : NaN;
+}
+function leiLevel(s) {
+  const t = norm(s);
+  if (!t) return null;
+  const d = t.match(/^=\s*([012])$/);
+  if (d) return +d[1];
+  if (/^(nao|sem)/.test(t)) return 0;
+  if (/instrument/.test(t)) return 2;
+  if (/^(lei|sim)/.test(t)) return 1;
+  return NaN;
+}
+function bValue(key, j) {
+  if (key === "pavarb") {
+    const p = parseBR(state.b.pav[j]), a = parseBR(state.b.arb[j]);
+    if (p === null || Number.isNaN(p)) return p;
+    return a === null || Number.isNaN(a) ? p : (p + a) / 2;
+  }
+  if (key === "leiinov") return leiLevel(state.b.leiinov[j]);
+  return parseBR(state.b[key][j]);
+}
+function tercis(vals) {
+  const v = vals.filter(x => x !== null && !Number.isNaN(x)).sort((a, b) => a - b);
+  if (v.length < 3) return null;
+  const q = p => { const i = (v.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i); return v[lo] + (v[hi] - v[lo]) * (i - lo); };
+  return [q(1 / 3), q(2 / 3)];
+}
+function bLevels(x) {
+  const vals = MUN.map((m, j) => bValue(x.key, j));
+  if (x.rule === "lei") return vals.map(v => v === null || Number.isNaN(v) ? null : v);
+  const t = tercis(vals);
+  return vals.map(v => v === null || Number.isNaN(v) || !t ? null : v < t[0] ? 0 : v > t[1] ? 2 : 1);
+}
+function bThresholds(x) {
+  if (x.rule === "lei") return x.th;
+  const t = tercis(MUN.map((m, j) => bValue(x.key, j)));
+  return t ? [`< ${fmt(t[0], 1)}`, `${fmt(t[0], 1)} – ${fmt(t[1], 1)}`, `> ${fmt(t[1], 1)}`].map(s => `${s} ${x.unit}`)
+           : ["tercil inferior", "tercil do meio", "tercil superior"];
+}
+function bRaw(x, j) {
+  if (x.key === "pavarb") return `pavimentação ${state.b.pav[j] || "—"} · arborização ${state.b.arb[j] || "—"}`;
+  return state.b[x.key][j] || "—";
+}
+const subCodes = () => state.prop === "B" ? ["D1-03", ...PROP_B.map(x => x.c)] : NEW.map(n => n.c);
+const iegmKeysInUse = () => state.prop === "B" ? ["ifiscal", "igovti"] : IEGM_ALL.map(x => x.key);
+
 // ---------- matrizes ----------
 // pontos contínuos (0–2) recebem a cor do inteiro mais próximo
 function lvClass(v) { return v === null || v === undefined ? "lvna" : "lv" + Math.min(2, Math.max(0, Math.round(v))); }
@@ -937,8 +1052,10 @@ function lvText(v) { return v === null || v === undefined ? "–" : Number.isInt
 function lvLabel(v) { return v === null || v === undefined ? "sem dado" : Number.isInteger(v) ? `${LV[v]} (${v})` : `${fmt(v, 2)} pts (contínua)`; }
 function proposedRows(band) {
   const lv = x => level(x, band);
+  const bl = state.prop === "B" ? Object.fromEntries(PROP_B.map(x => [x.c, {x, p: bLevels(x)}])) : {};
   return IND.map(ind => {
-    const sub = NEW.find(n => n.c === ind.c);
+    if (bl[ind.c]) return {c: ind.c, n: bl[ind.c].x.n, bsub: bl[ind.c].x, p: bl[ind.c].p};
+    const sub = NEW.find(n => n.c === ind.c && (state.prop !== "B" || n.c === "D1-03"));
     if (sub) return {c: ind.c, n: sub.n, sub, iegm: true, p: state.v[sub.key].map(lv)};
     if (ind.c === "D1-05") return {c: ind.c, n: ind.n, iegm: true, p: state.v.igovti.map(lv)};
     return {c: ind.c, n: ind.n, p: ind.p.slice()};
@@ -1004,7 +1121,7 @@ function renderKpis() {
     ["Municípios", N, ufs.length ? ufs.join(", ") : "—", "var(--d1)"],
     ["Poder discrim. nulo", nul, "todos os municípios no mesmo nível", "var(--ini-t)"],
     ["Poder discrim. baixo", low, `${Math.max(N - 1, 1)} de ${N} municípios no mesmo nível`, "var(--int-t)"],
-    ["Substituições IEGM", NEW.length, "i-Fiscal, i-Plan, i-Cidade, i-Amb", "var(--avd-t)"],
+    ["Substituições", state.prop === "B" ? 1 + PROP_B.length : NEW.length, state.prop === "B" ? "Proposta B: i-Fiscal + 5 indicadores de execução" : "Proposta A: i-Fiscal, i-Plan, i-Cidade, i-Amb", "var(--avd-t)"],
   ];
   document.getElementById("kpis").innerHTML = items.map(([t, v, l, c]) => `<div class="kpi"><div class="t">${t}</div><div class="v" style="color:${c}">${v}</div><div class="l">${esc(l)}</div></div>`).join("");
 }
@@ -1019,7 +1136,7 @@ function renderDiag() {
       const r = discr(i.p);
       const tr = document.createElement("tr");
       const segs = r.c.map((n, lv) => n ? `<span class="lv${lv}" data-lv="${lv}" style="flex:${n}"></span>` : "").join("");
-      const isSub = NEW.some(n => n.c === i.c);
+      const isSub = subCodes().includes(i.c);
       tr.innerHTML = `<td class="code">${i.c}</td><td>${esc(i.n)}${isSub ? ' <span class="tag sub">substituir</span>' : ""}</td>
         <td><div class="dist">${segs}</div><div class="small num" style="margin-top:3px">${r.c[0]} · ${r.c[1]} · ${r.c[2]}</div></td>
         <td class="c num">${r.distinct}</td><td><span class="tag ${r.cls}">${r.label}</span></td>`;
@@ -1034,9 +1151,31 @@ function renderDiag() {
 }
 
 // ---------- 3. substituições ----------
+function renderPropIntro() {
+  const B = state.prop === "B";
+  document.getElementById("propBtns").innerHTML = '<span class="small">Proposta em exibição na página:</span>' +
+    [["B", "B · indicadores de execução"], ["A", "A · dimensões do IEGM"]].map(([k, l]) => `<button type="button" class="btn ${state.prop === k ? "primary" : ""}" data-prop="${k}">${l}</button>`).join("");
+  document.querySelectorAll("#propBtns [data-prop]").forEach(b => b.addEventListener("click", () => { state.prop = b.dataset.prop; save(); rebuild(); }));
+  document.getElementById("propIntro").innerHTML = B
+    ? `<p>A <strong>Proposta B</strong> mantém 25 indicadores e os pesos por dimensão. Troca os indicadores de existência (“tem plano”, “tem lei”) por indicadores de <strong>execução</strong>, de fontes públicas e com variação esperada entre municípios. Do IEGM ficam o i-Fiscal (D1-03) e o i-Gov-TI (D1-05), que diferenciam os municípios também na amostra regional. i-Plan, i-Cidade e i-Amb saem da matriz, porque pelas faixas oficiais deixam quase todos os municípios em Iniciante (seção 7). O D2-05 continua com poder discriminatório nulo e fica registrado como limitação.</p>`
+    : `<p>A <strong>Proposta A</strong> mantém 25 indicadores e os pesos por dimensão. Quatro indicadores com poder discriminatório nulo ou baixo dão lugar a notas do IEGM. Os dois demais uniformes (D2-05 e D5-01) não têm equivalente no IEGM e permanecem, com a uniformidade registrada como limitação.</p>`;
+  document.getElementById("propACards").hidden = B;
+}
 function renderSubs() {
+  renderPropIntro();
   const tb = document.getElementById("subsTable");
   tb.innerHTML = "";
+  if (state.prop === "B") {
+    const n0 = NEW[0], o0 = byCode[n0.out], r0 = discr(o0.p);
+    tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">${o0.c}</span><br>${esc(o0.n)}</td><td><span class="tag ${r0.cls}">${r0.label}</span></td><td class="arrow">→</td><td><span class="code">${n0.c}</span><br><strong>${esc(n0.short)}</strong> <span class="tag iegm">IEGM</span></td><td class="small">${esc(n0.why)}</td></tr>`);
+    PROP_B.forEach(x => {
+      const old = byCode[x.c], r = discr(old.p);
+      tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">${old.c}</span><br>${esc(old.n)}</td><td><span class="tag ${r.cls}">${r.label}</span></td><td class="arrow">→</td><td><span class="code">${x.c}</span><br><strong>${esc(x.short)}</strong> <span class="tag sub">execução</span></td><td class="small">${esc(x.why)}</td></tr>`);
+    });
+    const o = byCode["D2-05"], r = discr(o.p);
+    tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">D2-05</span><br>${esc(o.n)}</td><td><span class="tag ${r.cls}">${r.label}</span></td><td class="arrow">=</td><td class="small">Mantido</td><td class="small">Sem substituto definido. Uniformidade registrada como limitação.</td></tr>`);
+    return;
+  }
   NEW.forEach(n => {
     const old = byCode[n.out], r = discr(old.p);
     tb.insertAdjacentHTML("beforeend", `<tr><td><span class="code">${old.c}</span><br>${esc(old.n)}</td>
@@ -1060,7 +1199,13 @@ function renderMatrix() {
   DIMS.forEach(d => {
     tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="7">${dimTag(d.k)}${d.n} — peso ${Math.round(d.w*100)}%</td></tr>`);
     IND.filter(i => i.c.startsWith(d.k)).forEach(i => {
-      const sub = NEW.find(n => n.c === i.c);
+      const bx = state.prop === "B" ? PROP_B.find(x => x.c === i.c) : null;
+      if (bx) {
+        const th = bThresholds(bx);
+        tb.insertAdjacentHTML("beforeend", `<tr class="sub"><td class="code">${i.c}</td><td>${esc(bx.n)} <span class="tag sub">execução</span> <span class="small">(substitui: ${esc(i.n)})</span></td><td>${bx.rule === "lei" ? "Ord" : "Qtd"}</td><td class="num">${esc(th[0])}</td><td class="num">${esc(th[1])}</td><td class="num">${esc(th[2])}</td><td class="small">${esc(bx.fonte)}</td></tr>`);
+        return;
+      }
+      const sub = NEW.find(n => n.c === i.c && (state.prop !== "B" || n.c === "D1-03"));
       if (sub || i.c === "D1-05") {
         const name = sub ? sub.n : i.n;
         tb.insertAdjacentHTML("beforeend", `<tr class="${sub ? "sub" : ""}"><td class="code">${i.c}</td>
@@ -1098,6 +1243,31 @@ function renderInputs() {
     });
   });
 }
+function renderBInputs() {
+  const t = document.getElementById("bTable");
+  t.querySelector("thead").innerHTML = `<tr><th>Município</th>${B_COLS.map(c => `<th>${esc(B_LABEL[c.key])}</th>`).join("")}</tr>`;
+  const tb = t.querySelector("tbody");
+  tb.innerHTML = MUN.map((m, j) => `<tr><td>${esc(m)}</td>${B_COLS.map(c => `<td style="white-space:nowrap"><input class="iegm-input b-input" style="width:${c.key === "leiinov" ? 150 : 86}px;text-align:${c.key === "leiinov" ? "left" : "right"}" aria-label="${esc(B_LABEL[c.key])} ${esc(m)}" data-b="${c.key}" data-j="${j}" value="${esc(state.b[c.key][j] || "")}" placeholder="—">${c.key === "pav" || c.key === "arb" ? "" : `<span class="pill" data-bpill="${c.key}-${j}"></span>`}</td>`).join("")}</tr>`).join("");
+  tb.querySelectorAll("input").forEach(inp => inp.addEventListener("input", () => {
+    state.b[inp.dataset.b][+inp.dataset.j] = inp.value;
+    const k = inp.dataset.b, v = k === "leiinov" ? leiLevel(inp.value) : parseBR(inp.value);
+    inp.classList.toggle("bad", Number.isNaN(v));
+    save(); refresh();
+  }));
+}
+function refreshBPills() {
+  const lv = Object.fromEntries(PROP_B.map(x => [x.key, bLevels(x)]));
+  B_COLS.forEach(c => MUN.forEach((m, j) => {
+    const el = document.querySelector(`[data-bpill="${c.key}-${j}"]`);
+    if (!el) return;
+    const v = lv[c.key][j];
+    el.className = "pill " + lvClass(v); el.textContent = lvText(v); el.title = lvLabel(v);
+  }));
+  const pa = document.querySelectorAll('[data-b="pav"]');
+  pa.forEach(inp => { const j = +inp.dataset.j, v = lv.pavarb[j]; inp.title = v === null ? "Proxy pavimentação + arborização: sem nível" : `Proxy (média com arborização): ${lvLabel(v)}`; });
+  const filled = PROP_B.reduce((a, x) => a + lv[x.key].filter(v => v !== null).length, 0);
+  document.getElementById("bStatus").textContent = `${filled} de ${PROP_B.length * N} níveis da proposta B calculados. Os numéricos usam os tercis dos municípios carregados (precisam de pelo menos 3 municípios com dado).`;
+}
 function refreshPills() {
   IEGM_ALL.forEach(x => MUN.forEach((m, j) => {
     const el = document.querySelector(`[data-pill="${x.key}-${j}"]`);
@@ -1117,7 +1287,7 @@ function renderBars(prop, anyNew) {
   const ticks = [0, 25, 50, 75, 100];
   const key = j => prop[j].ics !== null ? 1000 + prop[j].ics : CUR[j].ics;
   const order = MUN.map((m, j) => j).sort((a, b) => anyNew ? key(b) - key(a) : CUR[b].ics - CUR[a].ics);
-  let h = `<p class="chart-title">ICS-MP por município (0–100)</p><p class="chart-sub">${anyNew ? "Municípios com as notas IEGM completas primeiro, ordenados pelo ICS-MP proposto" : "Ordenado pelo ICS-MP atual · proposto aguarda notas do IEGM"}</p>`;
+  let h = `<p class="chart-title">ICS-MP por município (0–100)</p><p class="chart-sub">${anyNew ? `Municípios com os dados da proposta ${state.prop} completos primeiro, ordenados pelo ICS-MP proposto` : `Ordenado pelo ICS-MP atual · proposta ${state.prop} aguarda dados (seção 5)`}</p>`;
   order.forEach(j => {
     const a = CUR[j].ics, b = prop[j].ics;
     h += `<div class="brow" data-j="${j}"><div class="name" title="${esc(MUN[j])}">${esc(MUN[j])}</div><div class="track">
@@ -1146,7 +1316,7 @@ function renderScores(prop) {
       const changed = prop[j].ics !== null && a !== null && b !== null && Math.abs(a - b) > 0.05;
       return `<td class="r num dv" style="color:var(--${d.k.toLowerCase()})">${changed ? `<span class="small" style="text-decoration:line-through">${fmt(a,0)}</span> ${fmt(b,0)}` : fmt(a,0)}</td>`;
     }).join("");
-    return `<tr class="${j === 0 ? "hl" : ""}"><td>${esc(m)}</td>${ds}<td class="r num dv">${fmt(CUR[j].ics,1)}</td><td class="r num dv"><strong>${prop[j].ics !== null ? fmt(prop[j].ics,1) : "—"}</strong></td><td>${prop[j].ics !== null ? maturity(prop[j].ics) : '<span class="small">aguarda notas</span>'}</td></tr>`;
+    return `<tr class="${j === 0 ? "hl" : ""}"><td>${esc(m)}</td>${ds}<td class="r num dv">${fmt(CUR[j].ics,1)}</td><td class="r num dv"><strong>${prop[j].ics !== null ? fmt(prop[j].ics,1) : "—"}</strong></td><td>${prop[j].ics !== null ? maturity(prop[j].ics) : '<span class="small">aguarda dados</span>'}</td></tr>`;
   }).join("");
 }
 function renderHeat(rows) {
@@ -1158,15 +1328,15 @@ function renderHeat(rows) {
     tb.insertAdjacentHTML("beforeend", `<tr class="dimrow"><td colspan="${2 + N}">${dimTag(d.k)}${d.n}</td></tr>`);
     rows.filter(r => r.c.startsWith(d.k)).forEach(r => {
       const tr = document.createElement("tr");
-      if (r.sub) tr.className = "sub";
-      const nm = r.sub ? r.sub.short : r.n;
+      if (r.sub || r.bsub) tr.className = "sub";
+      const nm = r.sub ? r.sub.short : r.bsub ? r.bsub.short : r.n;
       tr.innerHTML = `<td class="code">${r.c}</td><td style="min-width:200px">${esc(nm)}${r.iegm ? ' <span class="tag iegm">IEGM</span>' : ""}</td>` +
         r.p.map((v, j) => `<td class="grid-cell"><div class="${lvClass(v)}" data-j="${j}">${lvText(v)}</div></td>`).join("");
       tr.querySelectorAll(".grid-cell div").forEach(cell => {
         const j = +cell.dataset.j;
         bindTip(cell, () => {
           const v = r.p[j];
-          const raw = r.iegm ? fmt(state.v[r.sub ? r.sub.key : "igovti"][j]) : byCode[r.c].raw[j];
+          const raw = r.bsub ? bRaw(r.bsub, j) : r.iegm ? fmt(state.v[r.sub ? r.sub.key : "igovti"][j]) : byCode[r.c].raw[j];
           return `<b>${r.c} · ${esc(MUN[j])}</b><br>${esc(nm)}<br>Dado: ${esc(raw || "—")}<br>Pontos: ${lvLabel(v)}`;
         });
       });
@@ -1194,7 +1364,7 @@ function renderRadar(prop) {
     {name: `${MUN[j]} (${tag})`, vals: CUR[j].ds, cls: "r-cur", sw: "cur"},
     {name: `Média da amostra (${tag})`, vals: AVG, cls: "r-avg", sw: "avg"},
   ];
-  if (prop[j].ics !== null) series.push({name: MUN[j] + " (proposto com IEGM)", vals: prop[j].ds, cls: "r-prop", sw: "prop"});
+  if (prop[j].ics !== null) series.push({name: `${MUN[j]} (proposta ${state.prop})`, vals: prop[j].ds, cls: "r-prop", sw: "prop"});
   let s = "";
   [25, 50, 75, 100].forEach(t => { s += `<polygon class="ring" points="${poly(Array(n).fill(t))}"></polygon>`; });
   DIMS.forEach((d, i) => { const [x, y] = pt(i, 100); s += `<line class="spoke" x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"></line>`; });
@@ -1227,7 +1397,7 @@ function renderRadar(prop) {
     return `<tr><td>${dimTag(d.k)}${DIM_SHORT[i]}</td><td class="r num">${fmt(a, 0)} <span class="small" title="em relação à média">${sign}</span></td><td class="r num">${fmt(m, 0)}</td><td class="r num">${p === null ? "—" : fmt(p, 0)}</td></tr>`;
   }).join("") + `<tr><td><strong>ICS-MP</strong></td><td class="r num"><strong>${fmt(CUR[j].ics, 1)}</strong></td><td class="r num">${fmt(icsAvg, 1)}</td><td class="r num"><strong>${prop[j].ics === null ? "—" : fmt(prop[j].ics, 1)}</strong></td></tr>`;
   document.getElementById("radarLegend").innerHTML = series.map(se => `<span><i class="sw ${se.sw}"></i>${esc(se.name)}</span>`).join("") +
-    (prop[j].ics === null ? `<span class="small">Proposto aparece quando as notas IEGM de ${esc(MUN[j])} estiverem completas (seção 5).</span>` : "");
+    (prop[j].ics === null ? `<span class="small">A proposta ${state.prop} aparece quando os dados dela para ${esc(MUN[j])} estiverem completos (seção 5).</span>` : "");
 }
 const MODE_LABEL = {oficial: "Faixas oficiais IEGM", rev05: "Faixas REV05", continua: "Contínua (2 × nota)"};
 function renderCompare() {
@@ -1292,14 +1462,19 @@ function renderRuleCheck() {
     ? `<p>A página reproduz os níveis da planilha. Ao aplicar os limiares declarados aos dados brutos, ${out.length} célula${out.length > 1 ? "s divergem" : " diverge"}. Na planilha-modelo (seção 5) os níveis são sempre calculados pelos limiares, então esses casos mudam de nível se a amostra for recarregada por ela.</p><ul>${out.join("")}</ul>`
     : `<p>Todos os níveis da planilha seguem os limiares declarados.</p>`;
 }
-function complete(j) { return IEGM_ALL.every(x => state.v[x.key][j] !== null && state.v[x.key][j] !== undefined && !Number.isNaN(state.v[x.key][j])); }
+function complete(j) {
+  const okI = iegmKeysInUse().every(k => { const v = state.v[k][j]; return v !== null && v !== undefined && !Number.isNaN(v); });
+  if (state.prop !== "B") return okI;
+  return okI && PROP_B.every(x => bLevels(x)[j] !== null);
+}
 function refresh() {
   refreshPills();
   renderMatrix();
   const rows = proposedRows();
-  const anyNew = NEW.some(x => state.v[x.key].some(v => v !== null));
+  const anyNew = state.prop === "B" ? MUN.some((m, j) => complete(j)) || B_COLS.some(c => state.b[c.key].some(v => String(v).trim())) : NEW.some(x => state.v[x.key].some(v => v !== null));
   const prop = scores(rows).map((s, j) => complete(j) ? s : {ds: s.ds, ics: null, partial: true});
-  document.getElementById("hdrProp").innerHTML = prop[0].ics !== null ? `Proposto com IEGM: <b>${fmt(prop[0].ics, 1)}</b>` : "Proposto: aguarda notas IEGM";
+  document.getElementById("hdrProp").innerHTML = prop[0].ics !== null ? `Proposta ${state.prop}: <b>${fmt(prop[0].ics, 1)}</b>` : `Proposta ${state.prop}: aguarda dados`;
+  refreshBPills();
   renderIegmDiscr();
   renderCompare();
   renderRadar(prop);
@@ -1311,11 +1486,11 @@ function refresh() {
   const cur = CUR.map(c => c.ics).filter(v => v !== null), amp = cur.length ? Math.max(...cur) - Math.min(...cur) : 0;
   const tag = DS === SAMPLE ? "Na REV05" : "Na matriz atual";
   if (!anyNew) {
-    lede.innerHTML = `${tag} o ICS-MP varia de <strong>${fmt(Math.min(...cur),1)}</strong> a <strong>${fmt(Math.max(...cur),1)}</strong> (amplitude de ${fmt(amp,1)} pontos). O cenário proposto aparece para cada município assim que as cinco notas do IEGM dele forem informadas na seção 5.`;
+    lede.innerHTML = `${tag} o ICS-MP varia de <strong>${fmt(Math.min(...cur),1)}</strong> a <strong>${fmt(Math.max(...cur),1)}</strong> (amplitude de ${fmt(amp,1)} pontos). O cenário da proposta ${state.prop} aparece para cada município assim que os dados dela forem informados na seção 5${state.prop === "B" ? " (indicadores de execução, i-Fiscal e i-Gov-TI)" : " (as cinco notas do IEGM)"}.`;
   } else {
     const done = MUN.map((m, j) => j).filter(complete);
     if (done.length < 2) {
-      lede.innerHTML = `${done.length} de ${N} municípios com as cinco notas IEGM completas. O ICS-MP proposto só é exibido para municípios completos, para não comparar scores calculados com conjuntos diferentes de indicadores.`;
+      lede.innerHTML = `${done.length} de ${N} municípios com os dados da proposta ${state.prop} completos. O ICS-MP proposto só é exibido para municípios completos, para não comparar scores calculados com conjuntos diferentes de indicadores.`;
     } else {
       const c2 = done.map(j => CUR[j].ics), p2 = done.map(j => prop[j].ics);
       const ca = Math.max(...c2) - Math.min(...c2), pa = Math.max(...p2) - Math.min(...p2);
@@ -1325,7 +1500,7 @@ function refresh() {
 }
 // Tudo que depende do conjunto de municípios.
 function rebuild() {
-  renderHeader(); renderKpis(); renderDiag(); renderSubs(); renderRuleCheck(); fillRadarSel(); renderInputs(); refresh();
+  renderHeader(); renderKpis(); renderDiag(); renderSubs(); renderRuleCheck(); fillRadarSel(); renderInputs(); renderBInputs(); refresh();
   document.getElementById("dsName").textContent = `${DS.name} · ${N} municípios`;
   document.getElementById("sampleBtn").hidden = DS === SAMPLE;
   document.getElementById("sampleIegmNote").hidden = DS !== SAMPLE;
@@ -1360,12 +1535,12 @@ const TEMPLATE_CODES = IND.map(i => i.c).filter(c => c !== "D1-05");
 const IEGM_COLS = ["i-Fiscal", "i-Plan", "i-Cidade", "i-Amb", "i-GovTI"];
 const csvCell = v => { const s = v === null || v === undefined ? "" : String(v).replace(/\t/g, "").trim(); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 function templateCSV() {
-  const head = ["Municipio", "UF", ...TEMPLATE_CODES, ...IEGM_COLS, "Exercicio IEGM"];
+  const head = ["Municipio", "UF", ...TEMPLATE_CODES, ...IEGM_COLS, "Exercicio IEGM", ...B_COLS.map(c => c.col)];
   const lines = [head.join(";")];
   MUN.forEach((m, j) => {
     const raw = TEMPLATE_CODES.map(c => DS === SAMPLE && byCode[c].t === "Pct" ? String(byCode[c].raw[j]).replace("%", "").trim() : byCode[c].raw[j]);
     const ieg = IEGM_ALL.map(x => state.v[x.key][j] === null ? "" : fmt(state.v[x.key][j]));
-    lines.push([nameOf(m), ufOf(m), ...raw, ...ieg, state.exerc[j] || ""].map(csvCell).join(";"));
+    lines.push([nameOf(m), ufOf(m), ...raw, ...ieg, state.exerc[j] || "", ...B_COLS.map(c => state.b[c.key][j] || "")].map(csvCell).join(";"));
   });
   return lines.join("\r\n");
 }
@@ -1376,6 +1551,11 @@ function dictionaryCSV() {
   IND.filter(i => i.c !== "D1-05").forEach(i => lines.push([i.c, i.n, i.t, ...i.th, how(i.c), i.f].map(csvCell).join(";")));
   IEGM_ALL.forEach(x => lines.push([x.col, x.short + " (IEGM)", "Nota", "", "", "", "Nota de 0 a 1 do IEGM (ex.: 0,72), do painel IEGM Brasil ou do Tribunal de Contas", IEGM_SRC].map(csvCell).join(";")));
   lines.push(["Exercicio IEGM", "Ano-base das notas IEGM", "Ano", "", "", "", "Ex.: 2024", ""].map(csvCell).join(";"));
+  PROP_B.forEach(x => {
+    const th = x.rule === "lei" ? x.th : ["tercil inferior", "tercil do meio", "tercil superior"];
+    const cols = x.key === "pavarb" ? "Pavimentacao_pct e Arborizacao_pct" : B_COLS.find(c => c.key === x.key).col;
+    lines.push([cols, `${x.c} (proposta B): ${x.n}`, x.rule === "lei" ? "Ord" : "Qtd", ...th, x.how, x.fonte].map(csvCell).join(";"));
+  });
   lines.push(["(qualquer código)", "Pontos informados diretamente", "", "", "", "", "Escreva =0, =1 ou =2 para informar o nível sem dado bruto", ""].map(csvCell).join(";"));
   return lines.join("\r\n");
 }
@@ -1423,7 +1603,8 @@ function loadTemplate(rows, fileName) {
   const ie = col("Exercicio IEGM");
   const exerc = body.map((r, j) => ie >= 0 && (r[ie] || "").trim() ? r[ie].trim() : (IEGM_ALL.some(x => iegm[x.key][j] !== null) ? "?" : null));
   raw["D1-05"] = iegm.igovti.map(v => v === null ? "" : fmt(v));
-  const payload = {name: `Planilha ${fileName}`, mun, raw, iegm, exerc};
+  const b = Object.fromEntries(B_COLS.map(c => [c.key, body.map(r => col(c.col) >= 0 ? (r[col(c.col)] || "").trim() : "")]));
+  const payload = {name: `Planilha ${fileName}`, mun, raw, iegm, exerc, b};
   loadPayload(payload);
   resetIegm();
   save(); rebuild();
@@ -1542,8 +1723,8 @@ function renderRegional() {
   }));
 }
 function regionalTemplateCSV() {
-  const head = ["Municipio", "UF", ...TEMPLATE_CODES, ...IEGM_COLS, "Exercicio IEGM"];
-  return [head.join(";"), ...REGIONAL.map(r => [r.n, r.uf, ...TEMPLATE_CODES.map(() => ""), ...IEGM_ALL.map(x => typeof r[x.key] === "number" ? fmt(r[x.key]) : ""), r.ex || ""].map(csvCell).join(";"))].join("\r\n");
+  const head = ["Municipio", "UF", ...TEMPLATE_CODES, ...IEGM_COLS, "Exercicio IEGM", ...B_COLS.map(c => c.col)];
+  return [head.join(";"), ...REGIONAL.map(r => [r.n, r.uf, ...TEMPLATE_CODES.map(() => ""), ...IEGM_ALL.map(x => typeof r[x.key] === "number" ? fmt(r[x.key]) : ""), r.ex || "", ...B_COLS.map(() => "")].map(csvCell).join(";"))].join("\r\n");
 }
 
 // ---------- 8. manual ----------
@@ -1589,6 +1770,7 @@ function renderManual() {
     });
   });
   html += `<tr class="dimrow"><td colspan="5">Notas do IEGM (matriz proposta)</td></tr>` + IEGM_ALL.map(x => `<tr><td class="code">${x.col}</td><td>${esc(x.short)}</td><td>${LINK("https://iegm.irbcontas.org.br/", "Painel IEGM Brasil")}: filtre o tribunal e o exercício e exporte o CSV</td><td>Nota de 0 a 1 (ex.: 0,72). Prefira importar o CSV na seção 5.</td><td class="num small">${esc(BANDS.oficial.th.join(" · "))} (faixas oficiais)</td></tr>`).join("");
+  html += `<tr class="dimrow"><td colspan="5">Proposta B: indicadores de execução</td></tr>` + PROP_B.map(x => `<tr><td class="code">${x.c}</td><td>${esc(x.n)}</td><td>${esc(x.fonte)}</td><td>${esc(x.how)}</td><td class="num small">${esc((x.rule === "lei" ? x.th : ["tercil inferior", "tercil do meio", "tercil superior"]).join(" · "))}${x.rule === "lei" ? "" : " dos municípios comparados"}</td></tr>`).join("");
   tb.innerHTML = html;
 }
 
